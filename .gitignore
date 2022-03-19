@@ -1,0 +1,13 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+.Rdata
+.httr-oauth
+.DS_Store
+fastreeR.Rproj
+.Rproj*
+lala.R
+/doc/
+/Meta/
+/java/

@@ -1,0 +1,30 @@
+---
+title: "fastreeR Vignette"
+author: Anestis Gkanogiannis
+date: 20-MAr-2022
+output: rmarkdown::html_vignette
+vignette: >
+    %\VignetteIndexEntry{fastreeR}
+    %\VignetteEngine{knitr::rmarkdown}
+    %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+    collapse = TRUE,
+    comment = "#>"
+)
+```
+
+# About fastreeR
+
+To install `fastreeR` package:
+```{r, eval=FALSE}
+if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
+BiocManager::install("fastreeR")
+```
+
+```{r setup}
+utils::sessionInfo()
+```
