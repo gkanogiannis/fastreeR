@@ -6,7 +6,7 @@
 .httr-oauth
 .DS_Store
 fastreeR.Rproj
-.Rproj*
+*.Rproj
 lala.R
 /doc/
 /Meta/
