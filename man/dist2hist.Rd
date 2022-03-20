@@ -33,17 +33,6 @@ my.hist <- dist2hist(
         system.file("extdata", "samples.dist.gz", package = "fastreeR")
 )
 grid::grid.raster(my.hist)
-# or
-my.dist <- vcf2dist(
-    inputfile = system.file("extdata", "samples.vcf.gz",
-        package = "fastreeR"
-    ),
-    threads = 1
-)
-my.hist <- dist2hist(
-    input.dist = my.dist
-)
-grid::grid.raster(my.hist)
 }
 \references{
 Java implementation:

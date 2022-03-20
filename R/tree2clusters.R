@@ -70,6 +70,11 @@ tree2clusters <- function(
         class.loader = .rJava.class.loader
     )
 
+    # dynamicTreeCut expects 2x the provided cutHeight
+    if(!is.null(cutHeight)) {
+        cutHeight <- 2.0*cutHeight
+    }
+
     clusters <- dynamicTreeCut(
         tree.str = tree.str,
         distancesReordered = tree.distances,

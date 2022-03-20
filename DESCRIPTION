@@ -1,7 +1,7 @@
 Package: fastreeR
 Type: Package
 Title: Phylogenetic, Distance and Other Calculations on VCF and Fasta Files
-Version: 0.1.0
+Version: 0.99.0
 biocViews: Phylogenetics, Metagenomics, Clustering
 Authors@R:
     c(person(given = "Anestis",
@@ -10,7 +10,7 @@ Authors@R:
              email = "anestis@gkanogiannis.com",
              comment = c(ORCID = "0000-0002-6441-0688"))
     )
-Description: Calculate distance, build phylogenetic tree or 
+Description: Calculate distances, build phylogenetic trees or 
     perform hierarchical clustering between the samples of a VCF or FASTA file.
     Functions are implemented in Java and called via rJava.
     Parallel implementation that operates directly on the VCF or FASTA file 
@@ -38,6 +38,7 @@ BugReports: https://github.com/gkanogiannis/fastreeR/issues
 Suggests: 
     rmarkdown,
     knitr,
+    BiocStyle,
     memuse,
     RUnit,
     BiocGenerics,

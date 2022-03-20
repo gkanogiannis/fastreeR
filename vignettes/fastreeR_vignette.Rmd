@@ -1,8 +1,10 @@
 ---
 title: "fastreeR Vignette"
-author: Anestis Gkanogiannis
-date: 20-MAr-2022
-output: rmarkdown::html_vignette
+author: 
+-   name: "Anestis Gkanogiannis"
+    email: anestis@gkanogiannis.com
+package: fastreeR
+output: BiocStyle::html_document
 vignette: >
     %\VignetteIndexEntry{fastreeR}
     %\VignetteEngine{knitr::rmarkdown}
@@ -18,6 +20,10 @@ knitr::opts_chunk$set(
 
 # About fastreeR
 
+
+
+# Installation
+
 To install `fastreeR` package:
 ```{r, eval=FALSE}
 if (!requireNamespace("BiocManager", quietly=TRUE))
@@ -25,6 +31,146 @@ if (!requireNamespace("BiocManager", quietly=TRUE))
 BiocManager::install("fastreeR")
 ```
 
+# Preparation
+
+## Allocate RAM and load required libraries
+```{r, eval=TRUE}
+options(java.parameters="-Xmx1G")
+library(fastreeR)
+library(utils)
+library(ape)
+library(stats)
+library(grid)
+```
+
+## Download sample vcf file
+We download, in a temporary location, a small vcf file 
+from 1K project, with around 150 samples and 100k variants (SNPs and INDELs).
+```{r, eval=TRUE}
+temp_vcf_url <-
+    paste0("http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/",
+        "1000_genomes_project/release/20190312_biallelic_SNV_and_INDEL/",
+        "supporting/related_samples/",
+        "ALL.chrX.shapeit2_integrated_snvindels_v2a_related_samples_27022019.",
+        "GRCh38.phased.vcf.gz")
+temp_vcf <- tempfile(fileext = ".vcf.gz")
+utils::download.file(url = temp_vcf_url, destfile = temp_vcf, method = "curl")
+```
+
+## Download sample fasta files
+We download, in temporary locations, 5 small bacterial genomes
+and we merge them into a single fasta file.
+```{r, eval=TRUE}
+temp_fasta_urls <- c(
+    paste0("https://ftp.ncbi.nih.gov/genomes/archive/old_refseq/Bacteria/",
+            "Mycobacterium_liflandii_128FXT_uid59005/NC_011355.fna"),
+    paste0("https://ftp.ncbi.nih.gov/genomes/archive/old_refseq/Bacteria/",
+            "Pelobacter_propionicus_DSM_2379_uid58255/NC_008607.fna"),
+    paste0("https://ftp.ncbi.nih.gov/genomes/archive/old_refseq/Bacteria/",
+            "Rickettsia_prowazekii_Chernikova_uid158053/NC_017049.fna"),
+    paste0("https://ftp.ncbi.nih.gov/genomes/archive/old_refseq/Bacteria/",
+            "Salmonella_enterica_serovar_Newport_SL254_uid58831/NC_009140.fna"),
+    paste0("https://ftp.ncbi.nih.gov/genomes/archive/old_refseq/Bacteria/",
+            "Staphylococcus_aureus_JH1_uid58457/NC_009619.fna")
+)
+temp_fastas <- lapply(seq_len(5), function(x) tempfile(fileext = ".fna"))
+for (i in seq(1,5)) {
+    utils::download.file(url = temp_fasta_urls[i], 
+                            destfile = temp_fastas[[i]], method="curl")    
+}
+
+temp_fasta <- tempfile(fileext = ".fasta")
+for (i in temp_fastas){
+    x <- readLines(i)
+    write(x, file = temp_fasta, append = TRUE)
+}
+```
+
+# Functions on vcf
+
+## Sample Statistics
+```{r, fig.cap = "Sample statistics from vcf file", fig.wide = TRUE, echo=TRUE}
+my.vcf.istats <- fastreeR::vcf2istats(inputfile = temp_vcf)
+plot(my.vcf.istats[,7:9])
+```
+
+## Calculate distances from vcf
+```{r, eval=TRUE}
+my.vcf.dist <- fastreeR::vcf2dist(inputfile = temp_vcf, threads = 1)
+```
+
+## Histogram of distances
+```{r, fig.cap="Histogram of distances from vcf file", fig.wide=TRUE, echo=TRUE}
+my.vcf.hist.png <- tempfile(fileext = ".png")
+my.vcf.hist <- fastreeR::dist2hist(input = my.vcf.dist, 
+                                    outputfile = my.vcf.hist.png,
+                                    settings = "100,640,480")
+grid::grid.raster(my.vcf.hist)
+```
+
+## Plot tree from fastreeR::dist2tree
+```{r, fig.cap = "Tree from vcf with fastreeR", fig.wide = TRUE, echo = TRUE}
+my.vcf.tree <- fastreeR::dist2tree(input.dist = my.vcf.dist)
+plot(ape::read.tree(text = my.vcf.tree), direction = "down", cex = 0.3)
+ape::add.scale.bar()
+ape::axisPhylo(side = 2)
+```
+
+Of course the same can be achieved directly from the vcf file, 
+without calculating distances.
+```{r, fig.cap="Tree from vcf with fastreeR",fig.wide=TRUE,echo=TRUE,eval=FALSE}
+my.vcf.tree <- fastreeR::vcf2tree(inputfile = temp_vcf)
+plot(ape::read.tree(text = my.vcf.tree), direction = "down", cex = 0.3)
+ape::add.scale.bar()
+ape::axisPhylo(side = 2)
+```
+
+## Plot tree from stats::hclust
+```{r, fig.cap = "Tree from vcf with stats::hclust", fig.wide = TRUE, echo=TRUE}
+my.vcf.tree.stats <- stats::hclust(my.vcf.dist)
+plot(my.vcf.tree.stats, ann = FALSE, cex = 0.3)
+```
+
+## Hierarchical Clustering
+```{r, eval=TRUE}
+my.vcf.clust <- fastreeR::dist2clusters(input.dist = my.vcf.dist, 
+                                    cutHeight = 0.065)
+tree <- my.vcf.clust[[1]]
+clusters <- my.vcf.clust[[2]][[2]]
+clusters
+```
+
+# Functions on fasta
+
+## Calculate distances from fasta
+```{r, eval=TRUE}
+my.fasta.dist <- fastreeR::fasta2dist(inputfile = temp_fasta, kmer = 6)
+```
+
+## Histogram of distances
+```{r, fig.cap="Histogram of distances from fasta file",fig.wide=TRUE,echo=TRUE}
+my.fasta.hist.png <- tempfile(fileext = ".png")
+my.fasta.hist <- fastreeR::dist2hist(input = my.fasta.dist, 
+                                    outputfile = my.fasta.hist.png,
+                                    settings = "100,640,480")
+grid::grid.raster(my.fasta.hist)
+```
+
+## Plot tree from fastreeR::dist2tree
+```{r, fig.cap = "Tree from fasta with fastreeR", fig.wide = TRUE, echo = TRUE}
+my.fasta.tree <- fastreeR::dist2tree(input.dist = my.fasta.dist)
+plot(ape::read.tree(text = my.fasta.tree), direction = "down", cex = 0.3)
+ape::add.scale.bar()
+ape::axisPhylo(side = 2)
+```
+
+## Plot tree from stats::hclust
+```{r, fig.cap = "Tree from fasta with stats::hclust", fig.wide=TRUE, echo=TRUE}
+my.fasta.tree.stats <- stats::hclust(my.fasta.dist)
+plot(my.fasta.tree.stats, ann = FALSE, cex = 0.3)
+```
+
+# SessionInfo
 ```{r setup}
 utils::sessionInfo()
 ```

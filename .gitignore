@@ -6,8 +6,8 @@
 .httr-oauth
 .DS_Store
 fastreeR.Rproj
+/fastreeR.Rcheck/
 *.Rproj
-lala.R
+*.R
 /doc/
 /Meta/
-/java/

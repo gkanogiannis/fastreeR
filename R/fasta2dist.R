@@ -2,7 +2,7 @@
 #'
 #' This function calculates a d2_S type dissimilarity measurement between the
 #' \code{n} sequences (which can represent samples) of a FASTA file.
-#' See \url{https://doi.org/10.1186/s12859-016-1186-3} for more details.
+#' See \doi{10.1186/s12859-016-1186-3} for more details.
 #'
 #' @param inputfile Input fasta file location (uncompressed or gzip compressed).
 #' @param outputfile Output distances file location.
