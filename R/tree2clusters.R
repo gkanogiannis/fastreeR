@@ -65,8 +65,8 @@ tree2clusters <- function(
         return(NA)
     }
 
-    hierarchicalcluster <- rJava::.jnew(
-        "ciat/agrobio/hcluster/HierarchicalCluster",
+    hierarchicalcluster <- rJava::J(
+        class="ciat/agrobio/hcluster/HierarchicalCluster",
         class.loader = .rJava.class.loader
     )
 

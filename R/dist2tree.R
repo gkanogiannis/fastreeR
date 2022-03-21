@@ -61,12 +61,12 @@ dist2tree <- function(input.dist) {
         inputfile <- temp.in
     }
 
-    hierarchicalcluster <- rJava::.jnew(
-        "ciat/agrobio/hcluster/HierarchicalCluster",
+    hierarchicalcluster <- rJava::J(
+        class="ciat/agrobio/hcluster/HierarchicalCluster",
         class.loader = .rJava.class.loader
     )
-    generaltools <- rJava::.jnew(
-        "ciat/agrobio/core/GeneralTools",
+    generaltools <- rJava::J(
+        class="ciat/agrobio/core/GeneralTools",
         class.loader = .rJava.class.loader
     )
 

@@ -84,12 +84,13 @@ dist2clusters <- function(input.dist, cutHeight = NULL, minClusterSize = 1,
         inputfile <- temp.in
     }
 
-    hierarchicalcluster <- rJava::.jnew(
-        "ciat/agrobio/hcluster/HierarchicalCluster",
+    hierarchicalcluster <- rJava::J(
+        class="ciat/agrobio/hcluster/HierarchicalCluster",
         class.loader = .rJava.class.loader
     )
-    generaltools <- rJava::.jnew(
-        "ciat/agrobio/core/GeneralTools", class.loader = .rJava.class.loader)
+    generaltools <- rJava::J(
+        class="ciat/agrobio/core/GeneralTools",
+        class.loader = .rJava.class.loader)
 
     # data[[1]] distances, data[[2]] labels
     data <- generaltools$readDistancesSamples(inputfile)

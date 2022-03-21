@@ -88,8 +88,8 @@ vcf2tree <- function(
         inputfile <- temp.in
     }
 
-    bioinfojavautils <- rJava::.jnew(
-        "ciat/agrobio/javautils/JavaUtils",
+    bioinfojavautils <- rJava::J(
+        class="ciat/agrobio/javautils/JavaUtils",
         class.loader = .rJava.class.loader
     )
 
