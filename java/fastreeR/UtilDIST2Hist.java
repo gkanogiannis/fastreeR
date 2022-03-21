@@ -19,7 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  *
  */
-package fastreeR;
+package ciat.agrobio.javautils;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -38,6 +38,8 @@ import org.jfree.data.statistics.HistogramType;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+
+import ciat.agrobio.core.GeneralTools;
 
 @Parameters(commandDescription = "DIST2Hist")
 public class UtilDIST2Hist {

@@ -19,7 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  *
  */
-package fastreeR;
+package ciat.agrobio.javautils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,6 +31,12 @@ import java.util.concurrent.Executors;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+
+import ciat.agrobio.core.CalculateDistancesCOSINE;
+import ciat.agrobio.core.VariantProcessor;
+import ciat.agrobio.hcluster.HierarchicalCluster;
+import ciat.agrobio.io.VCFManager;
+import ciat.agrobio.io.VariantManager;
 
 @Parameters(commandDescription = "VCF2TREE")
 public class UtilVCF2TREE {

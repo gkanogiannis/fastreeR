@@ -19,7 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  *
  */
-package fastreeR;
+package ciat.agrobio.hcluster;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -31,6 +31,9 @@ import java.util.TreeSet;
 import java.util.Map.Entry;
 
 import javax.swing.tree.DefaultTreeModel;
+
+import ciat.agrobio.core.GeneralTools;
+import ciat.agrobio.core.JRITools_JavaUtils;
 
 /**
  * Simple clustering algorithm, starting from distance matrix, 
