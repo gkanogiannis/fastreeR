@@ -40,7 +40,7 @@ You should allocate minimum 10kb per sample per variant of RAM for the JVM.
 The more RAM you allocate, the faster the execution will be (less pauses 
 for garbage collection).
 ```{r, eval=TRUE}
-options(java.parameters="-Xmx512M")
+options(java.parameters="-Xmx1G")
 library(fastreeR)
 library(utils)
 library(ape)
@@ -51,6 +51,8 @@ library(grid)
 ## Download sample vcf file
 We download, in a temporary location, a small vcf file 
 from 1K project, with around 150 samples and 100k variants (SNPs and INDELs).
+If for any reason we cannot download, we use the small sample vcf from the
+package.
 ```{r, eval=TRUE}
 temp_vcf_url <-
     paste0("http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/",
@@ -59,12 +61,19 @@ temp_vcf_url <-
         "ALL.chrX.shapeit2_integrated_snvindels_v2a_related_samples_27022019.",
         "GRCh38.phased.vcf.gz")
 temp_vcf <- tempfile(fileext = ".vcf.gz")
-utils::download.file(url = temp_vcf_url, destfile = temp_vcf, method = "curl")
+tout <- utils::download.file(url=temp_vcf_url, destfile=temp_vcf, method="curl")
+
+if(tout!=0) {
+    #Couldn't download vcf. Use small sample vcf from package
+    temp_vcf <- system.file("extdata", "samples.vcf.gz", package="fastreeR")
+}
 ```
 
 ## Download sample fasta files
 We download, in temporary location, 5 small bacterial genomes
 and we merge them into a single fasta file.
+If for any reason we cannot download, we use the small sample fasta from the
+package.
 ```{r, eval=TRUE}
 temp_fasta_urls <- c(
     paste0("https://ftp.ncbi.nih.gov/genomes/archive/old_refseq/Bacteria/",
@@ -80,14 +89,22 @@ temp_fasta_urls <- c(
 )
 temp_fastas <- lapply(seq_len(5), function(x) tempfile(fileext = ".fna"))
 for (i in seq(1,5)) {
-    utils::download.file(url = temp_fasta_urls[i], 
-                            destfile = temp_fastas[[i]], method="curl")    
+    tout <- utils::download.file(url = temp_fasta_urls[i], 
+                            destfile = temp_fastas[[i]], method="curl")
+    
+    #Could't download fasta. Use small sample fasta from package
+    if(tout!=0) {
+        temp_fasta <- system.file("extdata", "samples.fasta.gz", 
+                                                        package="fastreeR")
+        break
+    }
 }
-
-temp_fasta <- tempfile(fileext = ".fasta")
-for (i in temp_fastas){
-    x <- readLines(i)
-    write(x, file = temp_fasta, append = TRUE)
+if(tout==0) {
+    temp_fasta <- tempfile(fileext = ".fasta")
+    for (i in temp_fastas){
+        x <- readLines(i)
+        write(x, file = temp_fasta, append = TRUE)
+    }
 }
 ```
 
