@@ -142,6 +142,9 @@ jobs:
 
           ## Required for tcltk
           brew install xquartz --cask
+          
+          ## Required for rJava
+          R CMD javareconf
 
       - name: Install Windows system dependencies
         if: runner.os == 'Windows'
