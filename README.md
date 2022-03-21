@@ -12,6 +12,14 @@ between samples, directly from a VCF or FASTA file.
 
 ## Installation
 
+To install `fastreeR` package:
+
+``` r
+if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
+BiocManager::install("fastreeR")
+```
+
 You can install the development version of fastreeR like so:
 
 ``` r
@@ -68,6 +76,8 @@ subsequent lines contains values, separated by space. The first value of
 each line is a sample name and the rest values are the calculated
 distances of this sample to all the samples. Example output file of the
 distances of 3 samples calculated from 1000 variants:
+
+## Distances from FASTA
 
 ## Tree from distances
 
