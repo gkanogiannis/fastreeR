@@ -19,7 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  *
  */
-package fastreeR;
+package ciat.agrobio.io;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -32,6 +32,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import ciat.agrobio.core.GeneralTools;
 
 public class FastaManager implements Runnable{
 	private BlockingQueue<Sequence> sequences = null;

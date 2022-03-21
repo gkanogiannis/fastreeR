@@ -19,7 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  *
  */
-package fastreeR;
+package ciat.agrobio.javautils;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -32,6 +32,12 @@ import java.util.concurrent.Executors;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+
+import ciat.agrobio.core.CalculateDistancesCOSINE;
+import ciat.agrobio.core.GeneralTools;
+import ciat.agrobio.core.VariantProcessor;
+import ciat.agrobio.io.VCFManager;
+import ciat.agrobio.io.VariantManager;
 
 @Parameters(commandDescription = "VCF2DIST")
 public class UtilVCF2DIST {
@@ -114,14 +120,13 @@ public class UtilVCF2DIST {
 			
 			// Print data
 			int sampleCounter = 0;
-			DecimalFormat df = new DecimalFormat("#.############"); 
 			System.out.println(vm.getNumSamples()+"\t"+vm.getNumVariants());
 			for(int i=0; i<vm.getNumSamples(); i++) {
 				String sampleName1 = sampleNames.get(i);
 				System.out.print(sampleName1);
 				for (int j=0;j<vm.getNumSamples();j++) {
 					String sampleName2 = sampleNames.get(j);
-					System.out.print("\t"+df.format(distances[i][j]));
+					System.out.print("\t"+GeneralTools.decimalFormat.format(distances[i][j]));
 				}
 				System.out.println("");
 				sampleCounter++;

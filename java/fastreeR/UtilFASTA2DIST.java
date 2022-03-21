@@ -19,7 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  *
  */
-package fastreeR;
+package ciat.agrobio.javautils;
 
 import java.text.DecimalFormat;
 import java.util.HashMap;
@@ -32,6 +32,12 @@ import java.util.concurrent.Executors;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+
+import ciat.agrobio.core.CalculateDistancesD2;
+import ciat.agrobio.core.GeneralTools;
+import ciat.agrobio.core.SequenceProcessor;
+import ciat.agrobio.io.FastaManager;
+import ciat.agrobio.io.SequenceD2;
 
 @Parameters(commandDescription = "FASTA2DIST")
 public class UtilFASTA2DIST {
@@ -105,14 +111,13 @@ public class UtilFASTA2DIST {
 			
 			// Print data
 			int seqCounter = 0;
-			DecimalFormat df = new DecimalFormat("#.############"); 
 			System.out.println(seqNames.size());
 			for(int i=0; i<seqNames.size(); i++) {
 				String seqName1 = seqNames.get(i);
 				System.out.print(seqName1);
 				for (int j=0;j<seqNames.size();j++) {
 					String seqName2 = seqNames.get(j);
-					System.out.print("\t"+df.format(distances[i][j]));
+					System.out.print("\t"+GeneralTools.decimalFormat.format(distances[i][j]));
 				}
 				System.out.println("");
 				seqCounter++;

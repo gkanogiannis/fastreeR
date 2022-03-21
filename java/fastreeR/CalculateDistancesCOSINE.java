@@ -19,9 +19,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  *
  */
-package fastreeR;
+package ciat.agrobio.core;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ForkJoinPool;
@@ -110,7 +109,6 @@ class CalculateDistancesChildTask extends RecursiveAction {
 
 	@Override
 	protected void compute() {
-		DecimalFormat df = new DecimalFormat("#.############"); 
 		try {
 			byte ploidy = vm.getPloidy();
 			//String sampleName1 = sampleNames.get(row);
@@ -164,7 +162,7 @@ class CalculateDistancesChildTask extends RecursiveAction {
 						double distance = (1.0 - cosine)/2.0;
 						if(distance<0.0) distance = 0.0;
 						
-						distances[row][column] = Double.parseDouble(df.format(distance));
+						distances[row][column] = Double.parseDouble(GeneralTools.decimalFormat.format(distance));
 						distances[column][row] = distances[row][column];
 					}
 					else {
@@ -174,7 +172,7 @@ class CalculateDistancesChildTask extends RecursiveAction {
 						double distance = (1.0 - cosine)/2.0;
 						if(distance<0.0) distance = 0.0;
 						
-						distances[row][column] = Double.parseDouble(df.format(distance));
+						distances[row][column] = Double.parseDouble(GeneralTools.decimalFormat.format(distance));
 						distances[column][row] = distances[row][column];
 					}
 				}

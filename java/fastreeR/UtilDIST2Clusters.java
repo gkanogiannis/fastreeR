@@ -19,13 +19,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  *
  */
-package fastreeR;
+package ciat.agrobio.javautils;
 
 import java.util.TreeMap;
 import java.util.TreeSet;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+
+import ciat.agrobio.core.GeneralTools;
+import ciat.agrobio.hcluster.HierarchicalCluster;
 
 @Parameters(commandDescription = "DIST2Clusters")
 public class UtilDIST2Clusters {

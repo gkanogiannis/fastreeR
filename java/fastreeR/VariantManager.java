@@ -1,7 +1,9 @@
-package fastreeR;
+package ciat.agrobio.io;
 
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+import ciat.agrobio.core.Variant;
 
 public class VariantManager {
 	private int numVariants;
