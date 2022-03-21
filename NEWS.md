@@ -1,3 +1,6 @@
-# fastreeR 0.99.0 (2022-03-21)
+# fastreeR 0.99.1 (2022-03-21)
+- fix rJava loading (remove .jinit).
 
-* Submitted to Bioconductor..
+
+# fastreeR 0.99.0 (2022-03-21)
+- Submitted to Bioconductor.
