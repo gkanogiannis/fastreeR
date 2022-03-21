@@ -35,26 +35,26 @@ the 1K Genomes project. Original file available at
 <http://hgdownload.cse.ucsc.edu/gbdb/hg19/1000Genomes/phase3/>
 
 ``` r
-vcf.file <- system.file("extdata", "samples.vcf.gz", package="fastreeR"
+vcf.file <- system.file("extdata", "samples.vcf.gz", package="fastreeR")
 ```
 
 Distances from sample VCF
 
 ``` r
-vcf.dist <- system.file("extdata", "samples.vcf.dist.gz", package="fastreeR"
+vcf.dist <- system.file("extdata", "samples.vcf.dist.gz", package="fastreeR")
 ```
 
 Sample FASTA file of 48 random bacteria RefSeq from
 <ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/>.
 
 ``` r
-fasta.file <- system.file("extdata", "samples.fasta.gz", package="fastreeR"
+fasta.file <- system.file("extdata", "samples.fasta.gz", package="fastreeR")
 ```
 
 Distances from sample FASTA
 
 ``` r
-fasta.dist <- system.file("extdata", "samples.fasta.dist.gz", package="fastreeR"
+fasta.dist <- system.file("extdata", "samples.fasta.dist.gz",package="fastreeR")
 ```
 
 ## Memory requirements for VCF input
