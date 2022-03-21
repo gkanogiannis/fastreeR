@@ -40,7 +40,7 @@ You should allocate minimum 10kb per sample per variant of RAM for the JVM.
 The more RAM you allocate, the faster the execution will be (less pauses 
 for garbage collection).
 ```{r, eval=TRUE}
-options(java.parameters="-Xmx2G")
+options(java.parameters="-Xmx512M")
 library(fastreeR)
 library(utils)
 library(ape)
