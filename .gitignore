@@ -6,6 +6,7 @@
 .httr-oauth
 .DS_Store
 fastreeR.Rproj
+README.Rmd
 vignettes/*.md
 vignettes/*.R
 vignettes/*.html

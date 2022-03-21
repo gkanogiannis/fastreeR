@@ -26,6 +26,34 @@ You can install the development version of fastreeR like so:
 devtools::install_github("gkanogiannis/fastreeR")
 ```
 
+## Sample data
+
+Toy sample files are provided in `inst/extdata`.
+
+Sample VCF file
+
+``` r
+vcf.file <- system.file("extdata", "samples.vcf.gz", package = "fastreeR"
+```
+
+Distances from sample VCF
+
+``` r
+vcf.file <- system.file("extdata", "samples.vcf.dist.gz", package = "fastreeR"
+```
+
+Sample FASTA
+
+``` r
+vcf.file <- system.file("extdata", "samples.fasta.gz", package = "fastreeR"
+```
+
+Distances from sample FASTA
+
+``` r
+vcf.file <- system.file("extdata", "samples.fasta.dist.gz", package = "fastreeR"
+```
+
 ## Memory requirements for VCF input
 
 At minimum, make sure to allocate for JVM at least 10 bytes per variant
