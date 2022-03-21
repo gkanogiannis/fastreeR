@@ -49,8 +49,9 @@ fasta2dist <- function(inputfile, outputfile = NULL, threads = 1,
         inputfile <- temp.in
     }
 
-    bioinfojavautils <- rJava::.jnew(
-        "ciat/agrobio/javautils/JavaUtils", class.loader = .rJava.class.loader)
+    bioinfojavautils <- rJava::J(
+        class="ciat/agrobio/javautils/JavaUtils",
+        class.loader = .rJava.class.loader)
 
     cmd <- paste("FASTA2DIST", "--numberOfThreads", threads,
                 ifelse(normalize, "--normalize", ""),

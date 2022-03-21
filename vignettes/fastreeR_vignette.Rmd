@@ -94,7 +94,7 @@ for (i in temp_fastas){
 # Functions on vcf files
 
 ## Sample Statistics
-```{r, fig.cap = "Sample statistics from vcf file", fig.wide = TRUE, echo=TRUE}
+```{r echo=TRUE, fig.cap="Sample statistics from vcf file", fig.wide=TRUE}
 my.vcf.istats <- fastreeR::vcf2istats(inputfile = temp_vcf)
 plot(my.vcf.istats[,7:9])
 ```
@@ -107,7 +107,7 @@ my.vcf.dist <- fastreeR::vcf2dist(inputfile = temp_vcf, threads = 1)
 ```
 
 ## Histogram of distances
-```{r, fig.cap="Histogram of distances from vcf file", fig.wide=TRUE, echo=TRUE}
+```{r echo=TRUE, fig.cap="Histogram of distances from vcf file", fig.wide=TRUE}
 my.vcf.hist.png <- tempfile(fileext = ".png")
 my.vcf.hist <- fastreeR::dist2hist(input.dist = my.vcf.dist, 
                                     outputfile = my.vcf.hist.png,
@@ -120,7 +120,7 @@ distance value 0.055 and the second around distance value 0.065.
 
 ## Plot tree from fastreeR::dist2tree
 Notice that the generated tree is ultrametric.
-```{r, fig.cap = "Tree from vcf with fastreeR", fig.wide = TRUE, echo = TRUE}
+```{r echo=TRUE, fig.cap="Tree from vcf with fastreeR", fig.wide=TRUE}
 my.vcf.tree <- fastreeR::dist2tree(input.dist = my.vcf.dist)
 plot(ape::read.tree(text = my.vcf.tree), direction = "down", cex = 0.3)
 ape::add.scale.bar()
@@ -129,7 +129,7 @@ ape::axisPhylo(side = 2)
 
 Of course the same can be achieved directly from the vcf file, 
 without calculating distances.
-```{r, fig.cap="Tree from vcf with fastreeR",fig.wide=TRUE,echo=TRUE,eval=TRUE}
+```{r echo=TRUE, fig.cap="Tree from vcf with fastreeR", fig.wide=TRUE}
 my.vcf.tree <- fastreeR::vcf2tree(inputfile = temp_vcf)
 plot(ape::read.tree(text = my.vcf.tree), direction = "down", cex = 0.3)
 ape::add.scale.bar()
@@ -142,7 +142,7 @@ around height 0.065, are clearly visible.
 ## Plot tree from stats::hclust
 For comparison, we generate a tree by using \code{stats} package and distances
 calculated by \code{fastreeR}.
-```{r, fig.cap = "Tree from vcf with stats::hclust", fig.wide = TRUE, echo=TRUE}
+```{r echo=TRUE, fig.cap="Tree from vcf with stats::hclust", fig.wide=TRUE}
 my.vcf.tree.stats <- stats::hclust(my.vcf.dist)
 plot(my.vcf.tree.stats, ann = FALSE, cex = 0.3)
 ```
@@ -187,7 +187,7 @@ my.fasta.dist <- fastreeR::fasta2dist(kmer = 6,
 
 
 ## Histogram of distances
-```{r, fig.cap="Histogram of distances from fasta file",fig.wide=TRUE,echo=TRUE}
+```{r echo=TRUE, fig.cap="Histogram of distances from fasta file",fig.wide=TRUE}
 my.fasta.hist.png <- tempfile(fileext = ".png")
 my.fasta.hist <- fastreeR::dist2hist(input = my.fasta.dist, 
                                     outputfile = my.fasta.hist.png,
@@ -196,7 +196,7 @@ grid::grid.raster(my.fasta.hist)
 ```
 
 ## Plot tree from fastreeR::dist2tree
-```{r, fig.cap = "Tree from fasta with fastreeR", fig.wide = TRUE, echo = TRUE}
+```{r echo=TRUE, fig.cap="Tree from fasta with fastreeR", fig.wide=TRUE}
 my.fasta.tree <- fastreeR::dist2tree(input.dist = my.fasta.dist)
 plot(ape::read.tree(text = my.fasta.tree), direction = "down", cex = 0.3)
 ape::add.scale.bar()
@@ -204,7 +204,7 @@ ape::axisPhylo(side = 2)
 ```
 
 ## Plot tree from stats::hclust
-```{r, fig.cap = "Tree from fasta with stats::hclust", fig.wide=TRUE, echo=TRUE}
+```{r echo=TRUE, fig.cap="Tree from fasta with stats::hclust", fig.wide=TRUE}
 my.fasta.tree.stats <- stats::hclust(my.fasta.dist)
 plot(my.fasta.tree.stats, ann = FALSE, cex = 0.3)
 ```
