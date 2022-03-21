@@ -175,9 +175,16 @@ Similar analysis we can perform when we have samples represented as
 sequences in a fasta file.
 
 ## Calculate distances from fasta
+Use of the downloaded sample fasta file :
 ```{r, eval=TRUE}
 my.fasta.dist <- fastreeR::fasta2dist(inputfile = temp_fasta, kmer = 6)
 ```
+Or use the provided by `fastreeR` fasta file of 48 bacterial RefSeq :
+```{r, eval=TRUE}
+my.fasta.dist <- fastreeR::fasta2dist(kmer = 6,
+    inputfile = system.file("extdata", "samples.fasta.gz", package="fastreeR"))
+```
+
 
 ## Histogram of distances
 ```{r, fig.cap="Histogram of distances from fasta file",fig.wide=TRUE,echo=TRUE}
