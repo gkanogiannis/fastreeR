@@ -47,8 +47,8 @@ vcf2istats <- function(
         # No need to treat gzipped. Java backend takes care.
     }
 
-    bioinfojavautils <- rJava::.jnew(
-        "ciat/agrobio/javautils/JavaUtils",
+    bioinfojavautils <- rJava::J(
+        class="ciat/agrobio/javautils/JavaUtils",
         class.loader = .rJava.class.loader
     )
 

@@ -60,8 +60,9 @@ dist2hist <- function(
         inputfile <- temp.in
     }
 
-    bioinfojavautils <- rJava::.jnew(
-        "ciat/agrobio/javautils/JavaUtils", class.loader = .rJava.class.loader)
+    bioinfojavautils <- rJava::J(
+        class="ciat/agrobio/javautils/JavaUtils",
+        class.loader = .rJava.class.loader)
 
     temp.out <- tempfile(fileext = ".png")
     on.exit(unlink(temp.out))
