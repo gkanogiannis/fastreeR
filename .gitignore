@@ -8,6 +8,6 @@
 fastreeR.Rproj
 /fastreeR.Rcheck/
 *.Rproj
-*.R
 /doc/
 /Meta/
+/tmp/
