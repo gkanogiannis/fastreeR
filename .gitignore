@@ -6,8 +6,10 @@
 .httr-oauth
 .DS_Store
 fastreeR.Rproj
-/fastreeR.Rcheck/
-*.Rproj
+README.Rmd
+vignettes/*.md
+vignettes/*.R
+vignettes/*.html
 /doc/
 /Meta/
 /tmp/
