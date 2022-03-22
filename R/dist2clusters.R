@@ -53,7 +53,7 @@
 #' @examples
 #' my.clust <- dist2clusters(
 #'     input.dist =
-#'         system.file("extdata", "samples.dist.gz", package = "fastreeR")
+#'         system.file("extdata", "samples.vcf.dist.gz", package = "fastreeR")
 #' )
 #' @author Anestis Gkanogiannis, \email{anestis@@gkanogiannis.com}
 #' @references Java implementation:
@@ -64,8 +64,9 @@ dist2clusters <- function(input.dist, cutHeight = NULL, minClusterSize = 1,
     if (is.null(input.dist) ||
         (!methods::is(input.dist, "dist") &&
             !methods::is(input.dist, "character")) ||
-        (methods::is(input.dist, "character") && !file.exists(input.dist))) {
-        return(NA)
+        (methods::is(input.dist, "character") &&
+            (!file.exists(input.dist) || length(input.dist==0)))) {
+        invisible(NULL)
     }
     inputfile <- input.dist
 
@@ -102,8 +103,6 @@ dist2clusters <- function(input.dist, cutHeight = NULL, minClusterSize = 1,
         simplify = TRUE
     )
 
-    gc()
-    rJava::J("java.lang.Runtime")$getRuntime()$gc()
     return(list(
         tree.str,
         fastreeR::tree2clusters(

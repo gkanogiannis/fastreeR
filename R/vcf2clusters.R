@@ -104,7 +104,7 @@ vcf2clusters <- function(inputfile,
                         minClusterSize = 1,
                         extra = TRUE) {
     if (is.null(inputfile) || !file.exists(inputfile)) {
-        return(NA)
+        invisible(NULL)
     }
     if (R.utils::isGzipped(inputfile)) {
         temp.in <- tempfile(fileext = ".vcf")
@@ -129,8 +129,7 @@ vcf2clusters <- function(inputfile,
         minClusterSize = minClusterSize,
         extra = extra
     )
-    gc()
-    rJava::J("java.lang.Runtime")$getRuntime()$gc()
+
     return(list(
         my.dist,
         my.clusters[[1]],

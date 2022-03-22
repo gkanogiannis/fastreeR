@@ -5,7 +5,7 @@
 \title{Calculate distances between sequences of a FASTA file}
 \usage{
 fasta2dist(
-    inputfile,
+    ...,
     outputfile = NULL,
     threads = 2,
     kmer = 6,
@@ -14,7 +14,7 @@ fasta2dist(
 )
 }
 \arguments{
-\item{inputfile}{Input fasta file location (uncompressed or gzip compressed).}
+\item{...}{Input fasta files locations (uncompressed or gzip compressed).}
 
 \item{outputfile}{Output distances file location.}
 
@@ -38,10 +38,10 @@ See \doi{10.1186/s12859-016-1186-3} for more details.
 my.dist <- fasta2dist(
     inputfile = system.file("extdata", "samples.fasta.gz",
         package = "fastreeR"
-    ),
-    threads = 1
+    )
 )
-plot(stats::hclust(my.dist))
+if(!is.null(my.dist))
+    plot(stats::hclust(my.dist))
 }
 \references{
 Java implementation:

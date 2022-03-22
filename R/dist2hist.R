@@ -23,9 +23,10 @@
 #' @examples
 #' my.hist <- dist2hist(
 #'     input.dist =
-#'         system.file("extdata", "samples.dist.gz", package = "fastreeR")
+#'         system.file("extdata", "samples.vcf.dist.gz", package = "fastreeR")
 #' )
-#' grid::grid.raster(my.hist)
+#' if(!is.null(my.hist))
+#'     grid::grid.raster(my.hist)
 #' @author Anestis Gkanogiannis, \email{anestis@@gkanogiannis.com}
 #' @references Java implementation:
 #' \url{https://github.com/gkanogiannis/BioInfoJava-Utils}
@@ -38,7 +39,7 @@ dist2hist <- function(
         (!methods::is(input.dist, "dist") &&
             !methods::is(input.dist, "character")) ||
         (methods::is(input.dist, "character") && !file.exists(input.dist))) {
-        return(NA)
+        invisible(NULL)
     }
 
     inputfile <- input.dist
@@ -72,12 +73,10 @@ dist2hist <- function(
     )
 
     bioinfojavautils$main(rJava::.jarray(strsplit(cmd, "\\s+")[[1]]))
-    gc()
-    rJava::J("java.lang.Runtime")$getRuntime()$gc()
 
     if (!is.null(outputfile)) {
         return(png::readPNG(temp.out, native = TRUE))
     } else {
-        return(NA)
+        invisible(NULL)
     }
 }

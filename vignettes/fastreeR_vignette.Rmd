@@ -61,6 +61,7 @@ temp_vcf_url <-
         "ALL.chrX.shapeit2_integrated_snvindels_v2a_related_samples_27022019.",
         "GRCh38.phased.vcf.gz")
 temp_vcf <- tempfile(fileext = ".vcf.gz")
+on.exit(unlink(temp_vcf))
 options(timeout=30)
 tout <- utils::download.file(url=temp_vcf_url, destfile=temp_vcf, method="auto")
 
@@ -76,7 +77,7 @@ and we merge them into a single fasta file.
 If for any reason we cannot download, we use the small sample fasta from the
 package.
 ```{r, eval=TRUE}
-temp_fasta_urls <- c(
+temp_fastas_urls <- c(
     paste0("https://ftp.ncbi.nih.gov/genomes/archive/old_refseq/Bacteria/",
             "Mycobacterium_liflandii_128FXT_uid59005/NC_011355.fna"),
     paste0("https://ftp.ncbi.nih.gov/genomes/archive/old_refseq/Bacteria/",
@@ -90,21 +91,14 @@ temp_fasta_urls <- c(
 )
 temp_fastas <- lapply(seq_len(5), function(x) tempfile(fileext = ".fna"))
 for (i in seq(1,5)) {
-    tout <- utils::download.file(url = temp_fasta_urls[i], 
+    tout <- utils::download.file(url = temp_fastas_urls[i], 
                             destfile = temp_fastas[[i]], method="auto")
     
     #Could't download fasta. Use small sample fasta from package
     if(tout!=0) {
-        temp_fasta <- system.file("extdata", "samples.fasta.gz", 
+        temp_fastas <- system.file("extdata", "samples.fasta.gz", 
                                                         package="fastreeR")
         break
-    }
-}
-if(tout==0) {
-    temp_fasta <- tempfile(fileext = ".fasta")
-    for (i in temp_fastas){
-        x <- readLines(i)
-        write(x, file = temp_fasta, append = TRUE)
     }
 }
 ```
@@ -195,13 +189,12 @@ sequences in a fasta file.
 ## Calculate distances from fasta
 Use of the downloaded sample fasta file :
 ```{r, eval=TRUE}
-my.fasta.dist <- fastreeR::fasta2dist(inputfile = temp_fasta, kmer = 6, 
-                                                                threads = 2)
+my.fasta.dist <- fastreeR::fasta2dist(temp_fastas, kmer = 6)
 ```
 Or use the provided by `fastreeR` fasta file of 48 bacterial RefSeq :
 ```{r, eval=TRUE}
-my.fasta.dist <- fastreeR::fasta2dist(kmer = 6, threads = 2,
-    inputfile = system.file("extdata", "samples.fasta.gz", package="fastreeR"))
+my.fasta.dist <- fastreeR::fasta2dist(
+    system.file("extdata", "samples.fasta.gz", package="fastreeR"), kmer = 6)
 ```
 
 

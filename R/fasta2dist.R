@@ -4,7 +4,7 @@
 #' \code{n} sequences (which can represent samples) of a FASTA file.
 #' See \doi{10.1186/s12859-016-1186-3} for more details.
 #'
-#' @param inputfile Input fasta file location (uncompressed or gzip compressed).
+#' @param ... Input fasta files locations (uncompressed or gzip compressed).
 #' @param outputfile Output distances file location.
 #' @param threads Number of java threads to use.
 #' @param kmer Kmer length to use for analyzing fasta sequences.
@@ -13,7 +13,7 @@
 #'
 #' @usage
 #' fasta2dist(
-#'     inputfile,
+#'     ...,
 #'     outputfile = NULL,
 #'     threads = 2,
 #'     kmer = 6,
@@ -28,24 +28,30 @@
 #' my.dist <- fasta2dist(
 #'     inputfile = system.file("extdata", "samples.fasta.gz",
 #'         package = "fastreeR"
-#'     ),
-#'     threads = 1
+#'     )
 #' )
-#' plot(stats::hclust(my.dist))
+#' if(!is.null(my.dist))
+#'     plot(stats::hclust(my.dist))
 #' @author Anestis Gkanogiannis, \email{anestis@@gkanogiannis.com}
 #' @references Java implementation:
 #' \url{https://github.com/gkanogiannis/BioInfoJava-Utils}
 
-fasta2dist <- function(inputfile, outputfile = NULL, threads = 2,
+fasta2dist <- function(..., outputfile = NULL, threads = 2,
                         kmer = 6, normalize = FALSE,
                         compress = TRUE) {
-    if (is.null(inputfile) || !file.exists(inputfile)) {return(NA)}
-    if (R.utils::isGzipped(inputfile)) {
-        temp.in <- tempfile(fileext = ".fasta")
-        on.exit(unlink(temp.in))
-        R.utils::gunzip(
-            filename = inputfile, destname = temp.in, remove = FALSE)
-        inputfile <- temp.in
+    ins <- unlist(list(...))
+    if (length(ins)==0 || list(NULL) %in% ins) {invisible(NULL)}
+    inputfile <- tempfile(fileext = ".fasta")
+    on.exit(unlink(inputfile))
+    for (i in ins){
+        if (!file.exists(i)) {invisible(NULL)}
+        if (R.utils::isGzipped(i)) {
+            temp.in <- tempfile(fileext = ".fasta")
+            on.exit(unlink(temp.in))
+            R.utils::gunzip(filename = i, destname = temp.in, remove = FALSE)
+            i <- temp.in
+        }
+        write(readLines(i), file = inputfile, append = TRUE)
     }
 
     bioinfojavautils <- rJava::J(
@@ -83,7 +89,6 @@ fasta2dist <- function(inputfile, outputfile = NULL, threads = 2,
             data.table::fwrite(as.list(ret.str), file = outputfile, sep = "\n")
         }
     }
-    gc()
-    rJava::J("java.lang.Runtime")$getRuntime()$gc()
+
     return(stats::as.dist(as.matrix(ret.df)))
 }

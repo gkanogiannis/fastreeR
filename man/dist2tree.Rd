@@ -29,7 +29,7 @@ agglomerative Neighbor Joining method (complete linkage).
 \examples{
 my.tree <- dist2tree(
     input.dist =
-        system.file("extdata", "samples.dist.gz", package = "fastreeR")
+        system.file("extdata", "samples.vcf.dist.gz", package = "fastreeR")
 )
 }
 \references{

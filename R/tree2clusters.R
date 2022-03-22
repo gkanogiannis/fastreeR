@@ -62,7 +62,7 @@ tree2clusters <- function(
                         minClusterSize = 1,
                         extra = TRUE) {
     if (is.null(tree.str)) {
-        return(NA)
+        invisible(NULL)
     }
 
     hierarchicalcluster <- rJava::J(
@@ -84,8 +84,7 @@ tree2clusters <- function(
         hierarchicalcluster = hierarchicalcluster
     )
     clusters.vec <- hierarchicalcluster$hclusteringClustersNoJRI(clusters)
-    gc()
-    rJava::J("java.lang.Runtime")$getRuntime()$gc()
+
     return(list(tree.str, clusters.vec))
 }
 
@@ -95,7 +94,7 @@ dynamicTreeCut <- function(
                         cutHeight = NULL, extra = FALSE,
                         hierarchicalcluster) {
     if (is.null(tree.str)) {
-        return(NA)
+        invisible(NULL)
     }
 
     tree <- ape::read.tree(text = tree.str)

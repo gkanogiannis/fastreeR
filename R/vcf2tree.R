@@ -75,7 +75,7 @@ vcf2tree <- function(
                     onlyhets = FALSE,
                     ignorehets = FALSE) {
     if (is.null(inputfile) || !file.exists(inputfile)) {
-        return(NA)
+        invisible(NULL)
     }
     if (R.utils::isGzipped(inputfile)) {
         temp.in <- tempfile(fileext = ".vcf")
@@ -109,7 +109,6 @@ vcf2tree <- function(
     jSys$setOut(jOrigOut)
 
     ret.str <- stringr::str_replace_all(readLines(temp.out), "\t", " ")
-    gc()
-    rJava::J("java.lang.Runtime")$getRuntime()$gc()
+
     return(ret.str)
 }

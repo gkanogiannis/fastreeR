@@ -80,7 +80,8 @@
 #'         package = "fastreeR"
 #'     )
 #' )
-#' plot(stats::hclust(my.dist))
+#' if(!is.null(my.dist))
+#'     plot(stats::hclust(my.dist))
 #' @author Anestis Gkanogiannis, \email{anestis@@gkanogiannis.com}
 #' @references Java implementation:
 #' \url{https://github.com/gkanogiannis/BioInfoJava-Utils}
@@ -88,7 +89,7 @@
 vcf2dist <- function(inputfile, outputfile = NULL, threads = 2,
                     ignoremissing = FALSE, onlyhets = FALSE,
                     ignorehets = FALSE, compress = TRUE) {
-    if (is.null(inputfile) || !file.exists(inputfile)) {return(NA)}
+    if (is.null(inputfile) || !file.exists(inputfile)) {invisible(NULL)}
     if (R.utils::isGzipped(inputfile)) {
         temp.in <- tempfile(fileext = ".vcf")
         on.exit(unlink(temp.in))
@@ -132,7 +133,6 @@ vcf2dist <- function(inputfile, outputfile = NULL, threads = 2,
             data.table::fwrite(as.list(ret.str), file = outputfile, sep = "\n")
         }
     }
-    gc()
-    rJava::J("java.lang.Runtime")$getRuntime()$gc()
+
     return(stats::as.dist(as.matrix(ret.df)))
 }
