@@ -36,12 +36,8 @@
 #' @references Java implementation:
 #' \url{https://github.com/gkanogiannis/BioInfoJava-Utils}
 
-fasta2dist <- function(...,
-                        outputfile = NULL,
-                        threads = 2,
-                        kmer = 6,
-                        normalize = FALSE,
-                        compress = TRUE) {
+fasta2dist <- function(..., outputfile = NULL, threads = 2, kmer = 6,
+                        normalize = FALSE, compress = TRUE) {
     ins <- unlist(list(...))
     if (length(ins)==0 || list(NULL) %in% ins) {return(NULL)}
     inputfile <- tempfile(fileext = ".fasta")
@@ -64,7 +60,6 @@ fasta2dist <- function(...,
                 ifelse(normalize, "--normalize", ""),
                 "--kmerSize", kmer,
                 "--inputFile", inputfile, sep = " ")
-
     temp.out <- tempfile(fileext = ".txt")
     on.exit(unlink(temp.out))
     jSys <- rJava::J("java/lang/System")
@@ -79,7 +74,6 @@ fasta2dist <- function(...,
     ret.df <- ret.df[, -1]
     rownames(ret.df) <- ret.names
     colnames(ret.df) <- ret.names
-
     if (!is.null(outputfile)) {
         if (compress) {
             temp.dist <- tempfile(fileext = ".dist")
