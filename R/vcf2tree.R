@@ -75,7 +75,7 @@ vcf2tree <- function(
                     onlyhets = FALSE,
                     ignorehets = FALSE) {
     if (is.null(inputfile) || !file.exists(inputfile)) {
-        invisible(NULL)
+        return(NULL)
     }
     if (R.utils::isGzipped(inputfile)) {
         temp.in <- tempfile(fileext = ".vcf")

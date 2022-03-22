@@ -36,7 +36,7 @@ dist2tree <- function(input.dist) {
             !methods::is(input.dist, "character")) ||
         (methods::is(input.dist, "character") &&
             (!file.exists(input.dist) || length(input.dist==0)))) {
-        invisible(NULL)
+        return(NULL)
     }
 
     inputfile <- input.dist
