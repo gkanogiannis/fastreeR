@@ -40,8 +40,6 @@ my.dist <- fasta2dist(
         package = "fastreeR"
     )
 )
-if(!is.null(my.dist))
-    plot(stats::hclust(my.dist))
 }
 \references{
 Java implementation:

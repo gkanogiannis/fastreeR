@@ -31,8 +31,6 @@
 #'     inputfile =
 #'         system.file("extdata", "samples.vcf.gz", package = "fastreeR")
 #' )
-#' if(!is.null(my.istats))
-#'     plot(my.istats[, 7:9])
 #' @author Anestis Gkanogiannis, \email{anestis@@gkanogiannis.com}
 #' @references Java implementation:
 #' \url{https://github.com/gkanogiannis/BioInfoJava-Utils}

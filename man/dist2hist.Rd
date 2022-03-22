@@ -32,8 +32,6 @@ my.hist <- dist2hist(
     input.dist =
         system.file("extdata", "samples.vcf.dist.gz", package = "fastreeR")
 )
-if(!is.null(my.hist))
-    grid::grid.raster(my.hist)
 }
 \references{
 Java implementation:

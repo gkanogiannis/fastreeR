@@ -30,8 +30,6 @@
 #'         package = "fastreeR"
 #'     )
 #' )
-#' if(!is.null(my.dist))
-#'     plot(stats::hclust(my.dist))
 #' @author Anestis Gkanogiannis, \email{anestis@@gkanogiannis.com}
 #' @references Java implementation:
 #' \url{https://github.com/gkanogiannis/BioInfoJava-Utils}
