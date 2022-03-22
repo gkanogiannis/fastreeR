@@ -15,7 +15,7 @@
 #' fasta2dist(
 #'     inputfile,
 #'     outputfile = NULL,
-#'     threads = 1,
+#'     threads = 2,
 #'     kmer = 6,
 #'     normalize = FALSE,
 #'     compress = TRUE
@@ -36,11 +36,10 @@
 #' @references Java implementation:
 #' \url{https://github.com/gkanogiannis/BioInfoJava-Utils}
 
-fasta2dist <- function(inputfile, outputfile = NULL, threads = 1,
+fasta2dist <- function(inputfile, outputfile = NULL, threads = 2,
                         kmer = 6, normalize = FALSE,
                         compress = TRUE) {
     if (is.null(inputfile) || !file.exists(inputfile)) {return(NA)}
-
     if (R.utils::isGzipped(inputfile)) {
         temp.in <- tempfile(fileext = ".fasta")
         on.exit(unlink(temp.in))
@@ -52,7 +51,6 @@ fasta2dist <- function(inputfile, outputfile = NULL, threads = 1,
     bioinfojavautils <- rJava::J(
         class="ciat/agrobio/javautils/JavaUtils",
         class.loader = .rJava.class.loader)
-
     cmd <- paste("FASTA2DIST", "--numberOfThreads", threads,
                 ifelse(normalize, "--normalize", ""),
                 "--kmerSize", kmer,
@@ -85,5 +83,7 @@ fasta2dist <- function(inputfile, outputfile = NULL, threads = 1,
             data.table::fwrite(as.list(ret.str), file = outputfile, sep = "\n")
         }
     }
+    gc()
+    rJava::J("java.lang.Runtime")$getRuntime()$gc()
     return(stats::as.dist(as.matrix(ret.df)))
 }

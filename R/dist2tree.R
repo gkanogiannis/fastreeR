@@ -75,6 +75,7 @@ dist2tree <- function(input.dist) {
     samples.distances <- rJava::.jevalArray(data[[1]], simplify = TRUE)
 
     tree.str <- hierarchicalcluster$hclusteringTree(data[[2]], data[[1]])
-
+    gc()
+    rJava::J("java.lang.Runtime")$getRuntime()$gc()
     return(tree.str)
 }

@@ -101,6 +101,9 @@ dist2clusters <- function(input.dist, cutHeight = NULL, minClusterSize = 1,
         generaltools$reorderDistances(data[[1]], data[[2]], labelsReordered),
         simplify = TRUE
     )
+
+    gc()
+    rJava::J("java.lang.Runtime")$getRuntime()$gc()
     return(list(
         tree.str,
         fastreeR::tree2clusters(

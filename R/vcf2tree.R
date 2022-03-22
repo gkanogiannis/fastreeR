@@ -48,7 +48,7 @@
 #' @usage
 #' vcf2tree(
 #'     inputfile,
-#'     threads = 1,
+#'     threads = 2,
 #'     ignoremissing = FALSE,
 #'     onlyhets = FALSE,
 #'     ignorehets = FALSE
@@ -62,8 +62,7 @@
 #' my.tree <- vcf2tree(
 #'     inputfile = system.file("extdata", "samples.vcf.gz",
 #'         package = "fastreeR"
-#'     ),
-#'     threads = 1
+#'     )
 #' )
 #' @author Anestis Gkanogiannis, \email{anestis@@gkanogiannis.com}
 #' @references Java implementation:
@@ -71,14 +70,13 @@
 
 vcf2tree <- function(
                     inputfile,
-                    threads = 1,
+                    threads = 2,
                     ignoremissing = FALSE,
                     onlyhets = FALSE,
                     ignorehets = FALSE) {
     if (is.null(inputfile) || !file.exists(inputfile)) {
         return(NA)
     }
-
     if (R.utils::isGzipped(inputfile)) {
         temp.in <- tempfile(fileext = ".vcf")
         on.exit(unlink(temp.in))
@@ -92,7 +90,6 @@ vcf2tree <- function(
         class="ciat/agrobio/javautils/JavaUtils",
         class.loader = .rJava.class.loader
     )
-
     cmd <- paste(
         "VCF2TREE",
         "--numberOfThreads", threads,
@@ -112,6 +109,7 @@ vcf2tree <- function(
     jSys$setOut(jOrigOut)
 
     ret.str <- stringr::str_replace_all(readLines(temp.out), "\t", " ")
-
+    gc()
+    rJava::J("java.lang.Runtime")$getRuntime()$gc()
     return(ret.str)
 }
