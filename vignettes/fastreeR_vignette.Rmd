@@ -55,13 +55,14 @@ If for any reason we cannot download, we use the small sample vcf from the
 package.
 ```{r, eval=TRUE}
 temp_vcf_url <-
-    paste0("http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/",
+    paste0("https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/",
         "1000_genomes_project/release/20190312_biallelic_SNV_and_INDEL/",
         "supporting/related_samples/",
         "ALL.chrX.shapeit2_integrated_snvindels_v2a_related_samples_27022019.",
         "GRCh38.phased.vcf.gz")
 temp_vcf <- tempfile(fileext = ".vcf.gz")
-tout <- utils::download.file(url=temp_vcf_url, destfile=temp_vcf, method="curl")
+options(timeout=30)
+tout <- utils::download.file(url=temp_vcf_url, destfile=temp_vcf, method="auto")
 
 if(tout!=0) {
     #Couldn't download vcf. Use small sample vcf from package
@@ -90,7 +91,7 @@ temp_fasta_urls <- c(
 temp_fastas <- lapply(seq_len(5), function(x) tempfile(fileext = ".fna"))
 for (i in seq(1,5)) {
     tout <- utils::download.file(url = temp_fasta_urls[i], 
-                            destfile = temp_fastas[[i]], method="curl")
+                            destfile = temp_fastas[[i]], method="auto")
     
     #Could't download fasta. Use small sample fasta from package
     if(tout!=0) {
@@ -120,7 +121,7 @@ plot(my.vcf.istats[,7:9])
 The most time consuming process is calculating distances between samples.
 Assign more processors in order to speed up this operation.
 ```{r, eval=TRUE}
-my.vcf.dist <- fastreeR::vcf2dist(inputfile = temp_vcf, threads = 1)
+my.vcf.dist <- fastreeR::vcf2dist(inputfile = temp_vcf, threads = 2)
 ```
 
 ## Histogram of distances
@@ -147,7 +148,7 @@ ape::axisPhylo(side = 2)
 Of course the same can be achieved directly from the vcf file, 
 without calculating distances.
 ```{r echo=TRUE, fig.cap="Tree from vcf with fastreeR", fig.wide=TRUE}
-my.vcf.tree <- fastreeR::vcf2tree(inputfile = temp_vcf)
+my.vcf.tree <- fastreeR::vcf2tree(inputfile = temp_vcf, threads = 2)
 plot(ape::read.tree(text = my.vcf.tree), direction = "down", cex = 0.3)
 ape::add.scale.bar()
 ape::axisPhylo(side = 2)
@@ -194,11 +195,12 @@ sequences in a fasta file.
 ## Calculate distances from fasta
 Use of the downloaded sample fasta file :
 ```{r, eval=TRUE}
-my.fasta.dist <- fastreeR::fasta2dist(inputfile = temp_fasta, kmer = 6)
+my.fasta.dist <- fastreeR::fasta2dist(inputfile = temp_fasta, kmer = 6, 
+                                                                threads = 2)
 ```
 Or use the provided by `fastreeR` fasta file of 48 bacterial RefSeq :
 ```{r, eval=TRUE}
-my.fasta.dist <- fastreeR::fasta2dist(kmer = 6,
+my.fasta.dist <- fastreeR::fasta2dist(kmer = 6, threads = 2,
     inputfile = system.file("extdata", "samples.fasta.gz", package="fastreeR"))
 ```
 
