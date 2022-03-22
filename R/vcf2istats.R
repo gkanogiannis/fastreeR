@@ -42,7 +42,6 @@ vcf2istats <- function(
     if (is.null(inputfile) || !file.exists(inputfile)) {
         return(NA)
     }
-
     if (R.utils::isGzipped(inputfile)) {
         # No need to treat gzipped. Java backend takes care.
     }
@@ -51,7 +50,6 @@ vcf2istats <- function(
         class="ciat/agrobio/javautils/JavaUtils",
         class.loader = .rJava.class.loader
     )
-
     cmd <- paste(
         "VCF2ISTATS",
         inputfile,
@@ -72,6 +70,7 @@ vcf2istats <- function(
     if (!is.null(outputfile)) {
         data.table::fwrite(as.list(ret.str), file = outputfile, sep = "\n")
     }
-
+    gc()
+    rJava::J("java.lang.Runtime")$getRuntime()$gc()
     return(ret.df)
 }

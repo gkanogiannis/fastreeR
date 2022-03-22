@@ -64,7 +64,7 @@
 #' vcf2dist(
 #'     inputfile,
 #'     outputfile = NULL,
-#'     threads = 1,
+#'     threads = 2,
 #'     ignoremissing = FALSE,
 #'     onlyhets = FALSE,
 #'     ignorehets = FALSE,
@@ -78,19 +78,17 @@
 #' my.dist <- vcf2dist(
 #'     inputfile = system.file("extdata", "samples.vcf.gz",
 #'         package = "fastreeR"
-#'     ),
-#'     threads = 1
+#'     )
 #' )
 #' plot(stats::hclust(my.dist))
 #' @author Anestis Gkanogiannis, \email{anestis@@gkanogiannis.com}
 #' @references Java implementation:
 #' \url{https://github.com/gkanogiannis/BioInfoJava-Utils}
 
-vcf2dist <- function(inputfile, outputfile = NULL, threads = 1,
+vcf2dist <- function(inputfile, outputfile = NULL, threads = 2,
                     ignoremissing = FALSE, onlyhets = FALSE,
                     ignorehets = FALSE, compress = TRUE) {
     if (is.null(inputfile) || !file.exists(inputfile)) {return(NA)}
-
     if (R.utils::isGzipped(inputfile)) {
         temp.in <- tempfile(fileext = ".vcf")
         on.exit(unlink(temp.in))
@@ -102,7 +100,6 @@ vcf2dist <- function(inputfile, outputfile = NULL, threads = 1,
     bioinfojavautils <- rJava::J(
         class="ciat/agrobio/javautils/JavaUtils",
         class.loader = .rJava.class.loader)
-
     cmd <- paste("VCF2DIST", "--numberOfThreads", threads,
             ifelse(ignoremissing, "--ignoremissing", ""),
             ifelse(onlyhets, "--onlyHets", ""),
@@ -135,5 +132,7 @@ vcf2dist <- function(inputfile, outputfile = NULL, threads = 1,
             data.table::fwrite(as.list(ret.str), file = outputfile, sep = "\n")
         }
     }
+    gc()
+    rJava::J("java.lang.Runtime")$getRuntime()$gc()
     return(stats::as.dist(as.matrix(ret.df)))
 }

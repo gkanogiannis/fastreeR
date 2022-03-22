@@ -63,10 +63,8 @@ dist2hist <- function(
     bioinfojavautils <- rJava::J(
         class="ciat/agrobio/javautils/JavaUtils",
         class.loader = .rJava.class.loader)
-
     temp.out <- tempfile(fileext = ".png")
     on.exit(unlink(temp.out))
-
     cmd <- paste(
         "DIST2Hist",
         inputfile, "--output", temp.out,
@@ -74,6 +72,8 @@ dist2hist <- function(
     )
 
     bioinfojavautils$main(rJava::.jarray(strsplit(cmd, "\\s+")[[1]]))
+    gc()
+    rJava::J("java.lang.Runtime")$getRuntime()$gc()
 
     if (!is.null(outputfile)) {
         return(png::readPNG(temp.out, native = TRUE))

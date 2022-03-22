@@ -55,7 +55,7 @@
 #' @usage
 #' vcf2clusters(
 #'     inputfile,
-#'     threads = 1,
+#'     threads = 2,
 #'     ignoremissing = FALSE,
 #'     onlyhets = FALSE,
 #'     ignorehets = FALSE,
@@ -90,14 +90,13 @@
 #' my.clust <- vcf2clusters(
 #'     inputfile = system.file("extdata", "samples.vcf.gz",
 #'         package = "fastreeR"
-#'     ),
-#'     threads = 1
+#'     )
 #' )
 #' @author Anestis Gkanogiannis, \email{anestis@@gkanogiannis.com}
 #' @references Java implementation:
 #' \url{https://github.com/gkanogiannis/BioInfoJava-Utils}
 vcf2clusters <- function(inputfile,
-                        threads = 1,
+                        threads = 2,
                         ignoremissing = FALSE,
                         onlyhets = FALSE,
                         ignorehets = FALSE,
@@ -107,7 +106,6 @@ vcf2clusters <- function(inputfile,
     if (is.null(inputfile) || !file.exists(inputfile)) {
         return(NA)
     }
-
     if (R.utils::isGzipped(inputfile)) {
         temp.in <- tempfile(fileext = ".vcf")
         on.exit(unlink(temp.in))
@@ -125,14 +123,14 @@ vcf2clusters <- function(inputfile,
         onlyhets = onlyhets,
         ignorehets = ignorehets
     )
-
     my.clusters <- fastreeR::dist2clusters(
         input = my.dist,
         cutHeight = cutHeight,
         minClusterSize = minClusterSize,
         extra = extra
     )
-
+    gc()
+    rJava::J("java.lang.Runtime")$getRuntime()$gc()
     return(list(
         my.dist,
         my.clusters[[1]],

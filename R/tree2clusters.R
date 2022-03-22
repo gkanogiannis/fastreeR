@@ -74,7 +74,6 @@ tree2clusters <- function(
     if(!is.null(cutHeight)) {
         cutHeight <- 2.0*cutHeight
     }
-
     clusters <- dynamicTreeCut(
         tree.str = tree.str,
         distancesReordered = tree.distances,
@@ -84,9 +83,9 @@ tree2clusters <- function(
         extra = extra,
         hierarchicalcluster = hierarchicalcluster
     )
-
     clusters.vec <- hierarchicalcluster$hclusteringClustersNoJRI(clusters)
-
+    gc()
+    rJava::J("java.lang.Runtime")$getRuntime()$gc()
     return(list(tree.str, clusters.vec))
 }
 
