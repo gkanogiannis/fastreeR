@@ -54,10 +54,10 @@ The phylogenetic tree is pruned with
 \code{\link[dynamicTreeCut]{cutreeDynamic}} to get clusters.
 }
 \examples{
-my.clust <- dist2clusters(
-    input = dist2tree(
-        input = system.file("extdata", "samples.dist.gz",
-        package = "fastreeR"
+my.clust <- tree2clusters(
+    tree.str = dist2tree(
+        input = system.file("extdata", "samples.vcf.dist.gz",
+            package = "fastreeR"
         )
     )
 )
