@@ -128,6 +128,8 @@ jobs:
           sysreqs=$(Rscript -e 'cat("apt-get update -y && apt-get install -y", paste(gsub("apt-get install -y ", "", remotes::system_requirements("ubuntu", "20.04")), collapse = " "))')
           echo $sysreqs
           sudo -s eval "$sysreqs"
+          ## Required for rJava
+          sudo R CMD javareconf
 
       - name: Install macOS system dependencies
         if: matrix.config.os == 'macOS-latest'
