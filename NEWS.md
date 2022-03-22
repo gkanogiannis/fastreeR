@@ -1,3 +1,3 @@
-# fastreeR 0.99.0 (2022-03-21)
+# fastreeR 0.99.0
 
 * Submitted to Bioconductor
