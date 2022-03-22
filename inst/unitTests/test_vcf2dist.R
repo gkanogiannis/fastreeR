@@ -1,3 +1,3 @@
 test_vcf2dist <- function() {
-    checkTrue(is.null(fastreeR::vcf2dist(inputfile = NULL)))
+    RUnit::checkTrue(is.null(fastreeR::vcf2dist(inputfile = NULL)))
 }

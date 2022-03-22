@@ -39,7 +39,7 @@ dist2hist <- function(
         (!methods::is(input.dist, "dist") &&
             !methods::is(input.dist, "character")) ||
         (methods::is(input.dist, "character") && !file.exists(input.dist))) {
-        invisible(NULL)
+        return(NULL)
     }
 
     inputfile <- input.dist
@@ -77,6 +77,6 @@ dist2hist <- function(
     if (!is.null(outputfile)) {
         return(png::readPNG(temp.out, native = TRUE))
     } else {
-        invisible(NULL)
+        return(NULL)
     }
 }

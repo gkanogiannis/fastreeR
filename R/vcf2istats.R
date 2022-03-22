@@ -41,7 +41,7 @@ vcf2istats <- function(
                     inputfile,
                     outputfile = NULL) {
     if (is.null(inputfile) || !file.exists(inputfile)) {
-        invisible(NULL)
+        return(NULL)
     }
     if (R.utils::isGzipped(inputfile)) {
         # No need to treat gzipped. Java backend takes care.

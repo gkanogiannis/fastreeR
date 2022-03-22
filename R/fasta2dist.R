@@ -40,11 +40,11 @@ fasta2dist <- function(..., outputfile = NULL, threads = 2,
                         kmer = 6, normalize = FALSE,
                         compress = TRUE) {
     ins <- unlist(list(...))
-    if (length(ins)==0 || list(NULL) %in% ins) {invisible(NULL)}
+    if (length(ins)==0 || list(NULL) %in% ins) {return(NULL)}
     inputfile <- tempfile(fileext = ".fasta")
     on.exit(unlink(inputfile))
     for (i in ins){
-        if (!file.exists(i)) {invisible(NULL)}
+        if (!file.exists(i)) {return(NULL)}
         if (R.utils::isGzipped(i)) {
             temp.in <- tempfile(fileext = ".fasta")
             on.exit(unlink(temp.in))

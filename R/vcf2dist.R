@@ -89,7 +89,7 @@
 vcf2dist <- function(inputfile, outputfile = NULL, threads = 2,
                     ignoremissing = FALSE, onlyhets = FALSE,
                     ignorehets = FALSE, compress = TRUE) {
-    if (is.null(inputfile) || !file.exists(inputfile)) {invisible(NULL)}
+    if (is.null(inputfile) || !file.exists(inputfile)) {return(NULL)}
     if (R.utils::isGzipped(inputfile)) {
         temp.in <- tempfile(fileext = ".vcf")
         on.exit(unlink(temp.in))

@@ -104,7 +104,7 @@ vcf2clusters <- function(inputfile,
                         minClusterSize = 1,
                         extra = TRUE) {
     if (is.null(inputfile) || !file.exists(inputfile)) {
-        invisible(NULL)
+        return(NULL)
     }
     if (R.utils::isGzipped(inputfile)) {
         temp.in <- tempfile(fileext = ".vcf")
