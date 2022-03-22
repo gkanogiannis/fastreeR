@@ -31,7 +31,8 @@
 #'     inputfile =
 #'         system.file("extdata", "samples.vcf.gz", package = "fastreeR")
 #' )
-#' plot(my.istats[, 7:9])
+#' if(!is.null(my.istats))
+#'     plot(my.istats[, 7:9])
 #' @author Anestis Gkanogiannis, \email{anestis@@gkanogiannis.com}
 #' @references Java implementation:
 #' \url{https://github.com/gkanogiannis/BioInfoJava-Utils}
@@ -40,7 +41,7 @@ vcf2istats <- function(
                     inputfile,
                     outputfile = NULL) {
     if (is.null(inputfile) || !file.exists(inputfile)) {
-        return(NA)
+        invisible(NULL)
     }
     if (R.utils::isGzipped(inputfile)) {
         # No need to treat gzipped. Java backend takes care.
@@ -70,7 +71,6 @@ vcf2istats <- function(
     if (!is.null(outputfile)) {
         data.table::fwrite(as.list(ret.str), file = outputfile, sep = "\n")
     }
-    gc()
-    rJava::J("java.lang.Runtime")$getRuntime()$gc()
+
     return(ret.df)
 }

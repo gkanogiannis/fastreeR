@@ -24,7 +24,7 @@
 #' @examples
 #' my.tree <- dist2tree(
 #'     input.dist =
-#'         system.file("extdata", "samples.dist.gz", package = "fastreeR")
+#'         system.file("extdata", "samples.vcf.dist.gz", package = "fastreeR")
 #' )
 #' @author Anestis Gkanogiannis, \email{anestis@@gkanogiannis.com}
 #' @references Java implementation:
@@ -35,7 +35,7 @@ dist2tree <- function(input.dist) {
         (!methods::is(input.dist, "dist") &&
             !methods::is(input.dist, "character")) ||
         (methods::is(input.dist, "character") && !file.exists(input.dist))) {
-        return(NA)
+        invisible(NULL)
     }
 
     inputfile <- input.dist
@@ -75,7 +75,6 @@ dist2tree <- function(input.dist) {
     samples.distances <- rJava::.jevalArray(data[[1]], simplify = TRUE)
 
     tree.str <- hierarchicalcluster$hclusteringTree(data[[2]], data[[1]])
-    gc()
-    rJava::J("java.lang.Runtime")$getRuntime()$gc()
+
     return(tree.str)
 }

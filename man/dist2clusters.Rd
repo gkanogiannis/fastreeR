@@ -61,7 +61,7 @@ The phylogenetic tree is then pruned with
 \examples{
 my.clust <- dist2clusters(
     input.dist =
-        system.file("extdata", "samples.dist.gz", package = "fastreeR")
+        system.file("extdata", "samples.vcf.dist.gz", package = "fastreeR")
 )
 }
 \references{

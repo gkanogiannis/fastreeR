@@ -40,7 +40,8 @@ my.istats <- vcf2istats(
     inputfile =
         system.file("extdata", "samples.vcf.gz", package = "fastreeR")
 )
-plot(my.istats[, 7:9])
+if(!is.null(my.istats))
+    plot(my.istats[, 7:9])
 }
 \references{
 Java implementation:

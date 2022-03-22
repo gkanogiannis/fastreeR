@@ -92,7 +92,8 @@ my.dist <- vcf2dist(
         package = "fastreeR"
     )
 )
-plot(stats::hclust(my.dist))
+if(!is.null(my.dist))
+    plot(stats::hclust(my.dist))
 }
 \references{
 Java implementation:

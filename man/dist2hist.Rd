@@ -30,9 +30,10 @@ Plots a histogram of distances, from a distance matrix
 \examples{
 my.hist <- dist2hist(
     input.dist =
-        system.file("extdata", "samples.dist.gz", package = "fastreeR")
+        system.file("extdata", "samples.vcf.dist.gz", package = "fastreeR")
 )
-grid::grid.raster(my.hist)
+if(!is.null(my.hist))
+    grid::grid.raster(my.hist)
 }
 \references{
 Java implementation:
