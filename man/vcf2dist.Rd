@@ -7,7 +7,7 @@
 vcf2dist(
     inputfile,
     outputfile = NULL,
-    threads = 1,
+    threads = 2,
     ignoremissing = FALSE,
     onlyhets = FALSE,
     ignorehets = FALSE,
@@ -90,8 +90,7 @@ calculated from 1000 variants:
 my.dist <- vcf2dist(
     inputfile = system.file("extdata", "samples.vcf.gz",
         package = "fastreeR"
-    ),
-    threads = 1
+    )
 )
 plot(stats::hclust(my.dist))
 }
