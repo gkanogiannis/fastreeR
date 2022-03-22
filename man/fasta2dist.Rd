@@ -7,7 +7,7 @@
 fasta2dist(
     inputfile,
     outputfile = NULL,
-    threads = 1,
+    threads = 2,
     kmer = 6,
     normalize = FALSE,
     compress = TRUE

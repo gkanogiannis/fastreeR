@@ -6,7 +6,7 @@
 \usage{
 vcf2tree(
     inputfile,
-    threads = 1,
+    threads = 2,
     ignoremissing = FALSE,
     onlyhets = FALSE,
     ignorehets = FALSE
@@ -72,8 +72,7 @@ before \code{library(fastreeR)}.
 my.tree <- vcf2tree(
     inputfile = system.file("extdata", "samples.vcf.gz",
         package = "fastreeR"
-    ),
-    threads = 1
+    )
 )
 }
 \references{

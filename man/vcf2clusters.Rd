@@ -6,7 +6,7 @@
 \usage{
 vcf2clusters(
     inputfile,
-    threads = 1,
+    threads = 2,
     ignoremissing = FALSE,
     onlyhets = FALSE,
     ignorehets = FALSE,
@@ -103,8 +103,7 @@ before \code{library(fastreeR)}.
 my.clust <- vcf2clusters(
     inputfile = system.file("extdata", "samples.vcf.gz",
         package = "fastreeR"
-    ),
-    threads = 1
+    )
 )
 }
 \references{
