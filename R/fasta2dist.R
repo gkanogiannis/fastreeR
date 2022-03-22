@@ -36,8 +36,11 @@
 #' @references Java implementation:
 #' \url{https://github.com/gkanogiannis/BioInfoJava-Utils}
 
-fasta2dist <- function(..., outputfile = NULL, threads = 2,
-                        kmer = 6, normalize = FALSE,
+fasta2dist <- function(...,
+                        outputfile = NULL,
+                        threads = 2,
+                        kmer = 6,
+                        normalize = FALSE,
                         compress = TRUE) {
     ins <- unlist(list(...))
     if (length(ins)==0 || list(NULL) %in% ins) {return(NULL)}
@@ -89,6 +92,5 @@ fasta2dist <- function(..., outputfile = NULL, threads = 2,
             data.table::fwrite(as.list(ret.str), file = outputfile, sep = "\n")
         }
     }
-
     return(stats::as.dist(as.matrix(ret.df)))
 }
