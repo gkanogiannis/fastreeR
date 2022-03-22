@@ -65,7 +65,7 @@ dist2clusters <- function(input.dist, cutHeight = NULL, minClusterSize = 1,
         (!methods::is(input.dist, "dist") &&
             !methods::is(input.dist, "character")) ||
         (methods::is(input.dist, "character") &&
-            (!file.exists(input.dist) || length(input.dist==0)))) {
+            (!file.exists(input.dist) || length(input.dist)==0))) {
         return(NULL)
     }
     inputfile <- input.dist

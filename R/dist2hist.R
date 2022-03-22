@@ -35,12 +35,17 @@ dist2hist <- function(
                     settings = "100,1024,768") {
     if (is.null(input.dist) ||
         (!methods::is(input.dist, "dist") &&
-            !methods::is(input.dist, "character")) ||
-        (methods::is(input.dist, "character") && !file.exists(input.dist))) {
+         !methods::is(input.dist, "character")) ||
+        (methods::is(input.dist, "character") &&
+         (!file.exists(input.dist) || length(input.dist)==0))) {
         return(NULL)
     }
 
     inputfile <- input.dist
+    if (is.null(outputfile)) {
+        outputfile <- tempfile(fileext = ".png")
+        on.exit(unlink(outputfile))
+    }
 
     if(methods::is(input.dist, "character") && R.utils::isGzipped(input.dist)) {
         temp.in <- tempfile(fileext = ".dist")
@@ -62,19 +67,13 @@ dist2hist <- function(
     bioinfojavautils <- rJava::J(
         class="ciat/agrobio/javautils/JavaUtils",
         class.loader = .rJava.class.loader)
-    temp.out <- tempfile(fileext = ".png")
-    on.exit(unlink(temp.out))
     cmd <- paste(
         "DIST2Hist",
-        inputfile, "--output", temp.out,
+        inputfile, "--output", outputfile,
         "--settings", settings, sep = " "
     )
 
     bioinfojavautils$main(rJava::.jarray(strsplit(cmd, "\\s+")[[1]]))
 
-    if (!is.null(outputfile)) {
-        return(png::readPNG(temp.out, native = TRUE))
-    } else {
-        return(NULL)
-    }
+    return(png::readPNG(outputfile, native = TRUE))
 }
