@@ -1,7 +1,7 @@
 Package: fastreeR
 Type: Package
 Title: Phylogenetic, Distance and Other Calculations on VCF and Fasta Files
-Version: 0.99.0
+Version: 0.99.1
 biocViews: Phylogenetics, Metagenomics, Clustering
 Authors@R:
     c(person(given = "Anestis",
@@ -36,12 +36,13 @@ URL: https://github.com/gkanogiannis/fastreeR,
      https://github.com/gkanogiannis/BioInfoJava-Utils
 BugReports: https://github.com/gkanogiannis/fastreeR/issues
 Suggests: 
-    rmarkdown,
-    knitr,
-    BiocStyle,
-    memuse,
-    RUnit,
     BiocGenerics,
+    BiocFileCache,
+    BiocStyle,
+    knitr,
+    memuse,
+    rmarkdown,
+    RUnit,
     testthat (>= 3.0.0)
 VignetteBuilder: knitr
 Config/testthat/edition: 3

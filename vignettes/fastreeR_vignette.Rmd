@@ -39,66 +39,86 @@ BiocManager::install("fastreeR")
 You should allocate minimum 10kb per sample per variant of RAM for the JVM.
 The more RAM you allocate, the faster the execution will be (less pauses 
 for garbage collection).
-```{r, eval=TRUE}
+```{r, eval=TRUE, message=FALSE}
 options(java.parameters="-Xmx1G")
 library(fastreeR)
 library(utils)
 library(ape)
 library(stats)
 library(grid)
+library(BiocFileCache)
 ```
 
 ## Download sample vcf file
 We download, in a temporary location, a small vcf file 
 from 1K project, with around 150 samples and 100k variants (SNPs and INDELs).
-If for any reason we cannot download, we use the small sample vcf from the
-package.
+We use `BiocFileCache` for this retrieval process 
+so that it is not repeated needlessly.
+If for any reason we cannot download, we use the small sample vcf from 
+`fastreeR` package.
 ```{r, eval=TRUE}
+bfc <- BiocFileCache::BiocFileCache(ask = FALSE)
 temp_vcf_url <-
     paste0("https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/",
         "1000_genomes_project/release/20190312_biallelic_SNV_and_INDEL/",
         "supporting/related_samples/",
         "ALL.chrX.shapeit2_integrated_snvindels_v2a_related_samples_27022019.",
         "GRCh38.phased.vcf.gz")
-temp_vcf <- tempfile(fileext = ".vcf.gz")
-on.exit(unlink(temp_vcf))
-options(timeout=30)
-tout <- utils::download.file(url=temp_vcf_url, destfile=temp_vcf, method="auto")
-
-if(tout!=0) {
-    #Couldn't download vcf. Use small sample vcf from package
-    temp_vcf <- system.file("extdata", "samples.vcf.gz", package="fastreeR")
+temp_vcf <- BiocFileCache::bfcquery(bfc,field = "rname", "temp_vcf")$rpath[1]
+if(is.na(temp_vcf)) {
+    tryCatch(
+    { temp_vcf <- BiocFileCache::bfcadd(bfc,"temp_vcf",fpath=temp_vcf_url)[[1]]
+    },error=function(cond) {
+        temp_vcf <- system.file("extdata", "samples.vcf.gz", package="fastreeR")
+        }
+    )
 }
 ```
 
 ## Download sample fasta files
-We download, in temporary location, 5 small bacterial genomes
-and we merge them into a single fasta file.
-If for any reason we cannot download, we use the small sample fasta from the
-package.
+We download, in temporary location, some small bacterial genomes.
+We use `BiocFileCache` for this retrieval process 
+so that it is not repeated needlessly.
+If for any reason we cannot download, we use the small sample fasta from 
+`fastreeR` package.
 ```{r, eval=TRUE}
 temp_fastas_urls <- c(
-    paste0("https://ftp.ncbi.nih.gov/genomes/archive/old_refseq/Bacteria/",
-            "Mycobacterium_liflandii_128FXT_uid59005/NC_011355.fna"),
-    paste0("https://ftp.ncbi.nih.gov/genomes/archive/old_refseq/Bacteria/",
-            "Pelobacter_propionicus_DSM_2379_uid58255/NC_008607.fna"),
-    paste0("https://ftp.ncbi.nih.gov/genomes/archive/old_refseq/Bacteria/",
-            "Rickettsia_prowazekii_Chernikova_uid158053/NC_017049.fna"),
-    paste0("https://ftp.ncbi.nih.gov/genomes/archive/old_refseq/Bacteria/",
-            "Salmonella_enterica_serovar_Newport_SL254_uid58831/NC_009140.fna"),
-    paste0("https://ftp.ncbi.nih.gov/genomes/archive/old_refseq/Bacteria/",
-            "Staphylococcus_aureus_JH1_uid58457/NC_009619.fna")
+    #Mycobacterium liflandii
+    paste0("https://ftp.ncbi.nih.gov/genomes/refseq/bacteria/",
+        "Mycobacterium_liflandii/latest_assembly_versions/",
+        "GCF_000026445.2_ASM2644v2/GCF_000026445.2_ASM2644v2_genomic.fna.gz"),
+    #Pelobacter propionicus
+    paste0("https://ftp.ncbi.nih.gov/genomes/refseq/bacteria/",
+        "Pelobacter_propionicus/latest_assembly_versions/",
+        "GCF_000015045.1_ASM1504v1/GCF_000015045.1_ASM1504v1_genomic.fna.gz"),
+    #Rickettsia prowazekii
+    paste0("https://ftp.ncbi.nih.gov/genomes/refseq/bacteria/",
+        "Rickettsia_prowazekii/latest_assembly_versions/",
+        "GCF_000022785.1_ASM2278v1/GCF_000022785.1_ASM2278v1_genomic.fna.gz"),
+    #Salmonella enterica
+    paste0("https://ftp.ncbi.nih.gov/genomes/refseq/bacteria/",
+        "Salmonella_enterica/reference/",
+        "GCF_000006945.2_ASM694v2/GCF_000006945.2_ASM694v2_genomic.fna.gz"),
+    #Staphylococcus aureus
+    paste0("https://ftp.ncbi.nih.gov/genomes/refseq/bacteria/",
+        "Staphylococcus_aureus/reference/",
+        "GCF_000013425.1_ASM1342v1/GCF_000013425.1_ASM1342v1_genomic.fna.gz")
 )
-temp_fastas <- lapply(seq_len(5), function(x) tempfile(fileext = ".fna"))
+temp_fastas <- list()
 for (i in seq(1,5)) {
-    tout <- utils::download.file(url = temp_fastas_urls[i], 
-                            destfile = temp_fastas[[i]], method="auto")
-    
-    #Could't download fasta. Use small sample fasta from package
-    if(tout!=0) {
-        temp_fastas <- system.file("extdata", "samples.fasta.gz", 
+    temp_fastas[[i]] <- BiocFileCache::bfcquery(bfc,field = "rname", 
+                                                paste0("temp_fasta",i))$rpath[1]
+    if(is.na(temp_fastas[[i]])) {
+        tryCatch(
+        { temp_fastas[[i]] <- 
+            BiocFileCache::bfcadd(bfc, paste0("temp_fasta",i), 
+                                                fpath=temp_fastas_urls[i])[[1]]
+        },error=function(cond) {
+            temp_fastas <- system.file("extdata", "samples.fasta.gz", 
                                                         package="fastreeR")
-        break
+            break
+            }
+        )
     }
 }
 ```
@@ -152,8 +172,8 @@ emerge in the tree. The two branches, one at height around 0.055 and the second
 around height 0.065, are clearly visible.
 
 ## Plot tree from stats::hclust
-For comparison, we generate a tree by using \code{stats} package and distances
-calculated by \code{fastreeR}.
+For comparison, we generate a tree by using `stats` package and distances
+calculated by `fastreeR`.
 ```{r echo=TRUE, fig.cap="Tree from vcf with stats::hclust", fig.wide=TRUE}
 my.vcf.tree.stats <- stats::hclust(my.vcf.dist)
 plot(my.vcf.tree.stats, ann = FALSE, cex = 0.3)
@@ -165,11 +185,11 @@ distances between them.
 
 ## Hierarchical Clustering
 We can identify the two groups of samples, apparent from the hierarchical tree,
-by using \code{\link[fastreeR]{dist2clusters}} 
-or \code{\link[fastreeR]{vcf2clusters}} 
-or \code{\link[fastreeR]{tree2clusters}}.
-By playing a little with the \code{cutHeight} parameter, we find that a
-value of \code{cutHeight=0.067} cuts the tree into two branches.
+by using `dist2clusters` 
+or `vcf2clusters` 
+or `tree2clusters`.
+By playing a little with the `cutHeight` parameter, we find that a
+value of `cutHeight=0.067` cuts the tree into two branches.
 The first group contains 106 samples and the second 44.
 ```{r, eval=TRUE}
 my.vcf.clust <- fastreeR::dist2clusters(input.dist = my.vcf.dist, 
