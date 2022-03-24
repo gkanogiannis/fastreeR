@@ -5,8 +5,8 @@
         lib.loc=libname,
         own.loader = TRUE,
         parameters = c(getOption("java.parameters"),
-                        "-Djava.awt.headless=true"
-                        ,"-XX:+UseG1GC")
+                        "-Djava.awt.headless=true")
+                        #,"-XX:+UseG1GC")
                         #,"-XX:+UseStringDeduplication")
     )
 }
