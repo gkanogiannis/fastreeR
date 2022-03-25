@@ -7,6 +7,10 @@
 and Other Calculations on VCF and Fasta Files.
 }}
 
+\section{Version 0.99.3 (2022-03-25)}{\itemize{
+\item Update java backend.
+}}
+
 \section{Version 0.99.2 (2022-03-25)}{\itemize{
 \item Update \code{README.md} to inform about JDK>=8 requirement.
 \item Update java dependencies (jfreechart-1.5.3).

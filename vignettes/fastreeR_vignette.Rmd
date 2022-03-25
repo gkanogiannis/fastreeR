@@ -143,7 +143,7 @@ my.vcf.dist <- fastreeR::vcf2dist(inputfile = temp_vcf, threads = 2)
 my.vcf.hist.png <- tempfile(fileext = ".png")
 my.vcf.hist <- fastreeR::dist2hist(input.dist = my.vcf.dist, 
                                     outputfile = my.vcf.hist.png,
-                                    settings = "100,640,480")
+                                    settings = "100,1024,768")
 grid::grid.raster(my.vcf.hist)
 ```
 We note 150 zero distance values, as it should be expected (vcf file had 50 
@@ -223,7 +223,7 @@ my.fasta.dist <- fastreeR::fasta2dist(
 my.fasta.hist.png <- tempfile(fileext = ".png")
 my.fasta.hist <- fastreeR::dist2hist(input = my.fasta.dist, 
                                     outputfile = my.fasta.hist.png,
-                                    settings = "100,640,480")
+                                    settings = "100,1024,768")
 grid::grid.raster(my.fasta.hist)
 ```
 
