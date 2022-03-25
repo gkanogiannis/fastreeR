@@ -38,30 +38,14 @@ public class JavaUtils {
 		try {
 			jc = JCommander.newBuilder().build();
 			
-			//jc.addCommand(UtilVCF2ARFF.getUtilName(), UtilVCF2ARFF.getInstance());
-			//jc.addCommand(UtilVCF2CSV.getUtilName(),  UtilVCF2CSV.getInstance());
-			//jc.addCommand(UtilVCF2TABLE.getUtilName(),  UtilVCF2TABLE.getInstance());
 			jc.addCommand(UtilVCF2ISTATS.getUtilName(),  UtilVCF2ISTATS.getInstance()); // in R
-			//jc.addCommand(UtilVCF2SVM.getUtilName(), UtilVCF2SVM.getInstance());
 			jc.addCommand(UtilVCF2DIST.getUtilName(), UtilVCF2DIST.getInstance()); // in R
 			jc.addCommand(UtilVCF2TREE.getUtilName(), UtilVCF2TREE.getInstance()); // in R
-			//jc.addCommand(UtilVCFRemoveClones.getUtilName(), UtilVCFRemoveClones.getInstance()); //
-			//jc.addCommand(UtilVCFNonrelated.getUtilName(), UtilVCFNonrelated.getInstance()); //
-			//jc.addCommand(UtilVCFKeepVariants.getUtilName(), UtilVCFKeepVariants.getInstance());
-			//jc.addCommand(UtilVCFKeepSamples.getUtilName(), UtilVCFKeepSamples.getInstance());
-			//jc.addCommand(UtilVCFRemoveSamples.getUtilName(), UtilVCFRemoveSamples.getInstance());
-			//jc.addCommand(UtilVCFClassifyFromTxtModel.getUtilName(), UtilVCFClassifyFromTxtModel.getInstance());
-			//jc.addCommand(UtilVCFsIntersection.getUtilName(), UtilVCFsIntersection.getInstance()); //
-			//jc.addCommand(UtilVCFFilter.getUtilName(), UtilVCFFilter.getInstance());
 			
 			jc.addCommand(UtilFASTA2DIST.getUtilName(), UtilFASTA2DIST.getInstance()); //
 			
 			jc.addCommand(UtilDIST2TREE.getUtilName(), UtilDIST2TREE.getInstance()); // in R
 			jc.addCommand(UtilDIST2Clusters.getUtilName(), UtilDIST2Clusters.getInstance()); // in R
-			jc.addCommand(UtilDIST2Hist.getUtilName(), UtilDIST2Hist.getInstance()); // in R
-			
-			//jc.addCommand(UtilARFFClassifyFromWeka.getUtilName(), UtilARFFClassifyFromWeka.getInstance());
-			//jc.addCommand(UtilARFFaddTrait.getUtilName(), UtilARFFaddTrait.getInstance());
 			
 			jc.parse(args);
 			
