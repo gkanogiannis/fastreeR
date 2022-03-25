@@ -1,7 +1,7 @@
 Package: fastreeR
 Type: Package
 Title: Phylogenetic, Distance and Other Calculations on VCF and Fasta Files
-Version: 0.99.5
+Version: 0.99.6
 biocViews: Phylogenetics, Metagenomics, Clustering
 Authors@R:
     c(person(given = "Anestis",
@@ -26,7 +26,6 @@ Imports:
     data.table,
     dynamicTreeCut,
     methods,
-    png,
     R.utils,
     rJava,
     stats,

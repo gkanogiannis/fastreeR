@@ -12,8 +12,8 @@ between samples, directly from a VCF or FASTA file.
 
 ## Requirements
 
-A JDK, at least 8, is required and needs to be present before `fastreeR`
-installation.
+A JDK, at least 8, is required and needs to be present before installing
+`fastreeR`.
 
 ## Installation
 
