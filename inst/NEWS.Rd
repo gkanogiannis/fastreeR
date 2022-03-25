@@ -7,6 +7,10 @@
 and Other Calculations on VCF and Fasta Files.
 }}
 
+\section{Version 0.99.4 (2022-03-25)}{\itemize{
+\item Update java backend (createHistogram).
+}}
+
 \section{Version 0.99.3 (2022-03-25)}{\itemize{
 \item Update java backend.
 }}
