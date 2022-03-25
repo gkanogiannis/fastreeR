@@ -7,6 +7,11 @@
 and Other Calculations on VCF and Fasta Files.
 }}
 
+\section{Version 0.99.2 (2022-03-25)}{\itemize{
+\item Update \code{README.md} to inform about JDK>=8 requirement.
+\item Update java dependencies (jfreechart-1.5.3).
+}}
+
 \section{Version 0.99.1 (2022-03-24)}{\itemize{
 \item Update vignette to use \code{BiocFileCache}
 so that sample vcf and fasta downloads not get repeated needlessly.

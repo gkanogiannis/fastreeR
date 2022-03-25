@@ -10,6 +10,11 @@ The goal of fastreeR is to provide functions for calculating distance
 matrix, building phylogenetic tree or performing hierarchical clustering
 between samples, directly from a VCF or FASTA file.
 
+## Requirements
+
+A JDK, at least 8, is required and needs to be present before `fastreeR`
+installation.
+
 ## Installation
 
 To install `fastreeR` package:
@@ -20,7 +25,7 @@ if (!requireNamespace("BiocManager", quietly=TRUE))
 BiocManager::install("fastreeR")
 ```
 
-You can install the development version of fastreeR like so:
+You can install the development version of `fastreeR` like so:
 
 ``` r
 devtools::install_github("gkanogiannis/fastreeR")
