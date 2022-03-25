@@ -7,6 +7,10 @@
 and Other Calculations on VCF and Fasta Files.
 }}
 
+\section{Version 0.99.5 (2022-03-25)}{\itemize{
+\item Update vignette's use of dist2hist.
+}}
+
 \section{Version 0.99.4 (2022-03-25)}{\itemize{
 \item Update java backend (createHistogram).
 }}

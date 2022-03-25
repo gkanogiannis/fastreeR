@@ -140,15 +140,11 @@ my.vcf.dist <- fastreeR::vcf2dist(inputfile = temp_vcf, threads = 2)
 
 ## Histogram of distances
 ```{r echo=TRUE, fig.cap="Histogram of distances from vcf file", fig.wide=TRUE}
-my.vcf.hist.png <- tempfile(fileext = ".png")
-my.vcf.hist <- fastreeR::dist2hist(input.dist = my.vcf.dist, 
-                                    outputfile = my.vcf.hist.png,
-                                    settings = "100,1024,768")
-grid::grid.raster(my.vcf.hist)
+graphics::hist(my.vcf.dist, breaks = 100, main=NULL, 
+                                xlab = "Distance", xlim = c(0,max(my.vcf.dist)))
 ```
-We note 150 zero distance values, as it should be expected (vcf file had 50 
-samples) and we also note two distinct groups of distances. One around of 
-distance value 0.055 and the second around distance value 0.065.
+We note two distinct groups of distances. One around of 
+distance value 0.05 and the second around distance value 0.065.
 
 ## Plot tree from fastreeR::dist2tree
 Notice that the generated tree is ultrametric.
@@ -212,7 +208,7 @@ Use of the downloaded sample fasta file :
 my.fasta.dist <- fastreeR::fasta2dist(temp_fastas, kmer = 6)
 ```
 Or use the provided by `fastreeR` fasta file of 48 bacterial RefSeq :
-```{r, eval=TRUE}
+```{r, eval=FALSE}
 my.fasta.dist <- fastreeR::fasta2dist(
     system.file("extdata", "samples.fasta.gz", package="fastreeR"), kmer = 6)
 ```
@@ -220,11 +216,8 @@ my.fasta.dist <- fastreeR::fasta2dist(
 
 ## Histogram of distances
 ```{r echo=TRUE, fig.cap="Histogram of distances from fasta file",fig.wide=TRUE}
-my.fasta.hist.png <- tempfile(fileext = ".png")
-my.fasta.hist <- fastreeR::dist2hist(input = my.fasta.dist, 
-                                    outputfile = my.fasta.hist.png,
-                                    settings = "100,1024,768")
-grid::grid.raster(my.fasta.hist)
+graphics::hist(my.fasta.dist, breaks = 100, main=NULL, 
+                                xlab="Distance", xlim = c(0,max(my.fasta.dist)))
 ```
 
 ## Plot tree from fastreeR::dist2tree
