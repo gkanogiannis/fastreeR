@@ -16,9 +16,22 @@ test_that("test parameters",{
 
 test_that("test return is a dist object",{
     expect_s3_class(fasta2dist(fastaFile), "dist")
+    expect_s3_class(fasta2dist(fastaFile,
+                                outputFile = tempfile(fileext = ".dist")),
+                                                                        "dist")
+    expect_s3_class(fasta2dist(fastaFile,
+                               outputFile = tempfile(fileext = ".dist"),
+                               compress = FALSE),
+                                                                        "dist")
 })
 
 test_that("test S1 is closer (less distance) to S2 that to S3",{
     my.dist <- fasta2dist(fastaFile)
     expect_true(my.dist[1]<my.dist[2])
+})
+
+test_that("test with gzipped input",{
+    expect_s3_class(fasta2dist(
+            system.file("extdata", "samples.fasta.gz", package = "fastreeR")),
+                                                                        "dist")
 })

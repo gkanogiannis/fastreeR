@@ -12,7 +12,8 @@ test_that("test parameters",{
 })
 
 test_that("test return is a character vector",{
-    expect_type(tree2clusters(treeStr = treeStr), "character")
+    expect_type(tree2clusters(treeStr = treeStr,
+                                extra = FALSE, cutHeight = 0.5), "character")
 })
 
 test_that("test S1 is in the same cluster with S3",{
