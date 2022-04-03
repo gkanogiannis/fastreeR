@@ -4,7 +4,9 @@ author:
 -   name: "Anestis Gkanogiannis"
     email: anestis@gkanogiannis.com
 package: fastreeR
-output: BiocStyle::html_document
+output: 
+    BiocStyle::html_document:
+    toc: true
 vignette: >
     %\VignetteIndexEntry{fastreeR}
     %\VignetteEngine{knitr::rmarkdown}
@@ -39,8 +41,17 @@ BiocManager::install("fastreeR")
 You should allocate minimum 10kb per sample per variant of RAM for the JVM.
 The more RAM you allocate, the faster the execution will be (less pauses 
 for garbage collection).
+In order to allocate RAM, a special parameter needs to be passed while JVM 
+initializes. JVM parameters can be passed by setting `java.parameters` option.
+The `-Xmx` parameter, followed (without space) by an integer value and a 
+letter, is used to tell JVM what is the maximum amount of heap RAM that it can
+use. The letter in the parameter (uppercase or lowercase), indicates RAM units.
+For example, parameters `-Xmx1024m` or `-Xmx1024M` or `-Xmx1g` or `-Xmx1G`, all
+allocate 1 Gigabyte or 1024 Megabytes of maximum RAM for JVM.
+
 ```{r, eval=TRUE, message=FALSE}
 options(java.parameters="-Xmx1G")
+unloadNamespace("fastreeR")
 library(fastreeR)
 library(utils)
 library(ape)
@@ -58,18 +69,18 @@ If for any reason we cannot download, we use the small sample vcf from
 `fastreeR` package.
 ```{r, eval=TRUE}
 bfc <- BiocFileCache::BiocFileCache(ask = FALSE)
-temp_vcf_url <-
+tempVcfUrl <-
     paste0("https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/",
         "1000_genomes_project/release/20190312_biallelic_SNV_and_INDEL/",
         "supporting/related_samples/",
         "ALL.chrX.shapeit2_integrated_snvindels_v2a_related_samples_27022019.",
         "GRCh38.phased.vcf.gz")
-temp_vcf <- BiocFileCache::bfcquery(bfc,field = "rname", "temp_vcf")$rpath[1]
-if(is.na(temp_vcf)) {
+tempVcf <- BiocFileCache::bfcquery(bfc,field = "rname", "tempVcf")$rpath[1]
+if(is.na(tempVcf)) {
     tryCatch(
-    { temp_vcf <- BiocFileCache::bfcadd(bfc,"temp_vcf",fpath=temp_vcf_url)[[1]]
+    { tempVcf <- BiocFileCache::bfcadd(bfc,"tempVcf",fpath=tempVcfUrl)[[1]]
     },error=function(cond) {
-        temp_vcf <- system.file("extdata", "samples.vcf.gz", package="fastreeR")
+        tempVcf <- system.file("extdata", "samples.vcf.gz", package="fastreeR")
         }
     )
 }
@@ -82,7 +93,7 @@ so that it is not repeated needlessly.
 If for any reason we cannot download, we use the small sample fasta from 
 `fastreeR` package.
 ```{r, eval=TRUE}
-temp_fastas_urls <- c(
+tempFastasUrls <- c(
     #Mycobacterium liflandii
     paste0("https://ftp.ncbi.nih.gov/genomes/refseq/bacteria/",
         "Mycobacterium_liflandii/latest_assembly_versions/",
@@ -104,17 +115,17 @@ temp_fastas_urls <- c(
         "Staphylococcus_aureus/reference/",
         "GCF_000013425.1_ASM1342v1/GCF_000013425.1_ASM1342v1_genomic.fna.gz")
 )
-temp_fastas <- list()
+tempFastas <- list()
 for (i in seq(1,5)) {
-    temp_fastas[[i]] <- BiocFileCache::bfcquery(bfc,field = "rname", 
+    tempFastas[[i]] <- BiocFileCache::bfcquery(bfc,field = "rname", 
                                                 paste0("temp_fasta",i))$rpath[1]
-    if(is.na(temp_fastas[[i]])) {
+    if(is.na(tempFastas[[i]])) {
         tryCatch(
-        { temp_fastas[[i]] <- 
+        { tempFastas[[i]] <- 
             BiocFileCache::bfcadd(bfc, paste0("temp_fasta",i), 
-                                                fpath=temp_fastas_urls[i])[[1]]
+                                                fpath=tempFastasUrls[i])[[1]]
         },error=function(cond) {
-            temp_fastas <- system.file("extdata", "samples.fasta.gz", 
+            tempFastas <- system.file("extdata", "samples.fasta.gz", 
                                                         package="fastreeR")
             break
             }
@@ -127,30 +138,30 @@ for (i in seq(1,5)) {
 
 ## Sample Statistics
 ```{r echo=TRUE, fig.cap="Sample statistics from vcf file", fig.wide=TRUE}
-my.vcf.istats <- fastreeR::vcf2istats(inputfile = temp_vcf)
-plot(my.vcf.istats[,7:9])
+myVcfIstats <- fastreeR::vcf2istats(inputFile = tempVcf)
+plot(myVcfIstats[,7:9])
 ```
 
 ## Calculate distances from vcf
 The most time consuming process is calculating distances between samples.
 Assign more processors in order to speed up this operation.
 ```{r, eval=TRUE}
-my.vcf.dist <- fastreeR::vcf2dist(inputfile = temp_vcf, threads = 2)
+myVcfDist <- fastreeR::vcf2dist(inputFile = tempVcf, threads = 2)
 ```
 
 ## Histogram of distances
 ```{r echo=TRUE, fig.cap="Histogram of distances from vcf file", fig.wide=TRUE}
-graphics::hist(my.vcf.dist, breaks = 100, main=NULL, 
-                                xlab = "Distance", xlim = c(0,max(my.vcf.dist)))
+graphics::hist(myVcfDist, breaks = 100, main=NULL, 
+                                xlab = "Distance", xlim = c(0,max(myVcfDist)))
 ```
 We note two distinct groups of distances. One around of 
 distance value 0.05 and the second around distance value 0.065.
 
-## Plot tree from fastreeR::dist2tree
+## Plot tree from `fastreeR::dist2tree`
 Notice that the generated tree is ultrametric.
 ```{r echo=TRUE, fig.cap="Tree from vcf with fastreeR", fig.wide=TRUE}
-my.vcf.tree <- fastreeR::dist2tree(input.dist = my.vcf.dist)
-plot(ape::read.tree(text = my.vcf.tree), direction = "down", cex = 0.3)
+myVcfTree <- fastreeR::dist2tree(inputDist = myVcfDist)
+plot(ape::read.tree(text = myVcfTree), direction = "down", cex = 0.3)
 ape::add.scale.bar()
 ape::axisPhylo(side = 2)
 ```
@@ -158,8 +169,8 @@ ape::axisPhylo(side = 2)
 Of course the same can be achieved directly from the vcf file, 
 without calculating distances.
 ```{r echo=TRUE, fig.cap="Tree from vcf with fastreeR", fig.wide=TRUE}
-my.vcf.tree <- fastreeR::vcf2tree(inputfile = temp_vcf, threads = 2)
-plot(ape::read.tree(text = my.vcf.tree), direction = "down", cex = 0.3)
+myVcfTree <- fastreeR::vcf2tree(inputFile = tempVcf, threads = 2)
+plot(ape::read.tree(text = myVcfTree), direction = "down", cex = 0.3)
 ape::add.scale.bar()
 ape::axisPhylo(side = 2)
 ```
@@ -167,12 +178,12 @@ As expected from the histogram of distances, two groups of samples also
 emerge in the tree. The two branches, one at height around 0.055 and the second 
 around height 0.065, are clearly visible.
 
-## Plot tree from stats::hclust
+## Plot tree from `stats::hclust`
 For comparison, we generate a tree by using `stats` package and distances
 calculated by `fastreeR`.
 ```{r echo=TRUE, fig.cap="Tree from vcf with stats::hclust", fig.wide=TRUE}
-my.vcf.tree.stats <- stats::hclust(my.vcf.dist)
-plot(my.vcf.tree.stats, ann = FALSE, cex = 0.3)
+myVcfTreeStats <- stats::hclust(myVcfDist)
+plot(myVcfTreeStats, ann = FALSE, cex = 0.3)
 ```
 Although it does not initially look very similar, because it is not ultrametric,
 it is indeed quite the same tree. We note again the two groups (two branches) 
@@ -188,11 +199,10 @@ By playing a little with the `cutHeight` parameter, we find that a
 value of `cutHeight=0.067` cuts the tree into two branches.
 The first group contains 106 samples and the second 44.
 ```{r, eval=TRUE}
-my.vcf.clust <- fastreeR::dist2clusters(input.dist = my.vcf.dist, 
-                                    cutHeight = 0.067)
-tree <- my.vcf.clust[[1]]
-clusters1 <- my.vcf.clust[[2]][[2]][1]
-clusters2 <- my.vcf.clust[[2]][[2]][2]
+myVcfClust <- fastreeR::dist2clusters(inputDist = myVcfDist, cutHeight = 0.067)
+tree <- myVcfClust[[1]]
+clusters1 <- myVcfClust[[2]][[2]][1]
+clusters2 <- myVcfClust[[2]][[2]][2]
 clusters1
 clusters2
 ```
@@ -205,36 +215,36 @@ sequences in a fasta file.
 ## Calculate distances from fasta
 Use of the downloaded sample fasta file :
 ```{r, eval=TRUE}
-my.fasta.dist <- fastreeR::fasta2dist(temp_fastas, kmer = 6)
+myFastaDist <- fastreeR::fasta2dist(tempFastas, kmer = 6)
 ```
 Or use the provided by `fastreeR` fasta file of 48 bacterial RefSeq :
 ```{r, eval=FALSE}
-my.fasta.dist <- fastreeR::fasta2dist(
+myFastaDist <- fastreeR::fasta2dist(
     system.file("extdata", "samples.fasta.gz", package="fastreeR"), kmer = 6)
 ```
 
 
 ## Histogram of distances
 ```{r echo=TRUE, fig.cap="Histogram of distances from fasta file",fig.wide=TRUE}
-graphics::hist(my.fasta.dist, breaks = 100, main=NULL, 
-                                xlab="Distance", xlim = c(0,max(my.fasta.dist)))
+graphics::hist(myFastaDist, breaks = 100, main=NULL, 
+                                xlab="Distance", xlim = c(0,max(myFastaDist)))
 ```
 
-## Plot tree from fastreeR::dist2tree
+## Plot tree from `fastreeR::dist2tree`
 ```{r echo=TRUE, fig.cap="Tree from fasta with fastreeR", fig.wide=TRUE}
-my.fasta.tree <- fastreeR::dist2tree(input.dist = my.fasta.dist)
-plot(ape::read.tree(text = my.fasta.tree), direction = "down", cex = 0.3)
+myFastaTree <- fastreeR::dist2tree(inputDist = myFastaDist)
+plot(ape::read.tree(text = myFastaTree), direction = "down", cex = 0.3)
 ape::add.scale.bar()
 ape::axisPhylo(side = 2)
 ```
 
-## Plot tree from stats::hclust
+## Plot tree from `stats::hclust`
 ```{r echo=TRUE, fig.cap="Tree from fasta with stats::hclust", fig.wide=TRUE}
-my.fasta.tree.stats <- stats::hclust(my.fasta.dist)
-plot(my.fasta.tree.stats, ann = FALSE, cex = 0.3)
+myFastaTreeStats <- stats::hclust(myFastaDist)
+plot(myFastaTreeStats, ann = FALSE, cex = 0.3)
 ```
 
-# SessionInfo
+# Session Info
 ```{r setup}
 utils::sessionInfo()
 ```

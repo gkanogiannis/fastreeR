@@ -30,7 +30,6 @@ import java.util.concurrent.RecursiveTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ciat.agrobio.io.VCFManager;
-import ciat.agrobio.io.VariantManager;
 
 public class CalculateDistancesCOSINE {
 

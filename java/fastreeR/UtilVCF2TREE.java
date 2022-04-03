@@ -33,21 +33,15 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 
 import ciat.agrobio.core.CalculateDistancesCOSINE;
+import ciat.agrobio.core.VariantManager;
 import ciat.agrobio.core.VariantProcessor;
 import ciat.agrobio.hcluster.HierarchicalCluster;
 import ciat.agrobio.io.VCFManager;
-import ciat.agrobio.io.VariantManager;
 
 @Parameters(commandDescription = "VCF2TREE")
 public class UtilVCF2TREE {
 
-	private static UtilVCF2TREE instance = new UtilVCF2TREE();
-
-	private UtilVCF2TREE() {
-	}
-
-	public static UtilVCF2TREE getInstance() {
-		return instance;
+	public UtilVCF2TREE() {
 	}
 
 	public static String getUtilName() {
@@ -118,7 +112,8 @@ public class UtilVCF2TREE {
 			double[][] distances = fj.calculateDistances(usingThreads, sampleNames, vm, vcfm, ignoreHets, onlyHets, ignoremissing);
 			
 			//HCluster tree
-			String treeString = HierarchicalCluster.hclusteringTree(sampleNames.toArray(new String[sampleNames.size()]), distances);
+			HierarchicalCluster hc = new HierarchicalCluster();
+			String treeString = hc.hclusteringTree(sampleNames.toArray(new String[sampleNames.size()]), distances);
 			System.out.println(treeString);
 			
 		} 

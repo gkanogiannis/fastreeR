@@ -38,21 +38,12 @@
 #' the user needs to issue \code{options(java.parameters="-Xmx4g")}
 #' before \code{library(fastreeR)}.
 #'
-#' @param inputfile Input vcf file location (uncompressed or gzip compressed).
+#' @param inputFile Input vcf file location (uncompressed or gzip compressed).
 #' @param threads Number of java threads to use.
-#' @param ignoremissing Ignore variants with missing data
+#' @param ignoreMissing Ignore variants with missing data
 #'     (\code{./.} or \code{.|.})
-#' @param onlyhets Only calculate on variants with heterozygous calls.
-#' @param ignorehets Only calculate on variants with homozygous calls.
-#'
-#' @usage
-#' vcf2tree(
-#'     inputfile,
-#'     threads = 2,
-#'     ignoremissing = FALSE,
-#'     onlyhets = FALSE,
-#'     ignorehets = FALSE
-#' )
+#' @param onlyHets Only calculate on variants with heterozygous calls.
+#' @param ignoreHets Only calculate on variants with homozygous calls.
 #'
 #' @return A \code{\link[base]{character}} vector of the generated
 #' phylogenetic tree in Newick format.
@@ -60,7 +51,7 @@
 #'
 #' @examples
 #' my.tree <- vcf2tree(
-#'     inputfile = system.file("extdata", "samples.vcf.gz",
+#'     inputFile = system.file("extdata", "samples.vcf.gz",
 #'         package = "fastreeR"
 #'     )
 #' )
@@ -68,35 +59,32 @@
 #' @references Java implementation:
 #' \url{https://github.com/gkanogiannis/BioInfoJava-Utils}
 
-vcf2tree <- function(
-                    inputfile,
-                    threads = 2,
-                    ignoremissing = FALSE,
-                    onlyhets = FALSE,
-                    ignorehets = FALSE) {
-    if (is.null(inputfile) || !file.exists(inputfile)) {
-        return(NULL)
-    }
-    if (R.utils::isGzipped(inputfile)) {
+vcf2tree <- function(inputFile, threads = 2, ignoreMissing = FALSE,
+                    onlyHets = FALSE, ignoreHets = FALSE) {
+    vcf2tree_checkParams(inputFile = inputFile, threads = threads,
+                        ignoreMissing = ignoreMissing, onlyHets = onlyHets,
+                                                        ignoreHets = ignoreHets)
+
+    if (R.utils::isGzipped(inputFile)) {
         temp.in <- tempfile(fileext = ".vcf")
         on.exit(unlink(temp.in))
-        R.utils::gunzip(filename = inputfile,
+        R.utils::gunzip(filename = inputFile,
                         destname = temp.in,
                         remove = FALSE)
-        inputfile <- temp.in
+        inputFile <- temp.in
     }
 
-    bioinfojavautils <- rJava::J(
+    bioinfojavautils <- rJava::.jnew(
         class="ciat/agrobio/javautils/JavaUtils",
         class.loader = .rJava.class.loader
     )
     cmd <- paste(
         "VCF2TREE",
         "--numberOfThreads", threads,
-        ifelse(ignoremissing, "--ignoremissing", ""),
-        ifelse(onlyhets, "--onlyHets", ""),
-        ifelse(ignorehets, "--ignoreHets", ""),
-        inputfile,
+        ifelse(ignoreMissing, "--ignoreMissing", ""),
+        ifelse(onlyHets, "--onlyHets", ""),
+        ifelse(ignoreHets, "--ignoreHets", ""),
+        inputFile,
         sep = " "
     )
 
@@ -105,10 +93,31 @@ vcf2tree <- function(
     jSys <- rJava::J("java/lang/System")
     jOrigOut <- jSys$out
     jSys$setOut(rJava::.jnew("java/io/PrintStream", temp.out))
-    bioinfojavautils$main(rJava::.jarray(strsplit(cmd, "\\s+")[[1]]))
+    bioinfojavautils$go(rJava::.jarray(strsplit(cmd, "\\s+")[[1]]))
     jSys$setOut(jOrigOut)
 
     ret.str <- stringr::str_replace_all(readLines(temp.out), "\t", " ")
 
     return(ret.str)
+}
+
+vcf2tree_checkParams <- function(inputFile, threads, ignoreMissing,
+                                                        onlyHets, ignoreHets) {
+    if (!methods::is(inputFile, "character")){
+        stop("inputFile must be a file location.")
+    }
+
+    if (is.null(inputFile) || !file.exists(inputFile)) {
+        stop("inputFile=",inputFile," does not exist.")
+    }
+
+    if(!is.logical(ignoreMissing) || !is.logical(onlyHets) ||
+                                                    !is.logical(ignoreHets)){
+        stop("ignoreMissing, onlyHets",
+                                "and ignoreHets parameters must be logical.")
+    }
+
+    if (!is.numeric(threads) || (is.numeric(threads) && threads<1)) {
+        stop("threads parameter must be positive integer.")
+    }
 }

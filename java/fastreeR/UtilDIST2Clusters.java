@@ -33,13 +33,9 @@ import ciat.agrobio.hcluster.HierarchicalCluster;
 @Parameters(commandDescription = "DIST2Clusters")
 public class UtilDIST2Clusters {
 
-	private static UtilDIST2Clusters instance = new UtilDIST2Clusters();
-
-	private UtilDIST2Clusters() {
-	}
-
-	public static UtilDIST2Clusters getInstance() {
-		return instance;
+	private GeneralTools gTools = GeneralTools.getInstance();
+	
+	public UtilDIST2Clusters() {
 	}
 
 	public static String getUtilName() {
@@ -73,10 +69,11 @@ public class UtilDIST2Clusters {
 			//System.err.println("using=" + usingThreads);
 
 			//Read distances matrix and sample names
-			Object[] data = GeneralTools.readDistancesSamples(inputFileName);
+			Object[] data = gTools.readDistancesSamples(inputFileName);
 			
 			//HCluster cluster
-			TreeMap<Integer, TreeSet<String>> clusters = HierarchicalCluster.hclusteringClusters((String[])data[1], (double[][])data[0], minClusterSize, cutHeight, extra);
+			HierarchicalCluster hc = new HierarchicalCluster();
+			TreeMap<Integer, TreeSet<String>> clusters = hc.hclusteringClusters((String[])data[1], (double[][])data[0], minClusterSize, cutHeight, extra);
 		} 
 		catch (Exception e) {
 			e.printStackTrace();

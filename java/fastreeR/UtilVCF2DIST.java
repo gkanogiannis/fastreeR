@@ -21,7 +21,6 @@
  */
 package ciat.agrobio.javautils;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,20 +34,14 @@ import com.beust.jcommander.Parameters;
 
 import ciat.agrobio.core.CalculateDistancesCOSINE;
 import ciat.agrobio.core.GeneralTools;
+import ciat.agrobio.core.VariantManager;
 import ciat.agrobio.core.VariantProcessor;
 import ciat.agrobio.io.VCFManager;
-import ciat.agrobio.io.VariantManager;
 
 @Parameters(commandDescription = "VCF2DIST")
 public class UtilVCF2DIST {
 
-	private static UtilVCF2DIST instance = new UtilVCF2DIST();
-
-	private UtilVCF2DIST() {
-	}
-
-	public static UtilVCF2DIST getInstance() {
-		return instance;
+	public UtilVCF2DIST() {
 	}
 
 	public static String getUtilName() {
@@ -119,12 +112,14 @@ public class UtilVCF2DIST {
 			double[][] distances = fj.calculateDistances(usingThreads, sampleNames, vm, vcfm, ignoreHets, onlyHets, ignoremissing);
 			
 			// Print data
+			@SuppressWarnings("unused")
 			int sampleCounter = 0;
 			System.out.println(vm.getNumSamples()+"\t"+vm.getNumVariants());
 			for(int i=0; i<vm.getNumSamples(); i++) {
 				String sampleName1 = sampleNames.get(i);
 				System.out.print(sampleName1);
 				for (int j=0;j<vm.getNumSamples();j++) {
+					@SuppressWarnings("unused")
 					String sampleName2 = sampleNames.get(j);
 					System.out.print("\t"+GeneralTools.decimalFormat.format(distances[i][j]));
 				}

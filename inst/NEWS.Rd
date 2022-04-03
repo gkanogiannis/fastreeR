@@ -7,6 +7,10 @@
 and Other Calculations on VCF and Fasta Files.
 }}
 
+\section{Version 0.99.7 (2022-04-02)}{\itemize{
+\item Updates and corrections after the 1st Bioconductor review.
+}}
+
 \section{Version 0.99.6 (2022-03-26)}{\itemize{
 \item Drop function \code{dist2hist}.
 }}

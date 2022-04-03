@@ -19,7 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  *
  */
-package ciat.agrobio.io;
+package ciat.agrobio.core;
 
 import gnu.trove.iterator.TLongIntIterator;
 import gnu.trove.map.hash.TLongIntHashMap;
@@ -27,8 +27,6 @@ import gnu.trove.map.hash.TLongIntHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
-
-import ciat.agrobio.core.GeneralTools;
 
 public class Sequence {
 
@@ -43,6 +41,8 @@ public class Sequence {
 	private TLongIntHashMap kmerCounts;
 	
 	private int[] ranks = null;
+	
+	private GeneralTools gTools = GeneralTools.getInstance();
 		
 	public Sequence(int sequenceId, byte[] header, byte[] seq) {
 		this.sequenceId = sequenceId;
@@ -85,7 +85,7 @@ public class Sequence {
 			//System.out.println(unsorted);
 			
 			//sort the map
-			Map<Long, Integer> sorted =  GeneralTools.sortByValue(unsorted);	
+			Map<Long, Integer> sorted =  gTools.sortByValue(unsorted);	
 			//System.out.println("sorted "+sorted.size());
 			//System.out.println(sorted);
 			
@@ -103,7 +103,6 @@ public class Sequence {
 			sorted.clear();
 			unsorted = null;
 			sorted = null;
-			//System.exit(0);
 		}
 	}
 	

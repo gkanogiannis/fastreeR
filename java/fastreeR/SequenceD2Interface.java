@@ -19,7 +19,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  *
  */
-package ciat.agrobio.io;
+package ciat.agrobio.core;
 
 import gnu.trove.iterator.TLongDoubleIterator;
 import gnu.trove.iterator.TLongIntIterator;

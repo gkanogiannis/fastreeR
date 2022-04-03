@@ -5,24 +5,24 @@
 \title{Generate phylogenetic tree from samples of a VCF file}
 \usage{
 vcf2tree(
-    inputfile,
+    inputFile,
     threads = 2,
-    ignoremissing = FALSE,
-    onlyhets = FALSE,
-    ignorehets = FALSE
+    ignoreMissing = FALSE,
+    onlyHets = FALSE,
+    ignoreHets = FALSE
 )
 }
 \arguments{
-\item{inputfile}{Input vcf file location (uncompressed or gzip compressed).}
+\item{inputFile}{Input vcf file location (uncompressed or gzip compressed).}
 
 \item{threads}{Number of java threads to use.}
 
-\item{ignoremissing}{Ignore variants with missing data
+\item{ignoreMissing}{Ignore variants with missing data
 (\code{./.} or \code{.|.})}
 
-\item{onlyhets}{Only calculate on variants with heterozygous calls.}
+\item{onlyHets}{Only calculate on variants with heterozygous calls.}
 
-\item{ignorehets}{Only calculate on variants with homozygous calls.}
+\item{ignoreHets}{Only calculate on variants with homozygous calls.}
 }
 \value{
 A \code{\link[base]{character}} vector of the generated
@@ -70,7 +70,7 @@ before \code{library(fastreeR)}.
 }
 \examples{
 my.tree <- vcf2tree(
-    inputfile = system.file("extdata", "samples.vcf.gz",
+    inputFile = system.file("extdata", "samples.vcf.gz",
         package = "fastreeR"
     )
 )

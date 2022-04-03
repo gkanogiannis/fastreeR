@@ -6,7 +6,7 @@
 \usage{
 fasta2dist(
     ...,
-    outputfile = NULL,
+    outputFile = NULL,
     threads = 2,
     kmer = 6,
     normalize = FALSE,
@@ -16,7 +16,7 @@ fasta2dist(
 \arguments{
 \item{...}{Input fasta files locations (uncompressed or gzip compressed).}
 
-\item{outputfile}{Output distances file location.}
+\item{outputFile}{Output distances file location.}
 
 \item{threads}{Number of java threads to use.}
 

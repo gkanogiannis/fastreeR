@@ -28,6 +28,7 @@ import java.util.Arrays;
 public class VCFDecoder implements VCFDecoderInterface<byte[][]> {
 	private static final byte LF = 10;
 	private static final byte TAB = 9;
+	private static final byte CR = 13;
 	//private boolean skip = false;
 
 	public VCFDecoder() {
@@ -36,9 +37,13 @@ public class VCFDecoder implements VCFDecoderInterface<byte[][]> {
 	public byte[][] decode(ByteBuffer buffer) {
 		int lineStartPos = buffer.position();
 		int limit = buffer.limit();
+		int crs = 0;
 		while (buffer.hasRemaining()) {
 			byte b = buffer.get();
-			if (b == LF) { // reached line feed so parse line
+			if(b == CR) {
+				crs++;
+			}
+			else if (b == LF) { // reached line feed so parse line
 				int lineEndPos = buffer.position();
 				// set positions for one row duplication
 				if (buffer.limit() < lineEndPos + 1) {
@@ -47,7 +52,8 @@ public class VCFDecoder implements VCFDecoderInterface<byte[][]> {
 					buffer.position(lineStartPos).limit(lineEndPos + 1);
 				}
 				
-				byte[] line = parseBytes(buffer, lineEndPos - lineStartPos - 1);
+				byte[] line = parseBytes(buffer, lineEndPos - lineStartPos - 1, crs);
+				crs = 0;
 				
 				if (line != null) {
 					// reset main buffer
@@ -87,10 +93,12 @@ public class VCFDecoder implements VCFDecoderInterface<byte[][]> {
 		return null;
 	}
 
-	private byte[] parseBytes(ByteBuffer buffer, int length) {
-		byte[] bytes = new byte[length];
+	private byte[] parseBytes(ByteBuffer buffer, int length, int crs) {
+		byte[] bytes = new byte[length-crs];
 		for (int i = 0; i < length; i++) {
-			bytes[i] = buffer.get();
+			byte b = buffer.get();
+			if(b != CR)
+				bytes[i] = b;
 		}
 		return bytes;
 	}

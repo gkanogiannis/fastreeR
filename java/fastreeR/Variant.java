@@ -241,11 +241,11 @@ public class Variant implements Comparable<Variant>{
 	            String str2 = new String(space2);
 	 
 	            int result;
-	 
+
 	            if (Character.isDigit(space1[0]) && Character.isDigit(space2[0])) {
-	                Integer firstNumberToCompare = new Integer(Integer
+	                Integer firstNumberToCompare = Integer.valueOf(Integer
 	                        .parseInt(str1.trim()));
-	                Integer secondNumberToCompare = new Integer(Integer
+	                Integer secondNumberToCompare = Integer.valueOf(Integer
 	                        .parseInt(str2.trim()));
 	                result = firstNumberToCompare.compareTo(secondNumberToCompare);
 	            } else {
