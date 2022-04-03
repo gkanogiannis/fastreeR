@@ -28,3 +28,10 @@ test_that("test S1 identical (distance=0) to S3 when ignoreHets=TRUE",{
 test_that("test S2 identical (distance=0) to S3 when onlyHets=TRUE",{
     expect_equal(vcf2dist(inputFile = vcfFile, onlyHets = TRUE)[3], 0)
 })
+
+test_that("test with gzipped input, compress and outputFile",{
+    expect_s3_class(vcf2dist(inputFile =
+            system.file("extdata", "samples.vcf.gz", package = "fastreeR"),
+                    outputFile = tempfile(fileext = ".dist"), compress = TRUE),
+                                                                        "dist")
+})

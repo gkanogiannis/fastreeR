@@ -22,3 +22,9 @@ test_that("test return is a list object with 3 items",{
 test_that("test S1 is in the same cluster with S3",{
     expect_match(vcf2clusters(inputFile = vcfFile)[[3]][[2]], "S3.*S1|S1.*S3")
 })
+
+test_that("test with gzipped input",{
+    expect_type(vcf2clusters(inputFile =
+            system.file("extdata", "samples.vcf.gz", package = "fastreeR")),
+                                                                        "list")
+})

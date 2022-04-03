@@ -12,3 +12,10 @@ test_that("test parameters",{
 test_that("test return is a character vector",{
     expect_type(vcf2tree(inputFile = vcfFile), "character")
 })
+
+
+test_that("test with gzipped input",{
+    expect_type(vcf2tree(inputFile =
+            system.file("extdata", "samples.vcf.gz", package = "fastreeR")),
+                                                                    "character")
+})
