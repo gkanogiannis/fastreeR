@@ -5,29 +5,29 @@
 \title{Perform Hierarchical Clustering and tree pruning on samples of VCF file}
 \usage{
 vcf2clusters(
-    inputfile,
+    inputFile,
     threads = 2,
-    ignoremissing = FALSE,
-    onlyhets = FALSE,
-    ignorehets = FALSE,
+    ignoreMissing = FALSE,
+    onlyHets = FALSE,
+    ignoreHets = FALSE,
     cutHeight = NULL,
     minClusterSize = 1,
     extra = TRUE
 )
 }
 \arguments{
-\item{inputfile}{Input vcf file location (uncompressed or gzip compressed).}
+\item{inputFile}{Input vcf file location (uncompressed or gzip compressed).}
 
 \item{threads}{Number of java threads to use.}
 
-\item{ignoremissing}{Ignore variants with missing data
+\item{ignoreMissing}{Ignore variants with missing data
 (\code{./.} or \code{.|.})}
 
-\item{onlyhets}{Only calculate on variants with heterozygous calls.}
+\item{onlyHets}{Only calculate on variants with heterozygous calls.}
 
-\item{ignorehets}{Only calculate on variants with homozygous calls.}
+\item{ignoreHets}{Only calculate on variants with homozygous calls.}
 
-\item{cutHeight}{Define cutHeight for tree cutting.
+\item{cutHeight}{Define at which height to cut tree.
 Default automatically defined.}
 
 \item{minClusterSize}{Minimum size of clusters. Default 1.}
@@ -87,7 +87,7 @@ The calculated cosine type distance (1-cosine_similarity)/2 is in the range
 value 0.5 means perpendicular samples (cosine is 0)
 and value 1 means completely opposite samples (cosine is -1).
 
-The calculation is performed by a Java backend implementation,
+The calculation is performed by a Java back-end implementation,
 that supports multi-core CPU utilization
 and can be demanding in terms of memory resources.
 By default a JVM is launched with a maximum memory allocation of 512 MB.
@@ -101,7 +101,7 @@ before \code{library(fastreeR)}.
 }
 \examples{
 my.clust <- vcf2clusters(
-    inputfile = system.file("extdata", "samples.vcf.gz",
+    inputFile = system.file("extdata", "samples.vcf.gz",
         package = "fastreeR"
     )
 )

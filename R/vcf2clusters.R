@@ -28,7 +28,7 @@
 #' value 0.5 means perpendicular samples (cosine is 0)
 #' and value 1 means completely opposite samples (cosine is -1).
 #'
-#' The calculation is performed by a Java backend implementation,
+#' The calculation is performed by a Java back-end implementation,
 #' that supports multi-core CPU utilization
 #' and can be demanding in terms of memory resources.
 #' By default a JVM is launched with a maximum memory allocation of 512 MB.
@@ -40,29 +40,17 @@
 #' the user needs to issue \code{options(java.parameters="-Xmx4g")}
 #' before \code{library(fastreeR)}.
 #'
-#' @param inputfile Input vcf file location (uncompressed or gzip compressed).
+#' @param inputFile Input vcf file location (uncompressed or gzip compressed).
 #' @param threads Number of java threads to use.
-#' @param ignoremissing Ignore variants with missing data
+#' @param ignoreMissing Ignore variants with missing data
 #'     (\code{./.} or \code{.|.})
-#' @param onlyhets Only calculate on variants with heterozygous calls.
-#' @param ignorehets Only calculate on variants with homozygous calls.
-#' @param cutHeight Define cutHeight for tree cutting.
+#' @param onlyHets Only calculate on variants with heterozygous calls.
+#' @param ignoreHets Only calculate on variants with homozygous calls.
+#' @param cutHeight Define at which height to cut tree.
 #'     Default automatically defined.
 #' @param minClusterSize Minimum size of clusters. Default 1.
 #' @param extra Boolean whether to use extra parameters
 #'     for the \code{\link[dynamicTreeCut]{cutreeDynamic}}.
-#'
-#' @usage
-#' vcf2clusters(
-#'     inputfile,
-#'     threads = 2,
-#'     ignoremissing = FALSE,
-#'     onlyhets = FALSE,
-#'     ignorehets = FALSE,
-#'     cutHeight = NULL,
-#'     minClusterSize = 1,
-#'     extra = TRUE
-#' )
 #'
 #' @return A list of :
 #' \itemize{
@@ -88,51 +76,73 @@
 #'
 #' @examples
 #' my.clust <- vcf2clusters(
-#'     inputfile = system.file("extdata", "samples.vcf.gz",
+#'     inputFile = system.file("extdata", "samples.vcf.gz",
 #'         package = "fastreeR"
 #'     )
 #' )
 #' @author Anestis Gkanogiannis, \email{anestis@@gkanogiannis.com}
 #' @references Java implementation:
 #' \url{https://github.com/gkanogiannis/BioInfoJava-Utils}
-vcf2clusters <- function(inputfile,
-                        threads = 2,
-                        ignoremissing = FALSE,
-                        onlyhets = FALSE,
-                        ignorehets = FALSE,
-                        cutHeight = NULL,
-                        minClusterSize = 1,
-                        extra = TRUE) {
-    if (is.null(inputfile) || !file.exists(inputfile)) {
-        return(NULL)
-    }
-    if (R.utils::isGzipped(inputfile)) {
+
+vcf2clusters <- function(inputFile, threads = 2, ignoreMissing = FALSE,
+                        onlyHets = FALSE, ignoreHets = FALSE, cutHeight = NULL,
+                        minClusterSize = 1, extra = TRUE) {
+    vcf2clusters_checkParams(inputFile = inputFile, threads = threads,
+                        ignoreMissing = ignoreMissing, onlyHets = onlyHets,
+                            ignoreHets = ignoreHets, cutHeight = cutHeight,
+                                minClusterSize = minClusterSize, extra = extra)
+
+    if (R.utils::isGzipped(inputFile)) {
         temp.in <- tempfile(fileext = ".vcf")
         on.exit(unlink(temp.in))
         R.utils::gunzip(
-            filename = inputfile,
+            filename = inputFile,
             destname = temp.in, remove = FALSE
         )
-        inputfile <- temp.in
+        inputFile <- temp.in
     }
 
     my.dist <- fastreeR::vcf2dist(
-        inputfile = inputfile,
+        inputFile = inputFile,
         threads = threads,
-        ignoremissing = ignoremissing,
-        onlyhets = onlyhets,
-        ignorehets = ignorehets
+        ignoreMissing = ignoreMissing,
+        onlyHets = onlyHets,
+        ignoreHets = ignoreHets
     )
     my.clusters <- fastreeR::dist2clusters(
-        input = my.dist,
+        inputDist = my.dist,
         cutHeight = cutHeight,
         minClusterSize = minClusterSize,
         extra = extra
     )
 
-    return(list(
-        my.dist,
-        my.clusters[[1]],
-        my.clusters[[2]]
-    ))
+    return(list(my.dist, my.clusters[[1]], my.clusters[[2]]))
+}
+
+vcf2clusters_checkParams <- function(inputFile, threads, ignoreMissing,
+                    onlyHets, ignoreHets, cutHeight, minClusterSize, extra) {
+    if (!methods::is(inputFile, "character")){
+        stop("inputFile must be a file location.")
+    }
+
+    if (is.null(inputFile) || !file.exists(inputFile)) {
+        stop("inputFile=",inputFile," does not exist.")
+    }
+
+    if (!is.logical(ignoreMissing) || !is.logical(onlyHets) ||
+        !is.logical(ignoreHets) || !is.logical(extra)){
+        stop("ignoreMissing, onlyHets, ignoreHets ",
+                                    "and extra parameters must be logical.")
+    }
+
+    if ((!is.numeric(threads) || (is.numeric(threads) && threads<1)) ||
+        (!is.numeric(minClusterSize) ||
+            (is.numeric(minClusterSize) && minClusterSize<1))) {
+        stop("threads and minClusterSize parameters must be positive integer.")
+    }
+
+    if (!is.null(cutHeight) &&
+        (!is.numeric(cutHeight) || (is.numeric(cutHeight) && cutHeight<0))) {
+        stop("cutHeight parameter must be positive numeric.")
+    }
 }

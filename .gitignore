@@ -13,3 +13,4 @@ vignettes/*.html
 /doc/
 /Meta/
 /tmp/
+inst/script/*.html

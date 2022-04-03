@@ -2,23 +2,18 @@
 % Please edit documentation in R/dist2clusters.R
 \name{dist2clusters}
 \alias{dist2clusters}
-\title{Perform Hierarchical Clustering and tree prunning on a distance matrix}
+\title{Perform Hierarchical Clustering and tree pruning on a distance matrix}
 \usage{
-dist2clusters(
-    input.dist,
-    cutHeight = NULL,
-    minClusterSize = 1,
-    extra = TRUE
-)
+    dist2clusters(inputDist, cutHeight = NULL, minClusterSize = 1, extra = TRUE)
 }
 \arguments{
-\item{input.dist}{Input distances file location
+\item{inputDist}{Input distances file location
 (generated with \code{\link[fastreeR]{vcf2dist}}
 or \code{\link[fastreeR]{fasta2dist}}).
 File can be gzip compressed.
 Or a \code{\link[stats]{dist}} distances object.}
 
-\item{cutHeight}{Define cutHeight for tree cutting.
+\item{cutHeight}{Define at which height to cut tree.
 Default automatically defined.}
 
 \item{minClusterSize}{Minimum size of clusters. Default 1.}
@@ -60,7 +55,7 @@ The phylogenetic tree is then pruned with
 }
 \examples{
 my.clust <- dist2clusters(
-    input.dist =
+    inputDist =
         system.file("extdata", "samples.vcf.dist.gz", package = "fastreeR")
 )
 }

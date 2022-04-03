@@ -6,16 +6,11 @@
 #' and generates a phylogenetic tree with
 #' agglomerative Neighbor Joining method (complete linkage).
 #'
-#' @param input.dist Input distances file location
+#' @param inputDist Input distances file location
 #' (generated with \code{\link[fastreeR]{vcf2dist}}
 #' or \code{\link[fastreeR]{fasta2dist}}).
 #' File can be gzip compressed.
 #' Or a \code{\link[stats]{dist}} distances object.
-#'
-#' @usage
-#' dist2tree(
-#'     input.dist
-#' )
 #'
 #' @return A \code{\link[base]{character} vector} of the generated
 #' phylogenetic tree in Newick format.
@@ -23,36 +18,30 @@
 #'
 #' @examples
 #' my.tree <- dist2tree(
-#'     input.dist =
+#'     inputDist =
 #'         system.file("extdata", "samples.vcf.dist.gz", package = "fastreeR")
 #' )
 #' @author Anestis Gkanogiannis, \email{anestis@@gkanogiannis.com}
 #' @references Java implementation:
 #' \url{https://github.com/gkanogiannis/BioInfoJava-Utils}
 
-dist2tree <- function(input.dist) {
-    if (is.null(input.dist) ||
-        (!methods::is(input.dist, "dist") &&
-            !methods::is(input.dist, "character")) ||
-        (methods::is(input.dist, "character") &&
-            (!file.exists(input.dist) || length(input.dist)==0))) {
-        return(NULL)
-    }
+dist2tree <- function(inputDist) {
+    dist2tree_checkParams(inputDist = inputDist)
 
-    inputfile <- input.dist
+    inputfile <- inputDist
 
-    if(methods::is(input.dist, "character") && R.utils::isGzipped(input.dist)) {
+    if(methods::is(inputDist, "character") && R.utils::isGzipped(inputDist)) {
         temp.in <- tempfile(fileext = ".dist")
         on.exit(unlink(temp.in))
-        R.utils::gunzip(filename = input.dist, destname = temp.in,
+        R.utils::gunzip(filename = inputDist, destname = temp.in,
                         remove = FALSE)
         inputfile <- temp.in
-    } else if (methods::is(input.dist, "dist")) {
+    } else if (methods::is(inputDist, "dist")) {
         temp.in <- tempfile(fileext = ".dist")
         on.exit(unlink(temp.in))
-        write(paste0(attr(input.dist, "Size"), " 0"), file = temp.in)
+        write(paste0(attr(inputDist, "Size"), " 0"), file = temp.in)
         utils::write.table(
-            as.matrix(input.dist),
+            as.matrix(inputDist),
             file = temp.in,
             sep = " ",
             row.names = TRUE,
@@ -62,20 +51,31 @@ dist2tree <- function(input.dist) {
         inputfile <- temp.in
     }
 
-    hierarchicalcluster <- rJava::J(
+    hierarchicalcluster <- rJava::.jnew(
         class="ciat/agrobio/hcluster/HierarchicalCluster",
         class.loader = .rJava.class.loader
     )
     generaltools <- rJava::J(
         class="ciat/agrobio/core/GeneralTools",
         class.loader = .rJava.class.loader
-    )
+    )$getInstance()
 
     data <- generaltools$readDistancesSamples(inputfile)
     samples.names <- rJava::.jevalArray(data[[2]])
     samples.distances <- rJava::.jevalArray(data[[1]], simplify = TRUE)
 
-    tree.str <- hierarchicalcluster$hclusteringTree(data[[2]], data[[1]])
+    treeStr <- hierarchicalcluster$hclusteringTree(data[[2]], data[[1]])
 
-    return(tree.str)
+    return(treeStr)
+}
+
+dist2tree_checkParams <- function(inputDist) {
+    if (is.null(inputDist) ||
+        (!methods::is(inputDist, "dist") &&
+            !methods::is(inputDist, "character")) ||
+        (methods::is(inputDist, "character") &&
+            (!file.exists(inputDist) || nchar(inputDist)==0))) {
+        stop("inputDist parameter must be a valid file location ",
+                                                            "or a dist object.")
+    }
 }

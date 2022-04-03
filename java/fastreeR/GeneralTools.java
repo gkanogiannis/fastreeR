@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.SecureRandom;
-//import java.nio.file.Files;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -62,7 +61,16 @@ public class GeneralTools {
 		}
 	}
 	
-	public static int getRandomInteger() {
+	private static GeneralTools instance = new GeneralTools();
+	
+	private GeneralTools() {
+	}
+
+	public static GeneralTools getInstance() {
+		return instance;
+	}
+	
+	public int getRandomInteger() {
 		return prng.nextInt();
 	}
 	
@@ -90,7 +98,7 @@ public class GeneralTools {
 		return dateFormat.format(cal.getTime());
 	}
 	
-	public static String RAMInfo(Runtime runtime){
+	public String RAMInfo(Runtime runtime){
 		double gb = (double)1024*1024*1024;
         NumberFormat format = NumberFormat.getInstance(); 
         StringBuilder sb = new StringBuilder();
@@ -105,7 +113,7 @@ public class GeneralTools {
         return sb.toString();
 	}
 
-	final public static byte[][] concatSeqQual(final ArrayList<byte[]> arrays) {
+	final public byte[][] concatSeqQual(final ArrayList<byte[]> arrays) {
 		byte[] all = concat(arrays);
 		int size = all.length;
 		int sizeSeq = 0;
@@ -135,7 +143,7 @@ public class GeneralTools {
 		return ret;
 	}
 	
-	final public static byte[] concat(final ArrayList<byte[]> arrays) {
+	final public byte[] concat(final ArrayList<byte[]> arrays) {
 		int size = 0;
 		for (byte[] a : arrays)
 			size += a.length;
@@ -153,7 +161,7 @@ public class GeneralTools {
 		return dest;
 	}
 	
-	public static int round(double d){
+	public int round(double d){
 	    double dAbs = Math.abs(d);
 	    int i = (int) dAbs;
 	    double result = dAbs - (double) i;
@@ -164,7 +172,7 @@ public class GeneralTools {
 	    }
 	}
 
-	public static char[] bytesToStringUTFCustom(byte[] bytes) {
+	public char[] bytesToStringUTFCustom(byte[] bytes) {
 		char[] buffer = new char[bytes.length >> 1];
 		for (int i = 0; i < buffer.length; i++) {
 			int bpos = i << 1;
@@ -175,7 +183,7 @@ public class GeneralTools {
 		//return new String(buffer);
 	}
 	
-	public static byte[] stringToBytesUTFCustom(char[] str) {
+	public byte[] stringToBytesUTFCustom(char[] str) {
 		byte[] b = new byte[str.length << 1];
 		for (int i = 0; i < str.length; i++) {
 			char strChar = str[i];
@@ -186,7 +194,7 @@ public class GeneralTools {
 		return b;
 	}
 	
-	public static List<String> directoriesToFiles(List<String> inputFastaFileNames){
+	public List<String> directoriesToFiles(List<String> inputFastaFileNames){
 		ArrayList<String> outputFastaFileNames = new ArrayList<String>();
 		try {
 			for(String s : inputFastaFileNames){
@@ -207,7 +215,7 @@ public class GeneralTools {
 		return outputFastaFileNames;
 	}
 	
-	public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue( Map<K, V> map ){
+	public <K, V extends Comparable<? super V>> Map<K, V> sortByValue( Map<K, V> map ){
 		List<Map.Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>( map.entrySet() );
 		Collections.sort( list, new Comparator<Map.Entry<K, V>>(){
 			public int compare( Map.Entry<K, V> o1, Map.Entry<K, V> o2 ){
@@ -230,7 +238,7 @@ public class GeneralTools {
 		return result;
 	}
 	
-	public static ArrayList<String> generateKmerVocabulary(int k){
+	public ArrayList<String> generateKmerVocabulary(int k){
 		ArrayList<String> vocabulary = new ArrayList<String>();
 		
 		char[] chars = "ATCG".toCharArray();
@@ -240,7 +248,7 @@ public class GeneralTools {
 		return vocabulary;
 	}
 	
-	private static void iterate(char[] chars, int len, char[] build, int pos, ArrayList<String> vocabulary) {
+	private void iterate(char[] chars, int len, char[] build, int pos, ArrayList<String> vocabulary) {
         if (pos == len) {
             String word = new String(build);
             vocabulary.add(word);
@@ -259,7 +267,7 @@ public class GeneralTools {
 	}
 	*/
 	
-	public static final String reverseComplement(String sequence){
+	public final String reverseComplement(String sequence){
 		StringBuilder sb = new StringBuilder();
 		for(int i=sequence.length()-1; i>=0; i--){
 			switch (sequence.charAt(i)){
@@ -292,7 +300,7 @@ public class GeneralTools {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public static long classBuildTimeMillis(Class c){
+	public long classBuildTimeMillis(Class c){
 	    URL resource = c.getResource(c.getSimpleName() + ".class");
 	    if (resource == null) {
 	        System.out.println("Failed to find class file for class: " + c.getName());
@@ -319,13 +327,13 @@ public class GeneralTools {
 	    }
 	}
 
-	public static final <T extends Comparable<? super T>> List<T> asSortedList(Collection<T> c) {
+	public <T extends Comparable<? super T>> List<T> asSortedList(Collection<T> c) {
 		List<T> list = new ArrayList<T>(c);
 		Collections.sort(list);
 		return list;
 	}
 	
-	public static final String[] reorderLabels(String[] original, String treeString){
+	public String[] reorderLabels(String[] original, String treeString){
 		String[] labelsReordered = new String[original.length];
 		
 		String[] data = treeString.split(",");
@@ -349,7 +357,7 @@ public class GeneralTools {
 		return labelsReordered;
 	}
 	
-	public static final double[][] reorderDistances(double[][] distancesOriginal, String[] labelsOriginal, String[] labelsReordered){
+	public double[][] reorderDistances(double[][] distancesOriginal, String[] labelsOriginal, String[] labelsReordered){
 		int size = distancesOriginal.length;
 		double[][] distancesReordered = new double[size][size];
 		
@@ -376,7 +384,7 @@ public class GeneralTools {
 		return distancesReordered;
 	}
 	
-	public static final Object[] readDistancesSamples(String input) {
+	public Object[] readDistancesSamples(String input) {
 		try {
 			BufferedReader br = new BufferedReader(new FileReader(input));
 			String line = br.readLine();

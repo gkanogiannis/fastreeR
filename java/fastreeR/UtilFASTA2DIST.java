@@ -21,7 +21,6 @@
  */
 package ciat.agrobio.javautils;
 
-import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,20 +34,14 @@ import com.beust.jcommander.Parameters;
 
 import ciat.agrobio.core.CalculateDistancesD2;
 import ciat.agrobio.core.GeneralTools;
+import ciat.agrobio.core.SequenceD2;
 import ciat.agrobio.core.SequenceProcessor;
 import ciat.agrobio.io.FastaManager;
-import ciat.agrobio.io.SequenceD2;
 
 @Parameters(commandDescription = "FASTA2DIST")
 public class UtilFASTA2DIST {
 
-	private static UtilFASTA2DIST instance = new UtilFASTA2DIST();
-
-	private UtilFASTA2DIST() {
-	}
-
-	public static UtilFASTA2DIST getInstance() {
-		return instance;
+	public UtilFASTA2DIST() {
 	}
 
 	public static String getUtilName() {

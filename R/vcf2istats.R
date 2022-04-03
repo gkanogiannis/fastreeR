@@ -20,38 +20,31 @@
 #'     \item P_MISS : Percentage of missing calls (missing rate)
 #' }
 #'
-#' @param inputfile Input vcf file location (uncompressed or gzip compressed).
-#' @param outputfile Output samples statistics (istats) file location.
+#' @param inputFile Input vcf file location (uncompressed or gzip compressed).
+#' @param outputFile Output samples statistics file location.
 #'
 #' @return A \code{\link[base]{data.frame}} of sample statistics.
 #' @export
 #'
 #' @examples
 #' my.istats <- vcf2istats(
-#'     inputfile =
+#'     inputFile =
 #'         system.file("extdata", "samples.vcf.gz", package = "fastreeR")
 #' )
 #' @author Anestis Gkanogiannis, \email{anestis@@gkanogiannis.com}
 #' @references Java implementation:
 #' \url{https://github.com/gkanogiannis/BioInfoJava-Utils}
 
-vcf2istats <- function(
-                    inputfile,
-                    outputfile = NULL) {
-    if (is.null(inputfile) || !file.exists(inputfile)) {
-        return(NULL)
-    }
-    if (R.utils::isGzipped(inputfile)) {
-        # No need to treat gzipped. Java backend takes care.
-    }
+vcf2istats <- function(inputFile, outputFile = NULL) {
+    vcf2istats_checkParams(inputFile = inputFile, outputFile = outputFile)
 
-    bioinfojavautils <- rJava::J(
+    bioinfojavautils <- rJava::.jnew(
         class="ciat/agrobio/javautils/JavaUtils",
         class.loader = .rJava.class.loader
     )
     cmd <- paste(
         "VCF2ISTATS",
-        inputfile,
+        inputFile,
         sep = " "
     )
 
@@ -60,15 +53,30 @@ vcf2istats <- function(
     jSys <- rJava::J("java/lang/System")
     jOrigOut <- jSys$out
     jSys$setOut(rJava::.jnew("java/io/PrintStream", temp.out))
-    bioinfojavautils$main(rJava::.jarray(strsplit(cmd, "\\s+")[[1]]))
+    bioinfojavautils$go(rJava::.jarray(strsplit(cmd, "\\s+")[[1]]))
     jSys$setOut(jOrigOut)
 
     ret.str <- stringr::str_replace_all(readLines(temp.out), "\t", " ")
     ret.df <- utils::read.table(text = ret.str, header = TRUE)
 
-    if (!is.null(outputfile)) {
-        data.table::fwrite(as.list(ret.str), file = outputfile, sep = "\n")
+    if (!is.null(outputFile)) {
+        data.table::fwrite(as.list(ret.str), file = outputFile, sep = "\n")
     }
 
     return(ret.df)
+}
+
+vcf2istats_checkParams <- function(inputFile, outputFile) {
+    if (!methods::is(inputFile, "character")){
+        stop("inputFile must be a file location.")
+    }
+
+    if (is.null(inputFile) || !file.exists(inputFile)) {
+        stop("inputFile=",inputFile," does not exist.")
+    }
+
+    if ((!is.null(outputFile) && !methods::is(outputFile, "character")) ||
+        (methods::is(outputFile, "character") && nchar(outputFile)==0)) {
+        stop("outputFile must be a file location.")
+    }
 }

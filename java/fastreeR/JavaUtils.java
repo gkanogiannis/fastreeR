@@ -33,28 +33,46 @@ import ciat.agrobio.core.GeneralTools;
 
 public class JavaUtils {
 	
-	public static void main(String[] args) {
+	private GeneralTools gTools = GeneralTools.getInstance();
+	
+	public void go(String[] args) {
 		JCommander jc = null;
 		try {
-			jc = JCommander.newBuilder().build();
+			jc = JCommander.newBuilder()
 			
-			jc.addCommand(UtilVCF2ISTATS.getUtilName(),  UtilVCF2ISTATS.getInstance()); // in R
-			jc.addCommand(UtilVCF2DIST.getUtilName(), UtilVCF2DIST.getInstance()); // in R
-			jc.addCommand(UtilVCF2TREE.getUtilName(), UtilVCF2TREE.getInstance()); // in R
+			//jc.addCommand(UtilVCF2ARFF.getUtilName(), new UtilVCF2ARFF());
+			//jc.addCommand(UtilVCF2CSV.getUtilName(),  new UtilVCF2CSV());
+			//jc.addCommand(UtilVCF2TABLE.getUtilName(),  new UtilVCF2TABLE());
+			.addCommand(UtilVCF2ISTATS.getUtilName(),  new UtilVCF2ISTATS()) // in R
+			//jc.addCommand(UtilVCF2SVM.getUtilName(), new UtilVCF2SVM());
+			.addCommand(UtilVCF2DIST.getUtilName(), new UtilVCF2DIST()) // in R
+			.addCommand(UtilVCF2TREE.getUtilName(), new UtilVCF2TREE()) // in R
+			//jc.addCommand(UtilVCFRemoveClones.getUtilName(), new UtilVCFRemoveClones()); //
+			//jc.addCommand(UtilVCFNonrelated.getUtilName(), new UtilVCFNonrelated()); //
+			//jc.addCommand(UtilVCFKeepVariants.getUtilName(), new UtilVCFKeepVariants());
+			//jc.addCommand(UtilVCFKeepSamples.getUtilName(), new UtilVCFKeepSamples());
+			//jc.addCommand(UtilVCFRemoveSamples.getUtilName(), new UtilVCFRemoveSamples());
+			//jc.addCommand(UtilVCFClassifyFromTxtModel.getUtilName(), new UtilVCFClassifyFromTxtModel());
+			//jc.addCommand(UtilVCFsIntersection.getUtilName(), new UtilVCFsIntersection()); //
+			//jc.addCommand(UtilVCFFilter.getUtilName(), new UtilVCFFilter());
 			
-			jc.addCommand(UtilFASTA2DIST.getUtilName(), UtilFASTA2DIST.getInstance()); //
+			.addCommand(UtilFASTA2DIST.getUtilName(), new UtilFASTA2DIST()) //
 			
-			jc.addCommand(UtilDIST2TREE.getUtilName(), UtilDIST2TREE.getInstance()); // in R
-			jc.addCommand(UtilDIST2Clusters.getUtilName(), UtilDIST2Clusters.getInstance()); // in R
+			.addCommand(UtilDIST2TREE.getUtilName(), new UtilDIST2TREE()) // in R
+			.addCommand(UtilDIST2Clusters.getUtilName(), new UtilDIST2Clusters()) // in R
+			//jc.addCommand(UtilDIST2Hist.getUtilName(), new UtilDIST2Hist()); // in R
 			
+			//jc.addCommand(UtilARFFClassifyFromWeka.getUtilName(), new UtilARFFClassifyFromWeka());
+			//jc.addCommand(UtilARFFaddTrait.getUtilName(), new UtilARFFaddTrait());
+			
+			.build();
 			jc.parse(args);
 			
 			Class<?> utilClass = Class.forName(JavaUtils.class.getPackage().getName()+".Util"+jc.getParsedCommand());
-			Method getUtilNameMethod = utilClass.getMethod("getUtilName");
-			Method getUtilInstanceMethod = utilClass.getMethod("getInstance");
+			//Method getUtilInstanceMethod = utilClass.getMethod("getInstance");
 			Method goMethod = utilClass.getMethod("go");
-			Object util = getUtilInstanceMethod.invoke(null);
-			String selectedUtilName = (String)getUtilNameMethod.invoke(util);
+			Object util = jc.getCommands().get(jc.getParsedCommand()).getObjects().get(0); // getUtilInstanceMethod.invoke(null);
+
 			Field f = utilClass.getDeclaredField("help");
 			f.setAccessible(true);
 			boolean help = f.getBoolean(util);
@@ -66,7 +84,7 @@ public class JavaUtils {
 				System.exit(0);
 			}
 			
-			System.err.println( selectedUtilName + " : " + new Date(GeneralTools.classBuildTimeMillis(utilClass)).toString());
+			System.err.println( jc.getParsedCommand() + " : " + new Date(gTools.classBuildTimeMillis(utilClass)).toString());
 			goMethod.invoke(util);	
 		} 
 		catch (MissingCommandException e) {
@@ -80,10 +98,13 @@ public class JavaUtils {
 			System.err.println(sb.toString());
 		}
 		catch (Exception e) {
-			//e.printStackTrace();
-			System.err.println("Invalid JavaUtil selection!");
-		    System.err.println("Use one of : " + jc.getCommands().keySet());
-		    System.exit(0);
+			System.err.println(e.getMessage());
+			e.printStackTrace();
 		}
+	}
+	
+	public static void main(String[] args) {
+		JavaUtils ju = new JavaUtils();
+		ju.go(args);
 	}
 }

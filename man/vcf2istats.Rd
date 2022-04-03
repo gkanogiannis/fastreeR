@@ -4,12 +4,12 @@
 \alias{vcf2istats}
 \title{Calculate various per sample statistics from a VCF file}
 \usage{
-vcf2istats(inputfile, outputfile = NULL)
+    vcf2istats(inputFile, outputFile = NULL)
 }
 \arguments{
-\item{inputfile}{Input vcf file location (uncompressed or gzip compressed).}
+\item{inputFile}{Input vcf file location (uncompressed or gzip compressed).}
 
-\item{outputfile}{Output samples statistics (istats) file location.}
+\item{outputFile}{Output samples statistics file location.}
 }
 \value{
 A \code{\link[base]{data.frame}} of sample statistics.
@@ -37,7 +37,7 @@ For each sample, the following statistics are calculated :
 }
 \examples{
 my.istats <- vcf2istats(
-    inputfile =
+    inputFile =
         system.file("extdata", "samples.vcf.gz", package = "fastreeR")
 )
 }

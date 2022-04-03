@@ -2,28 +2,29 @@
 % Please edit documentation in R/tree2clusters.R
 \name{tree2clusters}
 \alias{tree2clusters}
-\title{Perform Hierarchical Clustering and tree prunning on a phylogenetic tree}
+\title{Perform Hierarchical Clustering and tree pruning on a phylogenetic tree}
 \usage{
 tree2clusters(
-    tree.str,
-    tree.distances = NULL,
-    tree.labels = NULL,
+    treeStr,
+    treeDistances = NULL,
+    treeLabels = NULL,
     cutHeight = NULL,
     minClusterSize = 1,
     extra = TRUE
 )
 }
 \arguments{
-\item{tree.str}{A \code{\link[base]{character} vector} of a
+\item{treeStr}{A \code{\link[base]{character} vector} of a
 phylogenetic tree in Newick format}
 
-\item{tree.distances}{code{numeric \link[base]{matrix}} of
+\item{treeDistances}{code{numeric \link[base]{matrix}} of
 distances, that were used to generate the tree.
-If NULL, it will be infered from tree branch lengths.}
+If NULL, it will be inferred from tree branch lengths.}
 
-\item{tree.labels}{A \code{\link[base]{character} vector} of tree labels.}
+\item{treeLabels}{A \code{\link[base]{character} vector}
+of tree leaf labels.}
 
-\item{cutHeight}{Define cutHeight for tree cutting.
+\item{cutHeight}{Define at which height to cut tree.
 Default automatically defined.}
 
 \item{minClusterSize}{Minimum size of clusters. Default 1.}
@@ -55,8 +56,8 @@ The phylogenetic tree is pruned with
 }
 \examples{
 my.clust <- tree2clusters(
-    tree.str = dist2tree(
-        input = system.file("extdata", "samples.vcf.dist.gz",
+    treeStr = dist2tree(
+        inputDist = system.file("extdata", "samples.vcf.dist.gz",
             package = "fastreeR"
         )
     )

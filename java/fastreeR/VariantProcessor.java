@@ -26,7 +26,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ciat.agrobio.io.VCFManager;
-import ciat.agrobio.io.VariantManager;
 
 public class VariantProcessor implements Runnable {
 

@@ -32,8 +32,6 @@ import java.util.concurrent.RecursiveTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ciat.agrobio.io.FastaManager;
-import ciat.agrobio.io.SequenceD2;
-import ciat.agrobio.io.SequenceD2Interface;
 import gnu.trove.iterator.TLongIntIterator;
 
 public class CalculateDistancesD2 {
@@ -104,6 +102,7 @@ class CalculateD2ChildTask extends RecursiveAction {
 	private ConcurrentHashMap<Integer, SequenceD2> seqVectors;
 	private List<String> seqNames;
 	private List<Integer> seqIds;
+	@SuppressWarnings("unused")
 	private FastaManager frm;
 	
 	private double[][] distances;

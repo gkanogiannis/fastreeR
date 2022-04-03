@@ -21,9 +21,6 @@
  */
 package ciat.agrobio.core;
 
-import ciat.agrobio.io.Sequence;
-import ciat.agrobio.io.SequenceD2;
-
 public class SequenceEncoder {
 	
 	//private static Alphabet DNA = Alphabet.DNA;

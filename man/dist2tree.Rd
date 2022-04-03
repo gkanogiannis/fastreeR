@@ -4,12 +4,10 @@
 \alias{dist2tree}
 \title{Generate phylogenetic tree from samples of a distance matrix}
 \usage{
-dist2tree(
-    input.dist
-)
+    dist2tree(inputDist)
 }
 \arguments{
-\item{input.dist}{Input distances file location
+\item{inputDist}{Input distances file location
 (generated with \code{\link[fastreeR]{vcf2dist}}
 or \code{\link[fastreeR]{fasta2dist}}).
 File can be gzip compressed.
@@ -28,7 +26,7 @@ agglomerative Neighbor Joining method (complete linkage).
 }
 \examples{
 my.tree <- dist2tree(
-    input.dist =
+    inputDist =
         system.file("extdata", "samples.vcf.dist.gz", package = "fastreeR")
 )
 }

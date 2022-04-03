@@ -26,8 +26,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ciat.agrobio.io.FastaManager;
-import ciat.agrobio.io.Sequence;
-import ciat.agrobio.io.SequenceD2;
 
 public class SequenceProcessor implements Runnable {
 

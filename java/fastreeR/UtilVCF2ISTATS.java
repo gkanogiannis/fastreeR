@@ -43,11 +43,7 @@ import ciat.agrobio.core.GeneralTools;
 @Parameters(commandDescription = "VCF2ISTATS")
 public class UtilVCF2ISTATS {
 	
-	private static UtilVCF2ISTATS instance = new UtilVCF2ISTATS();
-	
-	private UtilVCF2ISTATS() {}
-	
-	public static UtilVCF2ISTATS getInstance() {return instance;}
+	public UtilVCF2ISTATS() {}
 	
 	public static String getUtilName() {
 		return "VCF2ISTATS";

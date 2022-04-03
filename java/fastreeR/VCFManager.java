@@ -31,6 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import ciat.agrobio.core.GeneralTools;
 import ciat.agrobio.core.Variant;
+import ciat.agrobio.core.VariantManager;
 
 public class VCFManager implements Runnable{
 	private List<byte[]> commentData;
@@ -98,6 +99,9 @@ public class VCFManager implements Runnable{
 		    		else if(line[0][0]=='#') {
 		    			headerData = line;
 		    			vm.setNumSamples(headerData.length - 9);
+		    		}
+		    		else if(line.length<10) {
+		    			continue;
 		    		}
 		    		else {
 		    			Variant variant = new Variant(currVariantId.incrementAndGet(), line);

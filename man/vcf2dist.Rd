@@ -5,28 +5,28 @@
 \title{Calculate distances between samples of a VCF file}
 \usage{
 vcf2dist(
-    inputfile,
-    outputfile = NULL,
+    inputFile,
+    outputFile = NULL,
     threads = 2,
-    ignoremissing = FALSE,
-    onlyhets = FALSE,
-    ignorehets = FALSE,
-    compress = TRUE
+    ignoreMissing = FALSE,
+    onlyHets = FALSE,
+    ignoreHets = FALSE,
+    compress = FALSE
 )
 }
 \arguments{
-\item{inputfile}{Input vcf file location (uncompressed or gzip compressed).}
+\item{inputFile}{Input vcf file location (uncompressed or gzip compressed).}
 
-\item{outputfile}{Output distances file location.}
+\item{outputFile}{Output distances file location.}
 
 \item{threads}{Number of java threads to use.}
 
-\item{ignoremissing}{Ignore variants with missing data
+\item{ignoreMissing}{Ignore variants with missing data
 (\code{./.} or \code{.|.})}
 
-\item{onlyhets}{Only calculate on variants with heterozygous calls.}
+\item{onlyHets}{Only calculate on variants with heterozygous calls.}
 
-\item{ignorehets}{Only calculate on variants with homozygous calls.}
+\item{ignoreHets}{Only calculate on variants with homozygous calls.}
 
 \item{compress}{Compress output (adds .gz extension).}
 }
@@ -88,7 +88,7 @@ calculated from 1000 variants:
 }
 \examples{
 my.dist <- vcf2dist(
-    inputfile = system.file("extdata", "samples.vcf.gz",
+    inputFile = system.file("extdata", "samples.vcf.gz",
         package = "fastreeR"
     )
 )

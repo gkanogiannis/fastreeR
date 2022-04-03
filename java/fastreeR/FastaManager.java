@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ciat.agrobio.core.GeneralTools;
+import ciat.agrobio.core.Sequence;
 
 public class FastaManager implements Runnable{
 	private BlockingQueue<Sequence> sequences = null;
@@ -52,6 +53,8 @@ public class FastaManager implements Runnable{
 	private boolean done = false;
 	private CountDownLatch startSignal = null;
 	private CountDownLatch doneSignal = null;
+	
+	private GeneralTools gTools = GeneralTools.getInstance();
 	
 	//private BTreeMap<Integer, Sequence> sequences = null;
 	
@@ -240,11 +243,11 @@ public class FastaManager implements Runnable{
 		    			}
 		    			//System.err.println(numOfReads+" From previous chunk A");
 		    			//putRead(new Read(numOfReads++, lastHeader, Utils.concat(lastSeq)));
-		    			int seqId = GeneralTools.getRandomInteger();
+		    			int seqId = gTools.getRandomInteger();
 		    			while(sequenceIds.contains(seqId)) {
-		    				seqId = GeneralTools.getRandomInteger();
+		    				seqId = gTools.getRandomInteger();
 		    			}
-		    			Sequence sequence = new Sequence(seqId, lastHeader, GeneralTools.concat(lastSeq));
+		    			Sequence sequence = new Sequence(seqId, lastHeader, gTools.concat(lastSeq));
 		    			currSequenceId.incrementAndGet();
 		    			if(!putSequence(sequence)) {
 		    				currSequenceId.decrementAndGet();
@@ -277,9 +280,9 @@ public class FastaManager implements Runnable{
 						//System.err.println(numOfReads+" From previous chunk Q");
 						if(keepQualities){
 			    			//putRead(new Read(numOfReads++, lastHeader, seq, qual));
-							int seqId = GeneralTools.getRandomInteger();
+							int seqId = gTools.getRandomInteger();
 			    			while(sequenceIds.contains(seqId)) {
-			    				seqId = GeneralTools.getRandomInteger();
+			    				seqId = gTools.getRandomInteger();
 			    			}
 							Sequence sequence = new Sequence(seqId, lastHeader, seq, qual);
 			    			currSequenceId.incrementAndGet();
@@ -289,9 +292,9 @@ public class FastaManager implements Runnable{
 						}
 			    		else{
 			    			//putRead(new Read(numOfReads++, lastHeader, seq));
-			    			int seqId = GeneralTools.getRandomInteger();
+			    			int seqId = gTools.getRandomInteger();
 			    			while(sequenceIds.contains(seqId)) {
-			    				seqId = GeneralTools.getRandomInteger();
+			    				seqId = gTools.getRandomInteger();
 			    			}
 			    			Sequence sequence = new Sequence(seqId, lastHeader, seq);
 			    			currSequenceId.incrementAndGet();
@@ -334,11 +337,11 @@ public class FastaManager implements Runnable{
 						else{
 							//System.err.println(numOfReads+" normalA");
 							//putRead(new Read(numOfReads++, header, Utils.concat(seq)));
-							int seqId = GeneralTools.getRandomInteger();
+							int seqId = gTools.getRandomInteger();
 			    			while(sequenceIds.contains(seqId)) {
-			    				seqId = GeneralTools.getRandomInteger();
+			    				seqId = gTools.getRandomInteger();
 			    			}
-							Sequence sequence = new Sequence(seqId, header, GeneralTools.concat(seq));
+							Sequence sequence = new Sequence(seqId, header, gTools.concat(seq));
 			    			currSequenceId.incrementAndGet();
 			    			if(!putSequence(sequence)) {
 			    				currSequenceId.decrementAndGet();
@@ -371,9 +374,9 @@ public class FastaManager implements Runnable{
 							//System.err.println(numOfReads+" normalQ");
 				    		if(keepQualities){
 				    			//putRead(new Read(numOfReads++, header, seq, qual));
-				    			int seqId = GeneralTools.getRandomInteger();
+				    			int seqId = gTools.getRandomInteger();
 				    			while(sequenceIds.contains(seqId)) {
-				    				seqId = GeneralTools.getRandomInteger();
+				    				seqId = gTools.getRandomInteger();
 				    			}
 				    			Sequence sequence = new Sequence(seqId, header, seq, qual);
 				    			currSequenceId.incrementAndGet();
@@ -383,9 +386,9 @@ public class FastaManager implements Runnable{
 				    		}
 				    		else{
 				    			//putRead(new Read(numOfReads++, header, seq));
-				    			int seqId = GeneralTools.getRandomInteger();
+				    			int seqId = gTools.getRandomInteger();
 				    			while(sequenceIds.contains(seqId)) {
-				    				seqId = GeneralTools.getRandomInteger();
+				    				seqId = gTools.getRandomInteger();
 				    			}
 				    			Sequence sequence = new Sequence(seqId, header, seq);
 				    			currSequenceId.incrementAndGet();
@@ -415,11 +418,11 @@ public class FastaManager implements Runnable{
 	    		if(!isFastq){	
 	    			//System.err.println(numOfReads+" From last chunk A");
 	    			//putRead(new Read(numOfReads++, lastHeader, Utils.concat(lastSeq)));
-	    			int seqId = GeneralTools.getRandomInteger();
+	    			int seqId = gTools.getRandomInteger();
 	    			while(sequenceIds.contains(seqId)) {
-	    				seqId = GeneralTools.getRandomInteger();
+	    				seqId = gTools.getRandomInteger();
 	    			}
-	    			Sequence sequence = new Sequence(seqId, lastHeader, GeneralTools.concat(lastSeq));
+	    			Sequence sequence = new Sequence(seqId, lastHeader, gTools.concat(lastSeq));
 	    			currSequenceId.incrementAndGet();
 	    			if(!putSequence(sequence)) {
 	    				currSequenceId.decrementAndGet();
@@ -432,9 +435,9 @@ public class FastaManager implements Runnable{
 					if(!keepQualities){
 						//System.err.println(numOfReads+" From last chunk Q");
 		    			//putRead(new Read(numOfReads++, lastHeader, lastQualSeq));
-						int seqId = GeneralTools.getRandomInteger();
+						int seqId = gTools.getRandomInteger();
 		    			while(sequenceIds.contains(seqId)) {
-		    				seqId = GeneralTools.getRandomInteger();
+		    				seqId = gTools.getRandomInteger();
 		    			}
 						Sequence sequence = new Sequence(seqId, lastHeader, lastQualSeq);
 		    			currSequenceId.incrementAndGet();

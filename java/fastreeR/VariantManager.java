@@ -1,9 +1,7 @@
-package ciat.agrobio.io;
+package ciat.agrobio.core;
 
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
-import ciat.agrobio.core.Variant;
 
 public class VariantManager {
 	private int numVariants;
@@ -94,7 +92,7 @@ public class VariantManager {
 	public boolean putVariantRaw(Variant variant) {
 		try {
 			long free = Runtime.getRuntime().freeMemory();
-			long max = Runtime.getRuntime().maxMemory();
+			//long max = Runtime.getRuntime().maxMemory();
 			//long total = Runtime.getRuntime().totalMemory();
 			if(free < 48*1024*1024) {
 				return false;
