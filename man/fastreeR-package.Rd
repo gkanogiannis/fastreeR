@@ -4,28 +4,21 @@
 \name{fastreeR-package}
 \alias{fastreeR}
 \alias{fastreeR-package}
-\title{fastreeR: Phylogenetic, Distance and Other Calculations on VCF
-and Fasta Files}
+\title{fastreeR: Phylogenetic, Distance and Other Calculations on VCF and Fasta Files}
 \description{
-Calculate distances, build phylogenetic trees
-or perform hierarchical clustering between the samples of a VCF or FASTA file.
-Functions are implemented in Java and called via rJava.
-Parallel implementation that operates directly on the VCF
-or FASTA file for fast execution.
+Calculate distances, build phylogenetic trees or perform hierarchical clustering between the samples of a VCF or FASTA file. Functions are implemented in Java and called via rJava. Parallel implementation that operates directly on the VCF or FASTA file for fast execution.
 }
 \seealso{
 Useful links:
 \itemize{
-    \item \url{https://github.com/gkanogiannis/fastreeR}
-    \item \url{https://github.com/gkanogiannis/BioInfoJava-Utils}
-    \item Report bugs at \url{https://github.com/gkanogiannis/fastreeR/issues}
+  \item \url{https://github.com/gkanogiannis/fastreeR}
+  \item \url{https://github.com/gkanogiannis/BioInfoJava-Utils}
+  \item Report bugs at \url{https://github.com/gkanogiannis/fastreeR/issues}
 }
 
 }
 \author{
-\strong{Maintainer}: Anestis Gkanogiannis
-\email{anestis@gkanogiannis.com}
-(\href{https://orcid.org/0000-0002-6441-0688}{ORCID})
+\strong{Maintainer}: Anestis Gkanogiannis \email{anestis@gkanogiannis.com} (\href{https://orcid.org/0000-0002-6441-0688}{ORCID})
 
 }
 \keyword{internal}

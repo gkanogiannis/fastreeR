@@ -2,8 +2,17 @@
 \title{fastreeR News}
 \encoding{UTF-8}
 
-\section{Version 1.0.0}{\itemize{
-\item New package \pkg{fastreeR}, Phylogenetic, Distance
+\section{Version 1.1.1 (2022-05-08)}{\itemize{
+\item Update tests to improve coverage.
+}}
+
+\section{Version 1.1.0 (2022-05-08)}{\itemize{
+\item Bump x.y.z version to odd y following creation of RELEASE_3_15 branch.
+}}
+
+\section{Version 1.0.0 (2022-04-27)}{\itemize{
+\item Bioconductor 3.15 Release.
+New package \pkg{fastreeR}, Phylogenetic, Distance
 and Other Calculations on VCF and Fasta Files.
 }}
 

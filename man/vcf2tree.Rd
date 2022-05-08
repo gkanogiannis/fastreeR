@@ -5,11 +5,11 @@
 \title{Generate phylogenetic tree from samples of a VCF file}
 \usage{
 vcf2tree(
-    inputFile,
-    threads = 2,
-    ignoreMissing = FALSE,
-    onlyHets = FALSE,
-    ignoreHets = FALSE
+  inputFile,
+  threads = 2,
+  ignoreMissing = FALSE,
+  onlyHets = FALSE,
+  ignoreHets = FALSE
 )
 }
 \arguments{

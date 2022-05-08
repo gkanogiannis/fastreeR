@@ -4,7 +4,7 @@
 \alias{dist2clusters}
 \title{Perform Hierarchical Clustering and tree pruning on a distance matrix}
 \usage{
-    dist2clusters(inputDist, cutHeight = NULL, minClusterSize = 1, extra = TRUE)
+dist2clusters(inputDist, cutHeight = NULL, minClusterSize = 1, extra = TRUE)
 }
 \arguments{
 \item{inputDist}{Input distances file location

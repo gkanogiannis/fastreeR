@@ -4,7 +4,7 @@
 \alias{vcf2istats}
 \title{Calculate various per sample statistics from a VCF file}
 \usage{
-    vcf2istats(inputFile, outputFile = NULL)
+vcf2istats(inputFile, outputFile = NULL)
 }
 \arguments{
 \item{inputFile}{Input vcf file location (uncompressed or gzip compressed).}
