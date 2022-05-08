@@ -5,14 +5,14 @@
 \title{Perform Hierarchical Clustering and tree pruning on samples of VCF file}
 \usage{
 vcf2clusters(
-    inputFile,
-    threads = 2,
-    ignoreMissing = FALSE,
-    onlyHets = FALSE,
-    ignoreHets = FALSE,
-    cutHeight = NULL,
-    minClusterSize = 1,
-    extra = TRUE
+  inputFile,
+  threads = 2,
+  ignoreMissing = FALSE,
+  onlyHets = FALSE,
+  ignoreHets = FALSE,
+  cutHeight = NULL,
+  minClusterSize = 1,
+  extra = TRUE
 )
 }
 \arguments{

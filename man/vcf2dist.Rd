@@ -5,13 +5,13 @@
 \title{Calculate distances between samples of a VCF file}
 \usage{
 vcf2dist(
-    inputFile,
-    outputFile = NULL,
-    threads = 2,
-    ignoreMissing = FALSE,
-    onlyHets = FALSE,
-    ignoreHets = FALSE,
-    compress = FALSE
+  inputFile,
+  outputFile = NULL,
+  threads = 2,
+  ignoreMissing = FALSE,
+  onlyHets = FALSE,
+  ignoreHets = FALSE,
+  compress = FALSE
 )
 }
 \arguments{

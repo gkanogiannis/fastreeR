@@ -5,12 +5,12 @@
 \title{Perform Hierarchical Clustering and tree pruning on a phylogenetic tree}
 \usage{
 tree2clusters(
-    treeStr,
-    treeDistances = NULL,
-    treeLabels = NULL,
-    cutHeight = NULL,
-    minClusterSize = 1,
-    extra = TRUE
+  treeStr,
+  treeDistances = NULL,
+  treeLabels = NULL,
+  cutHeight = NULL,
+  minClusterSize = 1,
+  extra = TRUE
 )
 }
 \arguments{

@@ -5,12 +5,12 @@
 \title{Calculate distances between sequences of a FASTA file}
 \usage{
 fasta2dist(
-    ...,
-    outputFile = NULL,
-    threads = 2,
-    kmer = 6,
-    normalize = FALSE,
-    compress = TRUE
+  ...,
+  outputFile = NULL,
+  threads = 2,
+  kmer = 6,
+  normalize = FALSE,
+  compress = TRUE
 )
 }
 \arguments{

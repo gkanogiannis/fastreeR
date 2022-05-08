@@ -4,7 +4,7 @@
 \alias{dist2tree}
 \title{Generate phylogenetic tree from samples of a distance matrix}
 \usage{
-    dist2tree(inputDist)
+dist2tree(inputDist)
 }
 \arguments{
 \item{inputDist}{Input distances file location
