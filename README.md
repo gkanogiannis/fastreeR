@@ -4,6 +4,9 @@
 # fastreeR
 
 <!-- badges: start -->
+
+[![BioC
+status](http://www.bioconductor.org/shields/build/release/bioc/fastreeR.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/fastreeR)
 <!-- badges: end -->
 
 The goal of fastreeR is to provide functions for calculating distance
