@@ -2,6 +2,10 @@
 \title{fastreeR News}
 \encoding{UTF-8}
 
+\section{Version 1.1.2 (2022-05-08)}{\itemize{
+\item Update possibly corrupted samples.vcf.gz.
+}}
+
 \section{Version 1.1.1 (2022-05-08)}{\itemize{
 \item Update tests to improve coverage.
 }}
