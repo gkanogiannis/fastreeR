@@ -79,9 +79,13 @@ tempVcf <- BiocFileCache::bfcquery(bfc,field = "rname", "tempVcf")$rpath[1]
 if(is.na(tempVcf)) {
     tryCatch(
     { tempVcf <- BiocFileCache::bfcadd(bfc,"tempVcf",fpath=tempVcfUrl)[[1]]
-    },error=function(cond) {
+    },
+    error=function(cond) {
         tempVcf <- system.file("extdata", "samples.vcf.gz", package="fastreeR")
-        }
+    },
+    warning=function(cond) {
+        tempVcf <- system.file("extdata", "samples.vcf.gz", package="fastreeR")
+    }
     )
 }
 ```
@@ -124,11 +128,17 @@ for (i in seq(1,5)) {
         { tempFastas[[i]] <- 
             BiocFileCache::bfcadd(bfc, paste0("temp_fasta",i), 
                                                 fpath=tempFastasUrls[i])[[1]]
-        },error=function(cond) {
+        },
+        error=function(cond) {
             tempFastas <- system.file("extdata", "samples.fasta.gz", 
                                                         package="fastreeR")
             break
-            }
+        },
+        warning=function(cond) {
+            tempFastas <- system.file("extdata", "samples.fasta.gz", 
+                                                        package="fastreeR")
+            break
+        }
         )
     }
 }
