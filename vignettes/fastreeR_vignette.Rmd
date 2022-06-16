@@ -88,6 +88,9 @@ if(is.na(tempVcf)) {
     }
     )
 }
+if(file.size(tempVcf) == 0L) {
+    tempVcf <- system.file("extdata", "samples.vcf.gz", package="fastreeR")
+}
 ```
 
 ## Download sample fasta files
@@ -140,6 +143,11 @@ for (i in seq(1,5)) {
             break
         }
         )
+    }
+    if(file.size(tempFastas[[i]]) == 0L) {
+        tempFastas <- system.file("extdata", "samples.fasta.gz", 
+                                                        package="fastreeR")
+        break
     }
 }
 ```
