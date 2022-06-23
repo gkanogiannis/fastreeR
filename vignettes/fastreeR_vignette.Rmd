@@ -218,11 +218,12 @@ value of `cutHeight=0.067` cuts the tree into two branches.
 The first group contains 106 samples and the second 44.
 ```{r, eval=TRUE}
 myVcfClust <- fastreeR::dist2clusters(inputDist = myVcfDist, cutHeight = 0.067)
-tree <- myVcfClust[[1]]
-clusters1 <- myVcfClust[[2]][[2]][1]
-clusters2 <- myVcfClust[[2]][[2]][2]
-clusters1
-clusters2
+if (length(myVcfClust) > 1) {
+    tree <- myVcfClust[[1]]
+    clusters <- myVcfClust[[2]]
+    tree
+    clusters
+}
 ```
 
 # Functions on fasta files
