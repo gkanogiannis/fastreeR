@@ -2,6 +2,10 @@
 \title{fastreeR News}
 \encoding{UTF-8}
 
+\section{Version 1.1.6 (2022-09-26)}{\itemize{
+\item Update java backend to BioInfoJavaUtils-1.2.4 (revamped FastaManager).
+}}
+
 \section{Version 1.1.5 (2022-06-23)}{\itemize{
 \item Update vignette minor bug.
 }}
