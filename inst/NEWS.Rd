@@ -6,6 +6,10 @@
 \item Bump x.y.z version to odd y following creation of RELEASE_3_16 branch.
 }}
 
+\section{Version 1.2.0 (2022-11-01)}{\itemize{
+\item Bump x.y.z version to even y prior to creation of RELEASE_3_16 branch.
+}}
+
 \section{Version 1.1.6 (2022-09-26)}{\itemize{
 \item Update java backend to BioInfoJavaUtils-1.2.4 (revamped FastaManager).
 }}
