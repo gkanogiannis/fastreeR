@@ -2,6 +2,10 @@
 \title{fastreeR News}
 \encoding{UTF-8}
 
+\section{Version 1.4.0 (2023-04-21)}{\itemize{
+\item Bump x.y.z version to even y prior to creation of RELEASE_3_17 branch.
+}}
+
 \section{Version 1.3.0 (2022-11-01)}{\itemize{
 \item Bump x.y.z version to odd y following creation of RELEASE_3_16 branch.
 }}
