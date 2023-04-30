@@ -2,6 +2,14 @@
 \title{fastreeR News}
 \encoding{UTF-8}
 
+\section{Version 1.5.1 (2023-04-30)}{\itemize{
+\item Update java backend to BioInfoJavaUtils-1.3.1 (fasta header name).
+}}
+
+\section{Version 1.5.0 (2023-04-27)}{\itemize{
+\item Bump x.y.z version to odd y following creation of RELEASE_3_17 branch.
+}}
+
 \section{Version 1.4.0 (2023-04-21)}{\itemize{
 \item Bump x.y.z version to even y prior to creation of RELEASE_3_17 branch.
 }}
