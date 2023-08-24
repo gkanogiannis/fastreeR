@@ -84,10 +84,10 @@ public class JavaUtils {
 				System.exit(0);
 			}
 			
-			System.err.println( jc.getParsedCommand() + " : " + new Date(gTools.classBuildTimeMillis(utilClass)).toString());
+			System.err.println( jc.getParsedCommand() + " : " + new Date(GeneralTools.classBuildTimeMillis(utilClass)).toString());
 			goMethod.invoke(util);	
 		} 
-		catch (MissingCommandException e) {
+		catch (MissingCommandException|ClassNotFoundException e) {
 			System.err.println("Invalid JavaUtil selection!");
 		    System.err.println("Use one of : " + jc.getCommands().keySet());
 		}

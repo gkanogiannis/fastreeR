@@ -92,7 +92,23 @@ public class VariantProcessor implements Runnable {
 				
 				byte numAlleles=0;
 				int indexGT = Arrays.asList(variant.getFormat().split(":")).indexOf("GT");
-				if(ploidy==2) {
+				
+				if(ploidy==1) {
+					byte[][] variantDataRaw = variant.getDataRaw();
+					byte[] variantDataSamplesP1 = new byte[numSamples];
+					variant.setDataSamplesP1(variantDataSamplesP1);
+					String GT;
+					byte[] GTCode;
+					for(int i=0; i<numSamples; i++) {
+						GT = new String(variantDataRaw[i+9]).split(":")[indexGT];
+						GTCode = GenotypeEncoder.encodeGT(GT,ploidy);
+						variantDataSamplesP1[i] = GTCode[0];
+						if(GTCode[ploidy]>numAlleles) {
+							numAlleles = GTCode[ploidy];
+						}
+					}
+				}
+				else if(ploidy==2) {
 					byte[][] variantDataRaw = variant.getDataRaw();
 					byte[] variantDataSamplesP1 = new byte[numSamples];
 					byte[] variantDataSamplesP2 = new byte[numSamples];

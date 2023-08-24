@@ -118,12 +118,35 @@ class CalculateDistancesChildTask extends RecursiveAction {
 			double norm2;
 			for (int column=sampleNames.size()-1;column>=row;column--) {
 				//String sampleName2 = sampleNames.get(column);
+				//System.err.print(sampleName2);
 				dot = 0.0;
 				notmissing = 0.0;
 				norm1 = 0.0;
 				norm2 = 0.0;
 				int numVariants = vm.getNumVariants();
-				if(ploidy==2) {
+				if(ploidy==1) {
+					for(int i=0; i<numVariants; i++) {
+						byte dataS1P1 = vm.getSampleXvariantP1()[row][i];
+						byte dataS2P1 = vm.getSampleXvariantP1()[column][i];
+
+						if( GenotypeEncoder.isMis(dataS1P1, dataS1P1) && GenotypeEncoder.isMis(dataS2P1, dataS2P1) ) {
+							continue;
+						}
+						else if( GenotypeEncoder.isMis(dataS1P1, dataS1P1) ) {
+							norm2 += 1;
+						}
+						else if( GenotypeEncoder.isMis(dataS2P1, dataS2P1) ) {
+							norm1 += 1;
+						}
+						else {
+							dot += ((dataS1P1&dataS2P1)==(byte)0?-1.0:1.0);
+							norm1 += 1;
+							norm2 += 1;
+							notmissing++;
+						}
+					}
+				}
+				else if(ploidy==2) {
 					for(int i=0; i<numVariants; i++) {
 						byte dataS1P1 = vm.getSampleXvariantP1()[row][i];
 						byte dataS1P2 = vm.getSampleXvariantP2()[row][i];
@@ -154,27 +177,21 @@ class CalculateDistancesChildTask extends RecursiveAction {
 							notmissing++;
 						}
 					}
-					if(ignoremissing) {	
-						double cosine = dot / notmissing;
-						if(Double.isInfinite(cosine) || Double.isNaN(cosine)) cosine = -1.0;
-						
-						double distance = (1.0 - cosine)/2.0;
-						if(distance<0.0) distance = 0.0;
-						
-						distances[row][column] = Double.parseDouble(GeneralTools.decimalFormat.format(distance));
-						distances[column][row] = distances[row][column];
-					}
-					else {
-						double cosine = dot / (Math.sqrt(norm1)*Math.sqrt(norm2));
-						if(Double.isInfinite(cosine) || Double.isNaN(cosine)) cosine = -1.0;
-						
-						double distance = (1.0 - cosine)/2.0;
-						if(distance<0.0) distance = 0.0;
-						
-						distances[row][column] = Double.parseDouble(GeneralTools.decimalFormat.format(distance));
-						distances[column][row] = distances[row][column];
-					}
 				}
+
+				double distance = 0.0;
+				double cosine;
+				if(ignoremissing) {	
+					cosine = dot / notmissing;
+				}
+				else {
+					cosine = dot / (Math.sqrt(norm1)*Math.sqrt(norm2));
+				}
+				if(Double.isInfinite(cosine) || Double.isNaN(cosine)) cosine = -1.0;
+				distance = (1.0 - cosine)/2.0;
+				if(distance<0.0) distance = 0.0;
+				distances[row][column] = Double.parseDouble(GeneralTools.decimalFormat.format(distance));
+				distances[column][row] = distances[row][column];
 			}
 			int count = sampleCounter.incrementAndGet();
 			if(count % 50 == 0) System.err.println(GeneralTools.time()+" CalculateDistancesChildTask("+id+"): "+"\t"+count);

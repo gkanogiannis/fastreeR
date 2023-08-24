@@ -117,8 +117,9 @@ public class VCFManager implements Runnable{
 		    					vm.setPloidy((byte)GT.split("\\|").length);
 		    				}
 		    				else {
-		    					System.err.println("Cannot understand GT field.");
-		    					System.exit(vm.getPloidy());
+								vm.setPloidy((byte)1);
+		    					//System.err.println("Cannot understand GT field.");
+		    					//System.exit(vm.getPloidy());
 		    				}
 						}
 		    			
