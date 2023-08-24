@@ -73,15 +73,30 @@ public class VariantManager {
 	}
 	
 	public void populateSampleVariant() {
-		this.sampleXvariantP1 = new byte[numSamples][numVariants];
-		this.sampleXvariantP2 = new byte[numSamples][numVariants];
-		Variant variant;
-		while((variant = variantsQueue.poll())!=null) {
-			for(int i=0; i<numSamples; i++) {
-				this.sampleXvariantP1[i][variant.getVariantId()-1] = variant.getDataSamplesP1()[i];
-				this.sampleXvariantP2[i][variant.getVariantId()-1] = variant.getDataSamplesP2()[i];
+		if(ploidy==1){
+			this.sampleXvariantP1 = new byte[numSamples][numVariants];
+			Variant variant;
+			while((variant = variantsQueue.poll())!=null) {
+				for(int i=0; i<numSamples; i++) {
+					this.sampleXvariantP1[i][variant.getVariantId()-1] = variant.getDataSamplesP1()[i];
+				}
+				variant.cleanDataSamples();
 			}
-			variant.cleanDataSamples();
+		}
+		else if(ploidy==2){
+			this.sampleXvariantP1 = new byte[numSamples][numVariants];
+			this.sampleXvariantP2 = new byte[numSamples][numVariants];
+			Variant variant;
+			while((variant = variantsQueue.poll())!=null) {
+				for(int i=0; i<numSamples; i++) {
+					this.sampleXvariantP1[i][variant.getVariantId()-1] = variant.getDataSamplesP1()[i];
+					this.sampleXvariantP2[i][variant.getVariantId()-1] = variant.getDataSamplesP2()[i];
+				}
+				variant.cleanDataSamples();
+			}
+		}
+		else{
+			return;
 		}
 	}
 	

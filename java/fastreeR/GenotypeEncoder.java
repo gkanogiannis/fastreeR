@@ -26,14 +26,25 @@ import java.util.Map;
 
 public class GenotypeEncoder {
 	
+	//For haploid
+	//[0]: chromosome1
+	//[1]: numAlleles
+	private static Map<String, byte[]> map1;
+
 	//For diploid
 	//[0]: chromosome1
 	//[1]: chromosome2
-	//[3]: numAlleles
+	//[2]: numAlleles
 	private static Map<String, byte[]> map2;
 	static {
+		map1 = new HashMap<String, byte[]>();
 		map2 = new HashMap<String, byte[]>();
 		
+		for(int i=0; i<=7; i++) {
+			map1.put(i+"", new byte[] {(byte) (1<<i), (byte)(i+1)});
+		}
+		map1.put(".", new byte[]{0,0});
+
 		for(int i=0; i<=7; i++) {
 			for(int j=0; j<=7; j++) {
 				map2.put(i+"/"+j, new byte[] {(byte) (1<<i),(byte) (1<<j), (i>j?(byte)(i+1):(byte)(j+1))});
@@ -45,7 +56,15 @@ public class GenotypeEncoder {
 	}
 	
 	public static byte[] encodeGT(String GT, byte ploidy) {
-		if(ploidy==2) {
+		if(ploidy==1) {
+			byte[] ret =  map1.get(GT);
+			if(ret!=null)
+				return ret;
+			else {
+				return new byte[]{0,0};
+			}	
+		}
+		else if(ploidy==2) {
 			byte[] ret =  map2.get(GT);
 			if(ret!=null)
 				return ret;
@@ -56,12 +75,15 @@ public class GenotypeEncoder {
 		else {
 			System.err.println("Ploidy "+ploidy+" is not yet implemented. Exciting");
 			System.exit(ploidy);
+			return null;
 		}
-		return new byte[]{0,0,0};
 	}
 	
 	public static boolean isHet(byte[] encoded, byte ploidy) {
-		if(ploidy==2) {
+		if(ploidy==1) {
+			return false;
+		}
+		else if(ploidy==2) {
 			return encoded[0]!=encoded[1];
 		}
 		else {
@@ -76,7 +98,10 @@ public class GenotypeEncoder {
 	}
 	
 	public static boolean isMis(byte[] encoded, byte ploidy) {
-		if(ploidy==2) {
+		if(ploidy==1) {
+			return encoded[0]==0;
+		}
+		else if(ploidy==2) {
 			return encoded[0]==0 && encoded[1]==0;
 		}
 		else {

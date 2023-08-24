@@ -2,6 +2,10 @@
 \title{fastreeR News}
 \encoding{UTF-8}
 
+\section{Version 1.5.2 (2023-08-24)}{\itemize{
+\item Update java backend to BioInfoJavaUtils-1.4.0 (haploid GT in vcf).
+}}
+
 \section{Version 1.5.1 (2023-04-30)}{\itemize{
 \item Update java backend to BioInfoJavaUtils-1.3.1 (fasta header name).
 }}
