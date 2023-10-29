@@ -2,6 +2,14 @@
 \title{fastreeR News}
 \encoding{UTF-8}
 
+\section{Version 1.7.0 (2023-10-29)}{\itemize{
+\item Bump x.y.z version to odd y following creation of RELEASE_3_18 branch.
+}}
+
+\section{Version 1.6.0 (2023-10-29)}{\itemize{
+\item Bump x.y.z version to even y prior to creation of RELEASE_3_18 branch.
+}}
+
 \section{Version 1.5.2 (2023-08-24)}{\itemize{
 \item Update java backend to BioInfoJavaUtils-1.4.0 (haploid GT in vcf).
 }}
