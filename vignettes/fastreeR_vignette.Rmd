@@ -144,6 +144,11 @@ for (i in seq(1,5)) {
         }
         )
     }
+    if(!file.exists(tempFastas[[i]])) {
+        tempFastas <- system.file("extdata", "samples.fasta.gz", 
+                                                        package="fastreeR")
+        break
+    }
     if(file.size(tempFastas[[i]]) == 0L) {
         tempFastas <- system.file("extdata", "samples.fasta.gz", 
                                                         package="fastreeR")

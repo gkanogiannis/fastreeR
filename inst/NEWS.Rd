@@ -2,6 +2,10 @@
 \title{fastreeR News}
 \encoding{UTF-8}
 
+\section{Version 1.7.2 (2024-02-10)}{\itemize{
+\item Fix vignette bug.
+}}
+
 \section{Version 1.7.1 (2024-02-10)}{\itemize{
 \item Update R version requirement.
 }}
