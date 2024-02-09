@@ -32,7 +32,6 @@ fasta2dist <- function(..., outputFile = NULL, threads = 2, kmer = 6,
     fasta2dist_checkParams(ins = ins, outputFile = outputFile,
                                 threads = threads, kmer = kmer,
                                     normalize = normalize, compress = compress)
-
     inputfile <- tempfile(fileext = ".fasta")
     on.exit(unlink(inputfile))
 
