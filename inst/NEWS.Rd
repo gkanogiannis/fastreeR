@@ -2,6 +2,10 @@
 \title{fastreeR News}
 \encoding{UTF-8}
 
+\section{Version 1.7.1 (2024-02-10)}{\itemize{
+\item Update R version requirement.
+}}
+
 \section{Version 1.7.0 (2023-10-29)}{\itemize{
 \item Bump x.y.z version to odd y following creation of RELEASE_3_18 branch.
 }}
