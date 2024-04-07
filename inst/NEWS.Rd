@@ -2,6 +2,10 @@
 \title{fastreeR News}
 \encoding{UTF-8}
 
+\section{Version 1.7.3 (2024-04-07)}{\itemize{
+\item Preparing for next Bioconductor Release.
+}}
+
 \section{Version 1.7.2 (2024-02-10)}{\itemize{
 \item Fix vignette bug.
 }}

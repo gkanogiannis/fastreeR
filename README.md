@@ -120,10 +120,10 @@ samples of a VCF file.
 Biallelic or multiallelic (maximum 7 alternate alleles) SNP and/or INDEL
 variants are considered, phased or not. Some VCF encoding examples are:
 
--   heterozygous variants : `1/0` or `0/1` or `0/2` or `1|0` or `0|1` or
-    `0|2`
--   homozygous to the reference allele variants : `0/0` or `0|0`
--   homozygous to the first alternate allele variants : `1/1` or `1|1`
+- heterozygous variants : `1/0` or `0/1` or `0/2` or `1|0` or `0|1` or
+  `0|2`
+- homozygous to the reference allele variants : `0/0` or `0|0`
+- homozygous to the first alternate allele variants : `1/1` or `1|1`
 
 If there are `n` samples and `m` variants, an `nxn` zero-diagonal
 symmetric distance matrix is calculated. The calculated cosine type

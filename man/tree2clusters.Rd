@@ -17,7 +17,7 @@ tree2clusters(
 \item{treeStr}{A \code{\link[base]{character} vector} of a
 phylogenetic tree in Newick format}
 
-\item{treeDistances}{code{numeric \link[base]{matrix}} of
+\item{treeDistances}{\code{numeric \link[base]{matrix}} of
 distances, that were used to generate the tree.
 If NULL, it will be inferred from tree branch lengths.}
 
