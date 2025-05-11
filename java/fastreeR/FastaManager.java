@@ -42,9 +42,6 @@ public class FastaManager implements Runnable{
 	private List<Integer> sequenceIds = null;
 	private List<String> sequenceNames = null;
 	
-	//private ConcurrentLinkedDeque<Integer> sequencesIds = null;
-	//private ConcurrentSkipListSet<Integer> sequencesIds = null;
-	
 	private AtomicInteger currSequenceId = new AtomicInteger(0);
 	
 	public boolean isFastq = false;
@@ -53,10 +50,6 @@ public class FastaManager implements Runnable{
 	private boolean done = false;
 	private CountDownLatch startSignal = null;
 	private CountDownLatch doneSignal = null;
-	
-	private GeneralTools gTools = GeneralTools.getInstance();
-	
-	//private BTreeMap<Integer, Sequence> sequences = null;
 	
 	public FastaManager(boolean keepQualities, List<String> inputFileNames, CountDownLatch startSignal, CountDownLatch doneSignal) {
 		this.keepQualities = keepQualities;
@@ -68,32 +61,16 @@ public class FastaManager implements Runnable{
 		this.staticSequences = new ConcurrentHashMap<Integer,Sequence>();
 		this.sequenceIds = new ArrayList<Integer>();
 		this.sequenceNames = new ArrayList<String>();
-		
-		//this.sequencesIds = new ConcurrentLinkedDeque<Integer>();
-		//this.sequencesIds = new ConcurrentSkipListSet<Integer>();
-		
-		//this.sequences = Utils.getDB().getTreeMap("sequences");// getHashMap("sequences");
 	}
 	
 	public void clear(){
-		if(sequences!=null){
-			sequences.clear();
-		}
+		if(sequences!=null) sequences.clear();
 		sequences = new LinkedBlockingQueue<Sequence>();
-		
-		if(staticSequences!=null){
-			staticSequences.clear();
-		}
+		if(staticSequences!=null) staticSequences.clear();
 		staticSequences = new ConcurrentHashMap<Integer,Sequence>();
-		
-		if(sequenceIds!=null){
-			sequenceIds.clear();
-		}
+		if(sequenceIds!=null) sequenceIds.clear();
 		sequenceIds = new ArrayList<Integer>();
-		
-		if(sequenceNames!=null){
-			sequenceNames.clear();
-		}
+		if(sequenceNames!=null) sequenceNames.clear();
 		sequenceNames = new ArrayList<String>();
 	}
 	
@@ -110,25 +87,23 @@ public class FastaManager implements Runnable{
 	}
 	
 	public boolean hasMore() {
-		if(!done){
-			return true;
-		}
-		else{
-			return !this.sequences.isEmpty();
-		}
+		if(!done) return true;
+		else return !this.sequences.isEmpty();
 	}
 	
 	private boolean putSequence(Sequence sequence) {
 		try {
+			if(sequence==null || sequence.getSeq()==null || sequence.getHeader()==null) return false;
+			
 			sequences.put(sequence);
-			staticSequences.put(sequence.getSequenceId(), sequence);
+			//staticSequences.put(sequence.getSequenceId(), sequence);
 			sequenceIds.add(sequence.getSequenceId());
 			sequenceNames.add(sequence.getShortName());
 			return true;
 		} 
 		catch (Exception e) {
 			sequences.remove(sequence);
-			staticSequences.remove(sequence.getSequenceId());
+			//staticSequences.remove(sequence.getSequenceId());
 			sequenceIds.remove(sequence.getSequenceId());
 			sequenceNames.remove(sequence.getShortName());
 			return false;
@@ -144,52 +119,28 @@ public class FastaManager implements Runnable{
 		}
 	}
 	
-	/*
-	public List<Sequence> getSequences() {
-		return Collections.unmodifiableList(sequences);
+	private boolean addSequence(byte[] header, byte[] seq) {
+		return addSequence(header, seq, null);
 	}
 	
-	public boolean hasMore() {
-		if(!done){
-			return true;
-		}
-		else{
-			if(this.sequenceIds.isEmpty()){
-				return false;
+	private boolean addSequence(byte[] header, byte[] seq, byte[] qual) {
+		try {
+			boolean ret = true;
+			int seqId = currSequenceId.incrementAndGet();
+			Sequence sequence;
+			if(qual==null) sequence = new Sequence(seqId, header, seq);
+			else sequence = new Sequence(seqId, header, seq, qual);
+			//System.err.println(sequence.toString());
+			if(!putSequence(sequence)) {
+				currSequenceId.decrementAndGet();
+				ret = false;
 			}
-			else{
-				return true;
-			}
+			return ret;
+		} 
+		catch (Exception e) {
+			return false;
 		}
 	}
-	
-	private void putSequence(Sequence sequence) {
-		*
-		System.err.println("id="+read.getReadId());
-		System.err.println("length="+read.getLength());
-		if(read.getHeader()!=null)
-		System.err.println("header="+new String(read.getHeader()));
-		if(read.getSeq()!=null)
-		System.err.println(" seq="+new String(read.getSeq()));
-		if(read.getQual()!=null)
-		System.err.println("qual="+new String(read.getQual()));
-		//System.exit(0);
-		*
-		
-		sequences.add(sequence);
-		sequencesIds.add(sequence.getSequenceId());
-	}
-	
-	public Sequence getNextSequence() {
-		Integer sequenceId = sequencesIds.pollFirst();
-		if(sequenceId == null){
-			return null;
-		}
-		else{
-			return sequences.get(sequenceId-1);
-		}
-	}
-	*/
 	
 	public void run() {
 		try{
@@ -201,254 +152,84 @@ public class FastaManager implements Runnable{
 		    List<File> inputFiles = new ArrayList<File>();
 		    for(String inputFileName : inputFileNames){
 		    	inputFileName = inputFileName.trim();
-		    	if( !isFastq && (inputFileName.endsWith(".fastq") || inputFileName.endsWith(".fq"))){
-		    		isFastq = true;
-		    	}
-		    	inputFiles.add(new File(inputFileName).getCanonicalFile());
-		    }
-		    
-		    //Check if files exist
-		    for(File f : inputFiles){
+		    	if( inputFileName.contains(".fastq") || inputFileName.contains(".fq")) isFastq = true;
+		    	else if( inputFileName.contains(".fasta") || inputFileName.contains(".fa")) isFastq = false;
+		    	File f = new File(inputFileName);
 		    	if(!f.exists() || !f.canRead()){
 		    		System.err.println("\tERROR : File "+f+"\n\tdoes not exist ot cannot be read. Exiting.");
 		    		System.exit(1);
 		    	}
+		    	inputFiles.add(f.getCanonicalFile());
 		    }
 		    
-		    FastaDecoder decoder = new FastaDecoder();
-		    FastaIterator<byte[]> iterator = FastaIterator.create(decoder, inputFiles);
-		    byte[] lastHeader = null;
-		    ArrayList<byte[]> lastSeq = null;
-		    byte[] lastQualSeq = null;
-		    for (List<byte[]> chunk : iterator) {
-		    	System.err.println(GeneralTools.time()+" FastaManager: Chunk with "+chunk.size()+" lines.");
-		    	int i = 0;
-		    	
-		    	//From previous chunk
-		    	if(lastHeader!=null){
-		    		
-		    		//FASTA
-		    		if(!isFastq){
-		    			while( i < chunk.size()){
-		    				byte[] line = chunk.get(i);
-		    				//Read sequence
-							if(line[0] != '>'){
-								lastSeq.add(line);
-							}
-							else{
-								break;
-							}
-							
-							i++;
-		    			}
-		    			//System.err.println(numOfReads+" From previous chunk A");
-		    			//putRead(new Read(numOfReads++, lastHeader, Utils.concat(lastSeq)));
-		    			int seqId = gTools.getRandomInteger();
-		    			while(sequenceIds.contains(seqId)) {
-		    				seqId = gTools.getRandomInteger();
-		    			}
-		    			Sequence sequence = new Sequence(seqId, lastHeader, gTools.concat(lastSeq));
-		    			currSequenceId.incrementAndGet();
-		    			if(!putSequence(sequence)) {
-		    				currSequenceId.decrementAndGet();
-		    			}
-		    			lastHeader = null;
-		    		}
-		    		
-		    		//FASTQ
-		    		else{
-		    			byte[] seq = null;
-		    			byte[] qual = null;
-						if(lastQualSeq!=null){
-							seq = lastQualSeq;
-							
-							if(chunk.get(i)[0]=='+'){
-								i++;
-							}
-							//Read qualities
-							qual = chunk.get(i);
-						}
-						else{
-							//Read sequence
-							seq = chunk.get(i);
-								
-							i++;
-							i++;
-							//Read qualities
-							qual = chunk.get(i);
-						}
-						//System.err.println(numOfReads+" From previous chunk Q");
-						if(keepQualities){
-			    			//putRead(new Read(numOfReads++, lastHeader, seq, qual));
-							int seqId = gTools.getRandomInteger();
-			    			while(sequenceIds.contains(seqId)) {
-			    				seqId = gTools.getRandomInteger();
+		    //Get list of lines of full reads (reads_chunk) from the fasta/fastq file (possibly multiline)
+		    FastaIterator<byte[]> iterator = FastaIterator.create(inputFiles);
+		    for (List<byte[]> reads_chunk : iterator) {
+		    	if(reads_chunk!=null) {
+		    		System.err.println(GeneralTools.time()+" FastaManager: Chunk with "+reads_chunk.size()+" lines.");
+			    	boolean on_qual = false;
+		    		byte[] header = null;
+		    		ArrayList<byte[]> seq = new ArrayList<byte[]>();
+		    		ArrayList<byte[]> qual = new ArrayList<byte[]>();
+			    	
+			    	//FASTA
+			    	if(!isFastq) {
+			    		for(byte[] line : reads_chunk) {
+			    			//skip empty lines
+			    			if(line.length==0) continue;
+			    			//line is fasta header
+			    			else if(line[0]=='>') {
+			    				//Add the previous read
+			    				if(!seq.isEmpty()) {
+			    					addSequence(header, GeneralTools.concat(seq));
+			    					seq.clear();
+			    				}
+			    				header = line;
 			    			}
-							Sequence sequence = new Sequence(seqId, lastHeader, seq, qual);
-			    			currSequenceId.incrementAndGet();
-			    			if(!putSequence(sequence)) {
-			    				currSequenceId.decrementAndGet();
-			    			}
-						}
-			    		else{
-			    			//putRead(new Read(numOfReads++, lastHeader, seq));
-			    			int seqId = gTools.getRandomInteger();
-			    			while(sequenceIds.contains(seqId)) {
-			    				seqId = gTools.getRandomInteger();
-			    			}
-			    			Sequence sequence = new Sequence(seqId, lastHeader, seq);
-			    			currSequenceId.incrementAndGet();
-			    			if(!putSequence(sequence)) {
-			    				currSequenceId.decrementAndGet();
-			    			}
+			    			//line is fasta sequence part
+			    			else seq.add(line);
 			    		}
-						lastHeader = null;
-						lastQualSeq = null;
-						
-						i++;
-		    		}	
-		    		
-		    	}
-		    	
-		    	
-		    	while( i < chunk.size() ){
-		    		byte[] line = chunk.get(i);
-		    		//System.err.println(i+" "+chunk.size()+" "+new String(line));
-		    		
-		    		//FASTA
-		    		if(!isFastq && line[0] == '>'){
-		    			ArrayList<byte[]> seq = new ArrayList<byte[]>();
-		    			byte[] header = line;
-						while( ++i < chunk.size()){
-							line = chunk.get(i);
-							//Read sequence
-							if(line[0] != '>'){
-								seq.add(line);
-							}
-							else{
-								break;
-							}
-						}
-						
-						if(i == chunk.size()){
-							lastHeader = header;
-							lastSeq = seq;
-						}
-						else{
-							//System.err.println(numOfReads+" normalA");
-							//putRead(new Read(numOfReads++, header, Utils.concat(seq)));
-							int seqId = gTools.getRandomInteger();
-			    			while(sequenceIds.contains(seqId)) {
-			    				seqId = gTools.getRandomInteger();
+			    		//Add last read
+			    		if(!seq.isEmpty()) {
+			    			addSequence(header, GeneralTools.concat(seq));
+	    					seq.clear();
+	    				}
+			    	}
+			    	
+			    	//FASTQ
+			    	else {
+			    		for(byte[] line : reads_chunk) {
+			    			//skip empty lines
+			    			if(line.length==0) continue;
+			    			//line is fastq header
+			    			else if(line[0]=='@') {
+			    				//Add the previous read
+			    				if(!seq.isEmpty() && !qual.isEmpty()) {
+			    					if(keepQualities) addSequence(header, GeneralTools.concat(seq), GeneralTools.concat(qual));
+			    					else addSequence(header, GeneralTools.concat(seq));
+			    					seq.clear();
+			    					qual.clear();
+			    					on_qual = false;
+			    				}
+			    				header = line;
 			    			}
-							Sequence sequence = new Sequence(seqId, header, gTools.concat(seq));
-			    			currSequenceId.incrementAndGet();
-			    			if(!putSequence(sequence)) {
-			    				currSequenceId.decrementAndGet();
-			    			}
-						}
-					}
-		    			
-		    		//FASTQ
-		    		else if(isFastq && line[0] == '@'){
-		    			byte[] seq = null;
-		    			byte[] qual = null;
-		    			byte[] header = line;
-						if( ++i < chunk.size()){
-							//Read sequence
-							seq = chunk.get(i);
-							
-							if( ++i < chunk.size()){
-								if( ++i < chunk.size()){
-									//Read qualities
-									qual = chunk.get(i);
-								}
-							}
-						}
-						
-						if(i == chunk.size()){
-							lastHeader = header;
-							lastQualSeq = seq;
-						}
-						else{
-							//System.err.println(numOfReads+" normalQ");
-				    		if(keepQualities){
-				    			//putRead(new Read(numOfReads++, header, seq, qual));
-				    			int seqId = gTools.getRandomInteger();
-				    			while(sequenceIds.contains(seqId)) {
-				    				seqId = gTools.getRandomInteger();
-				    			}
-				    			Sequence sequence = new Sequence(seqId, header, seq, qual);
-				    			currSequenceId.incrementAndGet();
-				    			if(!putSequence(sequence)) {
-				    				currSequenceId.decrementAndGet();
-				    			}
-				    		}
-				    		else{
-				    			//putRead(new Read(numOfReads++, header, seq));
-				    			int seqId = gTools.getRandomInteger();
-				    			while(sequenceIds.contains(seqId)) {
-				    				seqId = gTools.getRandomInteger();
-				    			}
-				    			Sequence sequence = new Sequence(seqId, header, seq);
-				    			currSequenceId.incrementAndGet();
-				    			if(!putSequence(sequence)) {
-				    				currSequenceId.decrementAndGet();
-				    			}
-				    		}
-						}
-						
-						i++;
-					}
-		    		
-		    		else{
-		    			i++;
-		    		}
-		    	
+			    			//we are on the qualities
+			    			else if(line[0]=='+') on_qual = true;
+			    			//line is fasta quality part
+			    			else if(on_qual) qual.add(line);
+			    			//line is fasta sequence part
+			    			else seq.add(line);
+			    		}
+			    		//Add last read
+			    		if(!seq.isEmpty() && !qual.isEmpty()) {
+	    					if(keepQualities) addSequence(header, GeneralTools.concat(seq), GeneralTools.concat(qual));
+	    					else addSequence(header, GeneralTools.concat(seq));
+	    					seq.clear();
+	    					qual.clear();
+	    				}
+			    	}
 		    	}
-		    	chunk.clear();
-		    	chunk = null;
 		    }
-		    
-		    
-		    //From last chunk
-	    	if(lastHeader!=null){
-	 		
-	    		//FASTA
-	    		if(!isFastq){	
-	    			//System.err.println(numOfReads+" From last chunk A");
-	    			//putRead(new Read(numOfReads++, lastHeader, Utils.concat(lastSeq)));
-	    			int seqId = gTools.getRandomInteger();
-	    			while(sequenceIds.contains(seqId)) {
-	    				seqId = gTools.getRandomInteger();
-	    			}
-	    			Sequence sequence = new Sequence(seqId, lastHeader, gTools.concat(lastSeq));
-	    			currSequenceId.incrementAndGet();
-	    			if(!putSequence(sequence)) {
-	    				currSequenceId.decrementAndGet();
-	    			}
-	    			lastHeader = null;
-	    		}
-	    		
-	    		//FASTQ
-	    		else{
-					if(!keepQualities){
-						//System.err.println(numOfReads+" From last chunk Q");
-		    			//putRead(new Read(numOfReads++, lastHeader, lastQualSeq));
-						int seqId = gTools.getRandomInteger();
-		    			while(sequenceIds.contains(seqId)) {
-		    				seqId = gTools.getRandomInteger();
-		    			}
-						Sequence sequence = new Sequence(seqId, lastHeader, lastQualSeq);
-		    			currSequenceId.incrementAndGet();
-		    			if(!putSequence(sequence)) {
-		    				currSequenceId.decrementAndGet();
-		    			}
-					}
-					lastHeader = null;
-					lastQualSeq = null;
-	    		}	
-	    	}
 		    
 			System.err.println(GeneralTools.time()+" FastaManager: END READ");
 			System.err.println(GeneralTools.time()+" FastaManager: "+(isFastq?"FASTQ":"FASTA"));

@@ -24,6 +24,7 @@ package ciat.agrobio.core;
 import gnu.trove.iterator.TLongIntIterator;
 import gnu.trove.map.hash.TLongIntHashMap;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -35,14 +36,15 @@ public class Sequence {
 	private byte[] header;
 	private byte[] seq;
 	private byte[] qual;
+	
+	private String name;
+	private String shortName;
 
 	private int abundanceCluster = -1;
 	
 	private TLongIntHashMap kmerCounts;
 	
 	private int[] ranks = null;
-	
-	private GeneralTools gTools = GeneralTools.getInstance();
 		
 	public Sequence(int sequenceId, byte[] header, byte[] seq) {
 		this.sequenceId = sequenceId;
@@ -85,7 +87,7 @@ public class Sequence {
 			//System.out.println(unsorted);
 			
 			//sort the map
-			Map<Long, Integer> sorted =  gTools.sortByValue(unsorted);	
+			Map<Long, Integer> sorted =  GeneralTools.sortByValue(unsorted);	
 			//System.out.println("sorted "+sorted.size());
 			//System.out.println(sorted);
 			
@@ -158,7 +160,7 @@ public class Sequence {
 		clearVec();
 	}
 	
-	public int getSequenceId() {
+	public Integer getSequenceId() {
 		return sequenceId;
 	}
 
@@ -175,15 +177,39 @@ public class Sequence {
 	}
 	
 	public String getName() {
-		return new String(getHeader()).substring(1).
-		         replaceAll("[^A-Za-z0-9_\\.\\+\\-\\=\\|]", " ").
-		         replaceAll("\\s+", " ");
+		if(name==null) {
+			try {
+				name = new String(getHeader()).substring(1).trim().
+						replaceAll("[^A-Za-z0-9_\\.\\+\\-\\=\\|]", " ").
+						replaceAll("\\s+", " ");
+			} 
+			catch (Exception e) {
+				name = null;
+			}
+		}
+		return name;
 	}
 	
 	public String getShortName() {
-		return new String(getHeader()).split("\\s+")[0].substring(1).
-		         replaceAll("[^A-Za-z0-9_\\.\\+\\-\\=\\|]", " ").
-		         replaceAll("\\s+", " ");
+		if(shortName==null) {
+			try {
+				shortName = new String(getHeader()).substring(1).trim().split("\\s+")[0].
+						replaceAll("[^A-Za-z0-9_\\.\\+\\-\\=\\|]", " ").
+						replaceAll("\\s+", " ");
+			} 
+			catch (Exception e) {
+				shortName = null;
+			}
+		}
+		return shortName;
+	}
+	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		if(header!=null) sb.append(new String(header, StandardCharsets.UTF_8));
+		if(seq!=null) sb.append("\n"+new String(seq, StandardCharsets.UTF_8));
+		if(qual!=null) sb.append("\n+\n"+new String(qual, StandardCharsets.UTF_8));
+		return sb.toString();
 	}
 	
 	public int getAbundanceCluster() {

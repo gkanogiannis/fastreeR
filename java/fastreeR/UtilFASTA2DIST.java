@@ -51,6 +51,9 @@ public class UtilFASTA2DIST {
 	@Parameter(names = "--help", help = true)
 	private boolean help;
 
+	@Parameter(names = "--verbose")
+	private boolean verbose = false;
+
 	@Parameter(names = {"--inputFile","-i"}, description = "Input_File", required = true)
 	private List<String> inputFileNames;
 	
@@ -68,15 +71,15 @@ public class UtilFASTA2DIST {
 		try {
 			int cpus = Runtime.getRuntime().availableProcessors();
 			int usingThreads = (cpus < numOfThreads ? cpus : numOfThreads);
-			System.err.println("cpus=" + cpus);
-			System.err.println("using=" + usingThreads);
+			if(verbose) System.err.println("cpus=" + cpus);
+			if(verbose) System.err.println("using=" + usingThreads);
 
 			ConcurrentHashMap<Integer, SequenceD2> seqVectors = new ConcurrentHashMap<Integer, SequenceD2>();
 
 			CountDownLatch startSignal = new CountDownLatch(1);
 			CountDownLatch doneSignal = new CountDownLatch(usingThreads + 1);
 
-			//System.err.println(GeneralTools.time() + " START ");
+			//if(verbose) System.err.println(GeneralTools.time() + " START ");
 
 			ExecutorService pool = Executors.newFixedThreadPool(usingThreads + 1);
 
@@ -99,7 +102,7 @@ public class UtilFASTA2DIST {
 			List<Integer> seqIds = frm.getSequenceIds();
 			
 			// Calculate distances
-			CalculateDistancesD2 fj = new CalculateDistancesD2();
+			CalculateDistancesD2 fj = new CalculateDistancesD2(verbose);
 			double[][] distances = fj.calculateDistances(usingThreads, seqVectors, seqNames, seqIds, frm);
 			
 			// Print data
@@ -114,9 +117,9 @@ public class UtilFASTA2DIST {
 				}
 				System.out.println("");
 				seqCounter++;
-				//if(++sampleCounter % 10 == 0) System.err.println(GeneralTools.time()+" Samples Processed : \t"+sampleCounter);
+				//if(++sampleCounter % 10 == 0 && verbose) System.err.println(GeneralTools.time()+" Samples Processed : \t"+sampleCounter);
 			}
-			//System.err.println(GeneralTools.time()+" Samples Processed : \t"+sampleCounter);
+			//if(verbose) System.err.println(GeneralTools.time()+" Samples Processed : \t"+sampleCounter);
 		} 
 		catch (Exception e) {
 			e.printStackTrace();

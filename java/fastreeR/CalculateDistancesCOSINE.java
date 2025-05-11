@@ -33,18 +33,21 @@ import ciat.agrobio.io.VCFManager;
 
 public class CalculateDistancesCOSINE {
 
-	public CalculateDistancesCOSINE() {
+	public static boolean verbose = false;
+
+	public CalculateDistancesCOSINE(boolean verbose) {
+		CalculateDistancesCOSINE.verbose = verbose;
 	}
 	
 	public static void resetCounters(){
 		CalculateDistancesChildTask.resetCounters();
 	}
 	
-	public double[][] calculateDistances(int numOfThreads, List<String> sampleNames, VariantManager vm, VCFManager vcfm, boolean ignoreHets, boolean onlyHets, boolean ignoremissing) {
+	public double[][] calculateDistances(int numOfThreads, List<String> sampleNames, VariantManager vm, VCFManager vcfm, boolean ignoreHets, boolean onlyHets, boolean ignoreMissing) {
 		try {
 			int numOfSamples = sampleNames.size();
 			double[][] distances = new double[numOfSamples][numOfSamples]; 
-			CalculateDistancesTask task = new CalculateDistancesTask(sampleNames, vm, vcfm, ignoreHets, onlyHets, ignoremissing, distances);
+			CalculateDistancesTask task = new CalculateDistancesTask(sampleNames, vm, vcfm, ignoreHets, onlyHets, ignoreMissing, distances);
 			ForkJoinPool pool = new ForkJoinPool(numOfThreads);
 			pool.execute(task);
 			
@@ -61,20 +64,20 @@ public class CalculateDistancesCOSINE {
 class CalculateDistancesTask extends RecursiveTask<double[][]> {
 	private List<String> sampleNames;
 	private VariantManager vm;
-	private boolean ignoreHets, onlyHets, ignoremissing;
+	private boolean ignoreHets, onlyHets, ignoreMissing;
 	
 	private double[][] distances;
 	
-	public CalculateDistancesTask(List<String> sampleNames, VariantManager vm, VCFManager vcfm, boolean ignoreHets, boolean onlyHets, boolean ignoremissing, double[][] distances) {
+	public CalculateDistancesTask(List<String> sampleNames, VariantManager vm, VCFManager vcfm, boolean ignoreHets, boolean onlyHets, boolean ignoreMissing, double[][] distances) {
 		this.sampleNames = sampleNames; this.vm = vm; this.ignoreHets = ignoreHets;
-		this.onlyHets = onlyHets; this.ignoremissing = ignoremissing; this.distances = distances;
+		this.onlyHets = onlyHets; this.ignoreMissing = ignoreMissing; this.distances = distances;
 	}
 
 	@SuppressWarnings("rawtypes")
 	protected double[][] compute() {
 		List<ForkJoinTask> children = new ArrayList<ForkJoinTask>();
 		for ( int row=sampleNames.size()-1; row>=0; row--) {
-			children.add(new CalculateDistancesChildTask(sampleNames, vm, ignoreHets, onlyHets, ignoremissing, distances, row));
+			children.add(new CalculateDistancesChildTask(sampleNames, vm, ignoreHets, onlyHets, ignoreMissing, distances, row));
 		}
 		invokeAll(children);
 		return distances;
@@ -90,7 +93,7 @@ class CalculateDistancesChildTask extends RecursiveAction {
 	
 	private List<String> sampleNames;
 	private VariantManager vm;
-	private boolean ignoreHets, onlyHets, ignoremissing;
+	private boolean ignoreHets, onlyHets, ignoreMissing;
 	
 	private double[][] distances;
 	private int row;
@@ -101,9 +104,9 @@ class CalculateDistancesChildTask extends RecursiveAction {
 	}
 	
 	public CalculateDistancesChildTask(List<String> sampleNames, VariantManager vm,
-									   boolean ignoreHets, boolean onlyHets, boolean ignoremissing, double[][] distances, int row) {
+									   boolean ignoreHets, boolean onlyHets, boolean ignoreMissing, double[][] distances, int row) {
 		this.sampleNames = sampleNames; this.vm = vm; this.ignoreHets = ignoreHets;
-		this.onlyHets = onlyHets; this.ignoremissing = ignoremissing; this.distances = distances; this.row = row;
+		this.onlyHets = onlyHets; this.ignoreMissing = ignoreMissing; this.distances = distances; this.row = row;
 	}
 
 	@Override
@@ -181,7 +184,7 @@ class CalculateDistancesChildTask extends RecursiveAction {
 
 				double distance = 0.0;
 				double cosine;
-				if(ignoremissing) {	
+				if(ignoreMissing) {	
 					cosine = dot / notmissing;
 				}
 				else {
@@ -194,7 +197,11 @@ class CalculateDistancesChildTask extends RecursiveAction {
 				distances[column][row] = distances[row][column];
 			}
 			int count = sampleCounter.incrementAndGet();
-			if(count % 50 == 0) System.err.println(GeneralTools.time()+" CalculateDistancesChildTask("+id+"): "+"\t"+count);
+			if(count % 10 == 0 && CalculateDistancesCOSINE.verbose) {
+				System.err.print("\r"+GeneralTools.time()+" CalculateDistancesChildTask ("+id+"):\t"+count);
+				System.err.flush();
+			}
+
 		} 
 		catch (Exception e) {
 			e.printStackTrace();

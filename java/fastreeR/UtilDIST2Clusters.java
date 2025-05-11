@@ -21,6 +21,7 @@
  */
 package ciat.agrobio.javautils;
 
+import java.io.FileInputStream;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -33,7 +34,7 @@ import ciat.agrobio.hcluster.HierarchicalCluster;
 @Parameters(commandDescription = "DIST2Clusters")
 public class UtilDIST2Clusters {
 
-	private GeneralTools gTools = GeneralTools.getInstance();
+	//private final GeneralTools gTools = GeneralTools.getInstance();
 	
 	public UtilDIST2Clusters() {
 	}
@@ -69,7 +70,9 @@ public class UtilDIST2Clusters {
 			//System.err.println("using=" + usingThreads);
 
 			//Read distances matrix and sample names
-			Object[] data = gTools.readDistancesSamples(inputFileName);
+			FileInputStream fis = new FileInputStream(inputFileName);
+			Object[] data = GeneralTools.readDistancesSamples(fis);
+			fis.close();
 			
 			//HCluster cluster
 			HierarchicalCluster hc = new HierarchicalCluster();
