@@ -24,6 +24,9 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.RandomAccessFile;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.security.SecureRandom;
@@ -42,6 +45,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.PrimitiveIterator.OfInt;
+import java.util.zip.GZIPInputStream;
 
 //import org.mapdb.DB;
 //import org.mapdb.DBMaker;
@@ -51,26 +56,31 @@ public class GeneralTools {
 	public static final DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 	public static final DecimalFormat decimalFormat = new DecimalFormat("#.############", new DecimalFormatSymbols(Locale.US));
 	
-	private static SecureRandom prng;
+	private static OfInt prng;
 	static {
 		try {
-			prng = SecureRandom.getInstance("SHA1PRNG");
+			//prng = SecureRandom.getInstance("SHA1PRNG");
+			SecureRandom random = new SecureRandom();
+			prng = random.ints().distinct().iterator();
 		} 
 		catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	private static GeneralTools instance = new GeneralTools();
+	private static GeneralTools instance;
 	
 	private GeneralTools() {
 	}
 
 	public static GeneralTools getInstance() {
+		if(instance == null) {
+			instance = new GeneralTools();
+		}
 		return instance;
 	}
 	
-	public int getRandomInteger() {
+	public static int getRandomInteger() {
 		return prng.nextInt();
 	}
 	
@@ -98,7 +108,7 @@ public class GeneralTools {
 		return dateFormat.format(cal.getTime());
 	}
 	
-	public String RAMInfo(Runtime runtime){
+	public static String RAMInfo(Runtime runtime){
 		double gb = (double)1024*1024*1024;
         NumberFormat format = NumberFormat.getInstance(); 
         StringBuilder sb = new StringBuilder();
@@ -113,7 +123,7 @@ public class GeneralTools {
         return sb.toString();
 	}
 
-	final public byte[][] concatSeqQual(final ArrayList<byte[]> arrays) {
+	final static public byte[][] concatSeqQual(final ArrayList<byte[]> arrays) {
 		byte[] all = concat(arrays);
 		int size = all.length;
 		int sizeSeq = 0;
@@ -143,7 +153,7 @@ public class GeneralTools {
 		return ret;
 	}
 	
-	final public byte[] concat(final ArrayList<byte[]> arrays) {
+	final static public byte[] concat(final ArrayList<byte[]> arrays) {
 		int size = 0;
 		for (byte[] a : arrays)
 			size += a.length;
@@ -161,7 +171,7 @@ public class GeneralTools {
 		return dest;
 	}
 	
-	public int round(double d){
+	public static int round(double d){
 	    double dAbs = Math.abs(d);
 	    int i = (int) dAbs;
 	    double result = dAbs - (double) i;
@@ -172,7 +182,7 @@ public class GeneralTools {
 	    }
 	}
 
-	public char[] bytesToStringUTFCustom(byte[] bytes) {
+	public static char[] bytesToStringUTFCustom(byte[] bytes) {
 		char[] buffer = new char[bytes.length >> 1];
 		for (int i = 0; i < buffer.length; i++) {
 			int bpos = i << 1;
@@ -183,7 +193,7 @@ public class GeneralTools {
 		//return new String(buffer);
 	}
 	
-	public byte[] stringToBytesUTFCustom(char[] str) {
+	public static byte[] stringToBytesUTFCustom(char[] str) {
 		byte[] b = new byte[str.length << 1];
 		for (int i = 0; i < str.length; i++) {
 			char strChar = str[i];
@@ -194,7 +204,7 @@ public class GeneralTools {
 		return b;
 	}
 	
-	public List<String> directoriesToFiles(List<String> inputFastaFileNames){
+	public static List<String> directoriesToFiles(List<String> inputFastaFileNames){
 		ArrayList<String> outputFastaFileNames = new ArrayList<String>();
 		try {
 			for(String s : inputFastaFileNames){
@@ -215,7 +225,7 @@ public class GeneralTools {
 		return outputFastaFileNames;
 	}
 	
-	public <K, V extends Comparable<? super V>> Map<K, V> sortByValue( Map<K, V> map ){
+	public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue( Map<K, V> map ){
 		List<Map.Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>( map.entrySet() );
 		Collections.sort( list, new Comparator<Map.Entry<K, V>>(){
 			public int compare( Map.Entry<K, V> o1, Map.Entry<K, V> o2 ){
@@ -238,7 +248,7 @@ public class GeneralTools {
 		return result;
 	}
 	
-	public ArrayList<String> generateKmerVocabulary(int k){
+	public static ArrayList<String> generateKmerVocabulary(int k){
 		ArrayList<String> vocabulary = new ArrayList<String>();
 		
 		char[] chars = "ATCG".toCharArray();
@@ -248,7 +258,7 @@ public class GeneralTools {
 		return vocabulary;
 	}
 	
-	private void iterate(char[] chars, int len, char[] build, int pos, ArrayList<String> vocabulary) {
+	private static void iterate(char[] chars, int len, char[] build, int pos, ArrayList<String> vocabulary) {
         if (pos == len) {
             String word = new String(build);
             vocabulary.add(word);
@@ -267,7 +277,7 @@ public class GeneralTools {
 	}
 	*/
 	
-	public final String reverseComplement(String sequence){
+	public static final String reverseComplement(String sequence){
 		StringBuilder sb = new StringBuilder();
 		for(int i=sequence.length()-1; i>=0; i--){
 			switch (sequence.charAt(i)){
@@ -300,7 +310,7 @@ public class GeneralTools {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public long classBuildTimeMillis(Class c){
+	public static long classBuildTimeMillis(Class c){
 	    URL resource = c.getResource(c.getSimpleName() + ".class");
 	    if (resource == null) {
 	        System.out.println("Failed to find class file for class: " + c.getName());
@@ -327,13 +337,13 @@ public class GeneralTools {
 	    }
 	}
 
-	public <T extends Comparable<? super T>> List<T> asSortedList(Collection<T> c) {
+	public static <T extends Comparable<? super T>> List<T> asSortedList(Collection<T> c) {
 		List<T> list = new ArrayList<T>(c);
 		Collections.sort(list);
 		return list;
 	}
 	
-	public String[] reorderLabels(String[] original, String treeString){
+	public static String[] reorderLabels(String[] original, String treeString){
 		String[] labelsReordered = new String[original.length];
 		
 		String[] data = treeString.split(",");
@@ -357,7 +367,7 @@ public class GeneralTools {
 		return labelsReordered;
 	}
 	
-	public double[][] reorderDistances(double[][] distancesOriginal, String[] labelsOriginal, String[] labelsReordered){
+	public static double[][] reorderDistances(double[][] distancesOriginal, String[] labelsOriginal, String[] labelsReordered){
 		int size = distancesOriginal.length;
 		double[][] distancesReordered = new double[size][size];
 		
@@ -384,9 +394,9 @@ public class GeneralTools {
 		return distancesReordered;
 	}
 	
-	public Object[] readDistancesSamples(String input) {
+	public static Object[] readDistancesSamples(InputStream input) {
 		try {
-			BufferedReader br = new BufferedReader(new FileReader(input));
+			BufferedReader br = new BufferedReader(new InputStreamReader(input));
 			String line = br.readLine();
 			System.err.println(line);
 			int numOfSamples = Integer.parseInt(line.split("[\\s,\\t]+")[0]);
@@ -418,6 +428,19 @@ public class GeneralTools {
 			e.printStackTrace();
 			return null;
 		}
+	}
+	
+	public static boolean isGZipped(File f) {
+		int magic = 0;
+		try {
+			RandomAccessFile raf = new RandomAccessFile(f, "r");
+			magic = raf.read() & 0xff | ((raf.read() << 8) & 0xff00);
+			raf.close();
+		} 
+		catch (Throwable e) {
+			e.printStackTrace(System.err);
+		}
+		return magic == GZIPInputStream.GZIP_MAGIC;
 	}
 	
 }

@@ -24,6 +24,7 @@ package ciat.agrobio.io;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
@@ -37,7 +38,9 @@ public class VCFIterator<T> implements Iterable<List<T>> {
 		CHUNK_SIZE = Runtime.getRuntime().maxMemory()/32;
 		CHUNK_SIZE = (CHUNK_SIZE/1024)*1024;
 		if(CHUNK_SIZE < 8*1024*1024) CHUNK_SIZE = 8*1024*1024;
-		System.err.println(CHUNK_SIZE);
+		if(CHUNK_SIZE > Integer.MAX_VALUE) CHUNK_SIZE = Integer.MAX_VALUE;
+		System.err.println("Max RAM: " + Runtime.getRuntime().maxMemory());
+		System.err.println("IO Chunk: " + CHUNK_SIZE);
 	}
 	private final VCFDecoderInterface<T> decoder;
 	private Iterator<File> files;
@@ -65,12 +68,15 @@ public class VCFIterator<T> implements Iterable<List<T>> {
 			private long chunkPos = 0;
 			private MappedByteBuffer buffer;
 			private FileChannel channel;
+			private final ByteOrder byteOrder = java.nio.ByteOrder.nativeOrder();
 
 			public boolean hasNext() {
 				if (buffer == null || !buffer.hasRemaining()) {
 					buffer = nextBuffer(chunkPos);
 					if (buffer == null) {
 						return false;
+					} else {
+						buffer.order(byteOrder);
 					}
 				}
 				T result = null;
