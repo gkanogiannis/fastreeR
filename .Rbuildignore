@@ -7,4 +7,6 @@
 ^tmp$
 ^\.github$
 ^bin$
+^java$
 ^\.Rhistory$
+^\.vscode$
