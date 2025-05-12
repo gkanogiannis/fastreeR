@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import threading
-import tempfile
 import argparse
 import subprocess
 import zipfile
@@ -25,19 +24,14 @@ def build_classpath(jar_dir):
 
 def run_java_tool(tool_name, params, jar_dir, mem_GB=MEM_GB, output_path=None, verbose=False, pipe_stderr=False, progress_every=100, stdin=None):
     classpath = build_classpath(jar_dir)
-    cmd = ["java"]
-    cmd.extend(JAVA_PARAMS)
-    cmd.extend(["-Xms"+str(mem_GB)+"G", "-Xmx"+str(mem_GB)+"G"])
-    cmd.extend(["-cp", classpath, "ciat.agrobio.javautils.JavaUtils", tool_name])
-    cmd.extend(params)
+    cmd = ["java"] + JAVA_PARAMS + ["-Xms"+str(mem_GB)+"G", "-Xmx"+str(mem_GB)+"G", "-cp", classpath, "ciat.agrobio.javautils.JavaUtils", tool_name] + params
     print(f"Running: {' '.join(cmd)}", file=sys.stderr)
     try:
-        
         process = subprocess.Popen(
             cmd,
             stdin=stdin,
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE if pipe_stderr  else None,
+            stderr=subprocess.PIPE if pipe_stderr else None,
             text=True,
             bufsize=1
         )
@@ -49,7 +43,6 @@ def run_java_tool(tool_name, params, jar_dir, mem_GB=MEM_GB, output_path=None, v
             def stream_stderr(stderr_pipe):
                 for line in stderr_pipe:
                     sys.stderr.write(line)
-
              # Start stderr thread
             if verbose:
                 stderr_thread = threading.Thread(target=stream_stderr, args=(process.stderr,))
@@ -99,178 +92,106 @@ def main():
                     "https://doi.org/10.1186/s12859-016-1186-3\n"
                     "https://github.com/gkanogiannis/fastreeR\n"
     )
-    parser.add_argument(
-        "--lib", 
-        type=str, 
-        default=JAR_DIR,
-        help=f"Path to the folder containing JAR libraries (default: {JAR_DIR})"
-    )
-    parser.add_argument(
-        "--mem", 
-        type=int, 
-        default=MEM_GB,
-        help=f"Max RAM for JVM in GB (default: {MEM_GB})"
-    )
-    parser.add_argument(
-        "--pipe-stderr",
-        action="store_true",
-        help="Pipe stderr and forward from Python (default: direct passthrough to terminal)"
-    )
-    parser.add_argument(
-        "--version",
-        action="store_true",
-        help="Print version information and exit"
-    )
+    parser.add_argument("--lib", type=str, default=JAR_DIR, help=f"Path to JAR library folder (default: {JAR_DIR})")
+    parser.add_argument("--mem", type=int, default=MEM_GB, help=f"Max RAM for JVM in GB (default: {MEM_GB})")
+    parser.add_argument("--pipe-stderr", action="store_true", help="Pipe Java stderr to CLI (default: direct passthrough to terminal)")
+    parser.add_argument("--version", action="store_true", help="Print version information and exit")
 
     subparsers = parser.add_subparsers(dest="command", required=False)
 
+    def add_common_input_output(parser_obj, allow_multiple_inputs=True):
+        parser_obj.add_argument("inputs", nargs="*", help="Positional input files")
+        parser_obj.add_argument("-i", "--input", dest="named_inputs", action="append", help="Input file(s)")
+        parser_obj.add_argument("-o", "--output", help="Output file path (default: stdout)")
+
+    def add_common_vcf_args(p):
+        p.add_argument("-t", "--threads", type=int, default=1, help="Number of threads (default: 1)")
+        p.add_argument("--ignoreHets", action="store_true", help="Ignore heterozygous loci (default: false)")
+        p.add_argument("--onlyHets", action="store_true", help="Use only heterozygous loci (default: false)")
+        p.add_argument("--ignoreMissing", action="store_true", help="Ignore missing loci (default: false)")
+        p.add_argument("-v", "--verbose", action="store_true", help="Print progress messages on stderr (default: false)")
+
     # Subcommand for VCF-based distance matrix
-    parser_vcf2dist = subparsers.add_parser("VCF2DIST", help="Compute distance matrix from VCF")
-    parser_vcf2dist.add_argument("vcf_file", nargs="?", help="Path to input VCF file (positional)")
-    parser_vcf2dist.add_argument("-i", "--input", help="Optional input VCF file (overrides positional)")
-    #parser_vcf2dist.add_argument("-d", "--distance", choices=["cosine"], default="cosine", help="Distance metric")
-    parser_vcf2dist.add_argument("-o", "--output", help="Path to output file for the distance matrix; if omitted, prints to stdout")
-    parser_vcf2dist.add_argument("-t", "--threads", type=int, default=1, help="Number of threads (default: 1)")
-    parser_vcf2dist.add_argument("--ignoreHets", action="store_true", help="Ignore heterozygous loci (default: false)")
-    parser_vcf2dist.add_argument("--onlyHets", action="store_true", help="Use only heterozygous loci (default: false)")
-    parser_vcf2dist.add_argument("--ignoreMissing", action="store_true", help="Ignore missing loci (default: false)")
-    parser_vcf2dist.add_argument("-v", "--verbose", action="store_true", help="Print progress messages on stderr (default: false)")
-    parser_vcf2dist.add_argument("--tmpdir",default=None,help="Optional directory to store temporary file when reading from stdin")
+    parser_vcf2dist = subparsers.add_parser("VCF2DIST", help="Compute distance matrix from VCF(s)")
+    add_common_input_output(parser_vcf2dist)
+    add_common_vcf_args(parser_vcf2dist)
 
     # Subcommand for VCF-based tree
-    parser_vcf2tree = subparsers.add_parser("VCF2TREE", help="Compute tree from VCF")
-    parser_vcf2tree.add_argument("vcf_file", nargs="?", help="Path to input VCF file (positional)")
-    parser_vcf2tree.add_argument("-i", "--input", help="Optional input VCF file (overrides positional)")
-    parser_vcf2tree.add_argument("-o", "--output", help="Path to output file for the tree; if omitted, prints to stdout")
-    parser_vcf2tree.add_argument("-t", "--threads", type=int, default=1, help="Number of threads (default: 1)")
-    parser_vcf2tree.add_argument("--ignoreHets", action="store_true", help="Ignore heterozygous loci (default: false)")
-    parser_vcf2tree.add_argument("--onlyHets", action="store_true", help="Use only heterozygous loci (default: false)")
-    parser_vcf2tree.add_argument("--ignoreMissing", action="store_true", help="Ignore missing loci (default: false)")
-    parser_vcf2tree.add_argument("-v", "--verbose", action="store_true", help="Print progress messages on stderr (default: false)")
-    parser_vcf2tree.add_argument("--tmpdir",default=None,help="Optional directory to store temporary file when reading from stdin")
-   
+    parser_vcf2tree = subparsers.add_parser("VCF2TREE", help="Compute tree from VCF(s)")
+    add_common_input_output(parser_vcf2tree)
+    add_common_vcf_args(parser_vcf2tree)
+    
     # Subcommand for distance matrix to newick tree
     parser_dist2tree = subparsers.add_parser("DIST2TREE", help="Compute tree from distance matrix")
-    parser_dist2tree.add_argument("dist_file", nargs="?", help="Path to input distance matrix file (positional)")
-    parser_dist2tree.add_argument("-i", "--input", help="Optional input distance matrix file (overrides positional)")
-    parser_dist2tree.add_argument("-o", "--output", help="Path to output file for the tree; if omitted, prints to stdout")
+    parser_dist2tree.add_argument("input_file", nargs="?", help="Input dist file")
+    parser_dist2tree.add_argument("-i", "--input", dest="named_input", help="Optional input dist file (overrides positional)")
+    parser_dist2tree.add_argument("-o", "--output", help="Output file path (default: stdout)")
     parser_dist2tree.add_argument("-v", "--verbose", action="store_true", help="Print progress messages on stderr (default: false)")
    
-    # Subcommand for FASTA-based distance matrix
+   # Subcommand for FASTA-based distance matrix
     parser_fasta2dist = subparsers.add_parser("FASTA2DIST", help="Compute distance matrix from FASTA(s)")
-    parser_fasta2dist.add_argument("fasta_file", nargs="?", help="Path to input fasta file (positional)")
-    parser_fasta2dist.add_argument("-i", "--input", help="Optional input fasta file (overrides positional)")
-    parser_fasta2dist.add_argument("-o", "--output", help="Path to output file for the distance matrix; if omitted, prints to stdout")
+    add_common_input_output(parser_fasta2dist)
     parser_fasta2dist.add_argument("-k", "--kmerSize", type=int, default=4, help="Kmer size for D2S calculation (default: 4)")
     parser_fasta2dist.add_argument("-t", "--threads", type=int, default=1, help="Number of threads (default: 1)")
-    parser_fasta2dist.add_argument("-n", "--normalize", action="store_true", help="Use normalization")
+    parser_fasta2dist.add_argument("-n", "--normalize", action="store_true", help="Use normalization (default: false)")
     parser_fasta2dist.add_argument("-v", "--verbose", action="store_true", help="Print progress messages on stderr (default: false)")
    
-    args, unknown = parser.parse_known_args()
+    args = parser.parse_args()
 
     if args.version:
         print_version_from_jar(args.lib)
         return
 
-    if args.command == "VCF2DIST":
-        handle_vcf_tool(args, "VCF2DIST")
-    
-    elif args.command == "VCF2TREE":
-        handle_vcf_tool(args, "VCF2TREE")
-    
+    def resolve_inputs(args, allow_multiple=True):
+        combined = []
+        if args.named_inputs:
+            combined.extend(args.named_inputs)
+        if hasattr(args, "inputs"):
+            combined.extend(args.inputs)
+        if not combined:
+            print("Error: No input files provided.", file=sys.stderr)
+            sys.exit(1)
+        if not allow_multiple and len(combined) > 1:
+            print("Error: Only one input file allowed for this command.", file=sys.stderr)
+            sys.exit(1)
+        return combined
+
+    if args.command in ("VCF2DIST", "VCF2TREE"):
+        input_files = resolve_inputs(args)
+        params = []
+        if args.verbose: params.append("--verbose")
+        if args.ignoreHets: params.append("--ignoreHets")
+        if args.onlyHets: params.append("--onlyHets")
+        if args.ignoreMissing: params.append("--ignoreMissing")
+        params.extend(["-t", str(args.threads)])
+        for f in input_files:
+            params.extend(["-i", f])
+        run_java_tool(args.command, params, args.lib, args.mem, args.output, args.verbose, args.pipe_stderr)
+
     elif args.command == "DIST2TREE":
-        # Determine input source
-        stdin_pipe = None
-        input_dist = args.input if args.input else args.dist_file
-        
-        if input_dist == "-":
-            print("Reading distance matrix from stdin...", file=sys.stderr)
-            stdin_pipe = sys.stdin
-        elif not input_dist:
-            print("Error: no input dist file provided. Use positional argument, -i/--input, or pipe with -i -", file=sys.stderr)
+        input_file = args.named_input or args.input_file
+        if not input_file:
+            print("Error: No input distance matrix provided.", file=sys.stderr)
             sys.exit(1)
         params = []
-        if args.verbose:
-            params.append("--verbose")
-        params.append(input_dist)
-        #print(params, file=sys.stderr)
-        run_java_tool("DIST2TREE", params, args.lib, args.mem, args.output, args.verbose, stdin_pipe)
+        if args.verbose: params.append("--verbose")
+        params.append(input_file)
+        run_java_tool("DIST2TREE", params, args.lib, args.mem, args.output, args.verbose, args.pipe_stderr)
     
     elif args.command == "FASTA2DIST":
-        input_fasta = args.input if args.input else args.fasta_file
-        use_temp_input = False
-        if input_fasta == "-":
-            if sys.stdin.isatty():
-                print("Error: -i - specified but no input is piped to stdin.", file=sys.stderr)
-                sys.exit(1)
-            print("Reading FASTA from stdin...", file=sys.stderr)
-            temp_input = tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".fasta",
-                                                    dir=args.tmpdir if hasattr(args, "tmpdir") and args.tmpdir else None)
-            print(f"Storing stdin content in temporary file: {temp_input.name}", file=sys.stderr)
-            for line in sys.stdin:
-                temp_input.write(line)
-            temp_input.close()
-            input_fasta = temp_input.name
-            use_temp_input = True
-        elif not input_fasta:
-            print("Error: no input FASTA file provided. Use positional argument, -i/--input, or pipe with -i -", file=sys.stderr)
-            sys.exit(1)
+        input_files = resolve_inputs(args)
         params = []
-        if args.normalize:
-            params.append("--normalize")
-        if args.verbose:
-            params.append("--verbose")
-        params.extend(["-k", str(args.kmerSize)])
-        params.extend(["-t", str(args.threads)])
-        params.extend(["-i", input_fasta])
-        run_java_tool("FASTA2DIST", params, args.lib, args.mem, args.output, args.verbose)
-        if use_temp_input:
-            try:
-                os.unlink(input_fasta)
-                print(f"Temporary input file {input_fasta} deleted.", file=sys.stderr)
-            except Exception as e:
-                print(f"Warning: Failed to delete temp file {input_fasta}: {e}", file=sys.stderr)
+        if args.verbose: params.append("--verbose")
+        if args.normalize: params.append("--normalize")
+        params.extend(["-k", str(args.kmerSize), "-t", str(args.threads)])
+        for f in input_files:
+            params.extend(["-i", f])
+        run_java_tool("FASTA2DIST", params, args.lib, args.mem, args.output, args.verbose, args.pipe_stderr)
             
     else:
+        print("Unknown command", file=sys.stderr)
         parser.print_help()
-
-def handle_vcf_tool(args, tool_name):
-    input_vcf = args.input if args.input else args.vcf_file
-    use_temp_input = False
-    if input_vcf == "-":
-        if sys.stdin.isatty():
-            print("Error: -i - specified but no input is piped to stdin.", file=sys.stderr)
-            sys.exit(1)
-        print("Reading VCF from stdin...", file=sys.stderr)
-        temp_input = tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".vcf",
-                                                 dir=args.tmpdir if hasattr(args, "tmpdir") and args.tmpdir else None)
-        print(f"Storing stdin content in temporary file: {temp_input.name}", file=sys.stderr)
-        for line in sys.stdin:
-            temp_input.write(line)
-        temp_input.close()
-        input_vcf = temp_input.name
-        use_temp_input = True
-    elif not input_vcf:
-        print("Error: no input VCF file provided. Use positional argument, -i/--input, or pipe with -i -", file=sys.stderr)
         sys.exit(1)
-    params = []
-    if args.verbose:
-        params.append("--verbose")
-    if args.ignoreHets:
-        params.append("--ignoreHets")
-    if args.onlyHets:
-        params.append("--onlyHets")
-    if args.ignoreMissing:
-        params.append("--ignoreMissing")
-    params.extend(["-t", str(args.threads)])
-    params.append(input_vcf)
-    run_java_tool(tool_name, params, args.lib, args.mem, args.output, args.verbose)
-    if use_temp_input:
-        try:
-            os.unlink(input_vcf)
-            print(f"Temporary input file {input_vcf} deleted.", file=sys.stderr)
-        except Exception as e:
-            print(f"Warning: Failed to delete temp file {input_vcf}: {e}", file=sys.stderr)
 
 def print_version_from_jar(jar_dir):
     jars = [os.path.join(jar_dir, f) for f in os.listdir(jar_dir) if f.endswith(".jar")]
