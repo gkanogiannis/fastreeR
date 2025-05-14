@@ -716,10 +716,10 @@ package like so:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/gkanogiannis/fastreeR.git</span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/gkanogiannis/BioInfoJava-Utils.git</span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="bu">pushd</span> BioInfoJava-Utils</span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="ex">mvn</span> clean package <span class="kw">&amp;&amp;</span> <span class="bu">popd</span></span></code></pre></div>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="ex">mvn</span> initialize clean package <span class="kw">&amp;&amp;</span> <span class="bu">popd</span></span></code></pre></div>
 <p>Then copy the resulting <code>.jar</code> file(s) to the
 <code>fastreeR/inst/java/</code> directory:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">cp</span> BioInfoJava-Utils/target/<span class="pp">*</span>.jar fastreeR/inst/java/</span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">cp</span> BioInfoJava-Utils/bin/<span class="pp">*</span>.jar fastreeR/inst/java/</span></code></pre></div>
 <p>Finally run the tool from its Python CLI:</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="ex">python</span> fastreeR/fastreeR.py</span></code></pre></div>
 <hr />

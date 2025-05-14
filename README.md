@@ -136,14 +136,14 @@ To build the Java backend from source code:
 git clone https://github.com/gkanogiannis/fastreeR.git
 git clone https://github.com/gkanogiannis/BioInfoJava-Utils.git
 pushd BioInfoJava-Utils
-mvn clean package && popd
+mvn initialize clean package && popd
 ```
 
 Then copy the resulting `.jar` file(s) to the `fastreeR/inst/java/`
 directory:
 
 ``` bash
-cp BioInfoJava-Utils/target/*.jar fastreeR/inst/java/
+cp BioInfoJava-Utils/bin/*.jar fastreeR/inst/java/
 ```
 
 Finally run the tool from its Python CLI:
