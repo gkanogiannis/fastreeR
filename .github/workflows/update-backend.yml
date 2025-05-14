@@ -46,27 +46,18 @@ jobs:
           java-version: "17"
           distribution: "temurin"
 
-      - name: Remove existing JARs
-        run: rm -f inst/java/*.jar
-
-      - name: Download new JAR from backend release
-        run: |
-          VERSION_CLEAN="${VERSION#v}"
-          mkdir -p inst/java
-          curl -L -o inst/java/BioInfoJavaUtils-${VERSION_CLEAN}.jar \
-            https://github.com/gkanogiannis/BioInfoJava-Utils/releases/download/${VERSION_CLEAN}/BioInfoJavaUtils-${VERSION_CLEAN}.jar
-
-      - name: Download latest JARs for trove and jcommander
-        run: |
-          mvn dependency:copy -Dartifact=net.sf.trove4j:trove4j:3.0.3 -DoutputDirectory=inst/java
-          mvn dependency:copy -Dartifact=com.beust:jcommander:1.82 -DoutputDirectory=inst/java
-
       - name: Commit changes
         run: |
           VERSION_CLEAN="${VERSION#v}"
+          mkdir -p inst/java
+          rm -f inst/java/*.jar
+          git ls-files inst/java/*.jar | xargs -r git rm
+          mvn dependency:copy -Dartifact=net.sf.trove4j:trove4j:3.0.3 -DoutputDirectory=inst/java
+          mvn dependency:copy -Dartifact=com.beust:jcommander:1.82 -DoutputDirectory=inst/java
+          curl -L -o inst/java/BioInfoJavaUtils-${VERSION_CLEAN}.jar \
+            https://github.com/gkanogiannis/BioInfoJava-Utils/releases/download/${VERSION_CLEAN}/BioInfoJavaUtils-${VERSION_CLEAN}.jar
           git config user.name "Anestis Gkanogiannis"
           git config user.email "ganoyan@gmail.com"
-          git ls-files inst/java/*.jar | xargs -r git rm
           git add DESCRIPTION inst/NEWS.Rd inst/java/*.jar
           git commit -m "Update backend to version ${VERSION_CLEAN}"
           git tag -a ${VERSION_CLEAN} -m "Synced backend version ${VERSION_CLEAN}"
