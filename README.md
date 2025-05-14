@@ -140,10 +140,16 @@ mvn clean package && popd
 ```
 
 Then copy the resulting `.jar` file(s) to the `fastreeR/inst/java/`
-directory
+directory:
 
 ``` bash
 cp BioInfoJava-Utils/target/*.jar fastreeR/inst/java/
+```
+
+Finally run the tool from its Python CLI:
+
+``` bash
+python fastreeR/fastreeR.py
 ```
 
 ------------------------------------------------------------------------
