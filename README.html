@@ -718,8 +718,10 @@ package like so:</p>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="bu">pushd</span> BioInfoJava-Utils</span>
 <span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="ex">mvn</span> clean package <span class="kw">&amp;&amp;</span> <span class="bu">popd</span></span></code></pre></div>
 <p>Then copy the resulting <code>.jar</code> file(s) to the
-<code>fastreeR/inst/java/</code> directory</p>
+<code>fastreeR/inst/java/</code> directory:</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">cp</span> BioInfoJava-Utils/target/<span class="pp">*</span>.jar fastreeR/inst/java/</span></code></pre></div>
+<p>Finally run the tool from its Python CLI:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="ex">python</span> fastreeR/fastreeR.py</span></code></pre></div>
 <hr />
 <h2 id="distances-from-vcf">Distances from VCF</h2>
 <p>Calculates a cosine type dissimilarity measurement between the
@@ -791,7 +793,7 @@ backend via <code>subprocess</code>, providing a unified command-line
 interface for all supported tools.</p>
 <h3 id="commands">Commands</h3>
 <h4 id="general-syntax">General Syntax</h4>
-<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="ex">python3</span> fastreeR.py <span class="op">&lt;</span>COMMAND<span class="op">&gt;</span> <span class="pp">[</span><span class="ss">OPTIONS</span><span class="pp">]</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="ex">python3</span> fastreeR.py <span class="op">&lt;</span>COMMAND<span class="op">&gt;</span> <span class="pp">[</span><span class="ss">OPTIONS</span><span class="pp">]</span></span></code></pre></div>
 <table>
 <thead>
 <tr>
@@ -822,23 +824,23 @@ interface for all supported tools.</p>
 <h3 id="examples">Examples</h3>
 <h4 id="compute-distance-matrix-from-vcf">Compute Distance Matrix from
 VCF</h4>
-<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="ex">python</span> fastreeR.py VCF2DIST <span class="at">-i</span> input.vcf <span class="at">-o</span> output.dist <span class="at">--threads</span> 16 <span class="at">--verbose</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="ex">python</span> fastreeR.py VCF2DIST <span class="at">-i</span> input.vcf <span class="at">-o</span> output.dist <span class="at">--threads</span> 16 <span class="at">--verbose</span></span></code></pre></div>
 <h4 id="compute-newick-nj-tree-directly-from-a-vcf-file">Compute Newick
 NJ tree directly from a VCF file.</h4>
-<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="ex">python</span> fastreeR.py VCF2TREE <span class="at">-i</span> input.vcf <span class="at">-o</span> output.nwk <span class="at">--threads</span> 16 <span class="at">--verbose</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="ex">python</span> fastreeR.py VCF2TREE <span class="at">-i</span> input.vcf <span class="at">-o</span> output.nwk <span class="at">--threads</span> 16 <span class="at">--verbose</span></span></code></pre></div>
 <h4 id="compute-tree-from-distance-matrix">Compute Tree from Distance
 Matrix</h4>
-<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="ex">python</span> fastreeR.py DIST2TREE <span class="at">-i</span> output.dist <span class="at">-o</span> output.nwk</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="ex">python</span> fastreeR.py DIST2TREE <span class="at">-i</span> output.dist <span class="at">-o</span> output.nwk</span></code></pre></div>
 <p><strong>Input format:</strong> tab-separated PHYLIP-compatible
 matrix.</p>
 <h3 id="compute-d2s-k-mer-distance-matrix-from-a-fasta-file">Compute D2S
 k-mer distance matrix from a FASTA file.</h3>
-<div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="ex">python3</span> fastreeR.py FASTA2DIST <span class="at">-i</span> seqs.fasta <span class="at">-o</span> output.dist <span class="at">-k</span> 4 <span class="at">-t</span> 2 <span class="at">--normalize</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="ex">python3</span> fastreeR.py FASTA2DIST <span class="at">-i</span> seqs.fasta <span class="at">-o</span> output.dist <span class="at">-k</span> 4 <span class="at">-t</span> 2 <span class="at">--normalize</span></span></code></pre></div>
 <h4 id="pipe-input-from-gzip-compressed-file">Pipe input from
 gzip-compressed file</h4>
-<div class="sourceCode" id="cb12"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">zcat</span> input.vcf.gz <span class="kw">|</span> <span class="ex">python</span> fastreeR.py VCF2TREE <span class="at">-i</span> <span class="at">-</span> <span class="at">-o</span> output.nwk</span></code></pre></div>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="fu">zcat</span> input.vcf.gz <span class="kw">|</span> <span class="ex">python</span> fastreeR.py VCF2TREE <span class="at">-i</span> <span class="at">-</span> <span class="at">-o</span> output.nwk</span></code></pre></div>
 <h4 id="print-version-and-citation">Print version and citation</h4>
-<div class="sourceCode" id="cb13"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="ex">python</span> fastreeR.py <span class="at">--version</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="ex">python</span> fastreeR.py <span class="at">--version</span></span></code></pre></div>
 <h3 id="output-examples">Output Examples</h3>
 <ul>
 <li>Distance matrices: PHYLIP-compatible text</li>
@@ -873,9 +875,9 @@ project and dynamically builds the Java classpath from all
 <h2 id="integration-with-r">Integration with R</h2>
 <p>All core functionality is available via the <code>fastreeR</code> R
 package (Bioconductor/devel):</p>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">library</span>(fastreeR)</span>
-<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>tree <span class="ot">&lt;-</span> <span class="fu">vcf2tree</span>(<span class="st">&quot;input.vcf&quot;</span>)</span>
-<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="fu">plot</span>(tree)</span></code></pre></div>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a><span class="fu">library</span>(fastreeR)</span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>tree <span class="ot">&lt;-</span> <span class="fu">vcf2tree</span>(<span class="st">&quot;input.vcf&quot;</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="fu">plot</span>(tree)</span></code></pre></div>
 <p>See <a href="https://www.bioconductor.org/packages/release/bioc/manuals/fastreeR/man/fastreeR.pdf">fastreeR
 R manual</a> and <a href="https://www.bioconductor.org/packages/release/bioc/vignettes/fastreeR/inst/doc/fastreeR_vignette.html">fastreeR
 R vignette</a> for usage in R.</p>
@@ -886,20 +888,20 @@ R vignette</a> for usage in R.</p>
 <h3 id="samplesvcfgz">samples.vcf.gz</h3>
 <p>Sample VCF file of 100 individuals and 1000 variants, in
 Chromosome22, from the 1K Genomes project. Original file available at <a href="http://hgdownload.cse.ucsc.edu/gbdb/hg19/1000Genomes/phase3/">http://hgdownload.cse.ucsc.edu/gbdb/hg19/1000Genomes/phase3/</a></p>
-<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>vcfFile <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;samples.vcf.gz&quot;</span>, <span class="at">package =</span> <span class="st">&quot;fastreeR&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>vcfFile <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;samples.vcf.gz&quot;</span>, <span class="at">package =</span> <span class="st">&quot;fastreeR&quot;</span>)</span></code></pre></div>
 <h3 id="samplesvcfdistgz">samples.vcf.dist.gz</h3>
 <p>Distances from the previous sample VCF</p>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>vcfDist <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;samples.vcf.dist.gz&quot;</span>, <span class="at">package =</span> <span class="st">&quot;fastreeR&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>vcfDist <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;samples.vcf.dist.gz&quot;</span>, <span class="at">package =</span> <span class="st">&quot;fastreeR&quot;</span>)</span></code></pre></div>
 <h3 id="samplesvcfistats">samples.vcf.istats</h3>
 <p>Individual statistics from the previous sample VCF</p>
-<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>vcfIstats <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;samples.vcf.istats&quot;</span>, <span class="at">package =</span> <span class="st">&quot;fastreeR&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>vcfIstats <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;samples.vcf.istats&quot;</span>, <span class="at">package =</span> <span class="st">&quot;fastreeR&quot;</span>)</span></code></pre></div>
 <h3 id="samplesfastagz">samples.fasta.gz</h3>
 <p>Sample FASTA file of 48 random bacteria RefSeq from <a href="ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/">ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/</a>
 .</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>fastaFile <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;samples.fasta.gz&quot;</span>, <span class="at">package =</span> <span class="st">&quot;fastreeR&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a>fastaFile <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;samples.fasta.gz&quot;</span>, <span class="at">package =</span> <span class="st">&quot;fastreeR&quot;</span>)</span></code></pre></div>
 <h3 id="samplesfastadistgz">samples.fasta.dist.gz</h3>
 <p>Distances from the previous sample FASTA</p>
-<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a>fastaDist <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;samples.fasta.dist.gz&quot;</span>, <span class="at">package =</span> <span class="st">&quot;fastreeR&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" tabindex="-1"></a>fastaDist <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;samples.fasta.dist.gz&quot;</span>, <span class="at">package =</span> <span class="st">&quot;fastreeR&quot;</span>)</span></code></pre></div>
 <hr />
 <h2 id="citation">Citation</h2>
 <p>If you use <code>fastreeR</code> in your research, please cite:</p>
