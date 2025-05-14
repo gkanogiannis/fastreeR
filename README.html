@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style type="text/css">
+@font-face {
+font-family: octicons-link;
+src: url(data:font/woff;charset=utf-8;base64,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) format('woff');
+}
+body {
+-webkit-text-size-adjust: 100%;
+text-size-adjust: 100%;
+color: #333;
+font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+font-size: 16px;
+line-height: 1.6;
+word-wrap: break-word;
+}
+a {
+background-color: transparent;
+}
+a:active,
+a:hover {
+outline: 0;
+}
+strong {
+font-weight: bold;
+}
+h1 {
+font-size: 2em;
+margin: 0.67em 0;
+}
+img {
+border: 0;
+}
+hr {
+box-sizing: content-box;
+height: 0;
+}
+pre {
+overflow: auto;
+}
+code,
+kbd,
+pre {
+font-family: monospace, monospace;
+font-size: 1em;
+}
+input {
+color: inherit;
+font: inherit;
+margin: 0;
+}
+html input[disabled] {
+cursor: default;
+}
+input {
+line-height: normal;
+}
+input[type="checkbox"] {
+box-sizing: border-box;
+padding: 0;
+}
+table {
+border-collapse: collapse;
+border-spacing: 0;
+}
+td,
+th {
+padding: 0;
+}
+* {
+box-sizing: border-box;
+}
+input {
+font: 13px / 1.4 Helvetica, arial, nimbussansl, liberationsans, freesans, clean, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+a {
+color: #4078c0;
+text-decoration: none;
+}
+a:hover,
+a:active {
+text-decoration: underline;
+}
+hr {
+height: 0;
+margin: 15px 0;
+overflow: hidden;
+background: transparent;
+border: 0;
+border-bottom: 1px solid #ddd;
+}
+hr:before {
+display: table;
+content: "";
+}
+hr:after {
+display: table;
+clear: both;
+content: "";
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+margin-top: 15px;
+margin-bottom: 15px;
+line-height: 1.1;
+}
+h1 {
+font-size: 30px;
+}
+h2 {
+font-size: 21px;
+}
+h3 {
+font-size: 16px;
+}
+h4 {
+font-size: 14px;
+}
+h5 {
+font-size: 12px;
+}
+h6 {
+font-size: 11px;
+}
+blockquote {
+margin: 0;
+}
+ul,
+ol {
+padding: 0;
+margin-top: 0;
+margin-bottom: 0;
+}
+ol ol,
+ul ol {
+list-style-type: lower-roman;
+}
+ul ul ol,
+ul ol ol,
+ol ul ol,
+ol ol ol {
+list-style-type: lower-alpha;
+}
+dd {
+margin-left: 0;
+}
+code {
+font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+font-size: 12px;
+}
+pre {
+margin-top: 0;
+margin-bottom: 0;
+font: 12px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+.select::-ms-expand {
+opacity: 0;
+}
+.octicon {
+font: normal normal normal 16px/1 octicons-link;
+display: inline-block;
+text-decoration: none;
+text-rendering: auto;
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+-webkit-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
+}
+.octicon-link:before {
+content: '\f05c';
+}
+.markdown-body:before {
+display: table;
+content: "";
+}
+.markdown-body:after {
+display: table;
+clear: both;
+content: "";
+}
+.markdown-body>*:first-child {
+margin-top: 0 !important;
+}
+.markdown-body>*:last-child {
+margin-bottom: 0 !important;
+}
+a:not([href]) {
+color: inherit;
+text-decoration: none;
+}
+.anchor {
+display: inline-block;
+padding-right: 2px;
+margin-left: -18px;
+}
+.anchor:focus {
+outline: none;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+margin-top: 1em;
+margin-bottom: 16px;
+font-weight: bold;
+line-height: 1.4;
+}
+h1 .octicon-link,
+h2 .octicon-link,
+h3 .octicon-link,
+h4 .octicon-link,
+h5 .octicon-link,
+h6 .octicon-link {
+color: #000;
+vertical-align: middle;
+visibility: hidden;
+}
+h1:hover .anchor,
+h2:hover .anchor,
+h3:hover .anchor,
+h4:hover .anchor,
+h5:hover .anchor,
+h6:hover .anchor {
+text-decoration: none;
+}
+h1:hover .anchor .octicon-link,
+h2:hover .anchor .octicon-link,
+h3:hover .anchor .octicon-link,
+h4:hover .anchor .octicon-link,
+h5:hover .anchor .octicon-link,
+h6:hover .anchor .octicon-link {
+visibility: visible;
+}
+h1 {
+padding-bottom: 0.3em;
+font-size: 2.25em;
+line-height: 1.2;
+border-bottom: 1px solid #eee;
+}
+h1 .anchor {
+line-height: 1;
+}
+h2 {
+padding-bottom: 0.3em;
+font-size: 1.75em;
+line-height: 1.225;
+border-bottom: 1px solid #eee;
+}
+h2 .anchor {
+line-height: 1;
+}
+h3 {
+font-size: 1.5em;
+line-height: 1.43;
+}
+h3 .anchor {
+line-height: 1.2;
+}
+h4 {
+font-size: 1.25em;
+}
+h4 .anchor {
+line-height: 1.2;
+}
+h5 {
+font-size: 1em;
+}
+h5 .anchor {
+line-height: 1.1;
+}
+h6 {
+font-size: 1em;
+color: #777;
+}
+h6 .anchor {
+line-height: 1.1;
+}
+p,
+blockquote,
+ul,
+ol,
+dl,
+table,
+pre {
+margin-top: 0;
+margin-bottom: 16px;
+}
+hr {
+height: 4px;
+padding: 0;
+margin: 16px 0;
+background-color: #e7e7e7;
+border: 0 none;
+}
+ul,
+ol {
+padding-left: 2em;
+}
+ul ul,
+ul ol,
+ol ol,
+ol ul {
+margin-top: 0;
+margin-bottom: 0;
+}
+li>p {
+margin-top: 16px;
+}
+dl {
+padding: 0;
+}
+dl dt {
+padding: 0;
+margin-top: 16px;
+font-size: 1em;
+font-style: italic;
+font-weight: bold;
+}
+dl dd {
+padding: 0 16px;
+margin-bottom: 16px;
+}
+blockquote {
+padding: 0 15px;
+color: #777;
+border-left: 4px solid #ddd;
+}
+blockquote>:first-child {
+margin-top: 0;
+}
+blockquote>:last-child {
+margin-bottom: 0;
+}
+table {
+display: block;
+width: 100%;
+overflow: auto;
+word-break: normal;
+word-break: keep-all;
+}
+table th {
+font-weight: bold;
+}
+table th,
+table td {
+padding: 6px 13px;
+border: 1px solid #ddd;
+}
+table tr {
+background-color: #fff;
+border-top: 1px solid #ccc;
+}
+table tr:nth-child(2n) {
+background-color: #f8f8f8;
+}
+img {
+max-width: 100%;
+box-sizing: content-box;
+background-color: #fff;
+}
+code {
+padding: 0;
+padding-top: 0.2em;
+padding-bottom: 0.2em;
+margin: 0;
+font-size: 85%;
+background-color: rgba(0,0,0,0.04);
+border-radius: 3px;
+}
+code:before,
+code:after {
+letter-spacing: -0.2em;
+content: "\00a0";
+}
+pre>code {
+padding: 0;
+margin: 0;
+font-size: 100%;
+word-break: normal;
+white-space: pre;
+background: transparent;
+border: 0;
+}
+.highlight {
+margin-bottom: 16px;
+}
+.highlight pre,
+pre {
+padding: 16px;
+overflow: auto;
+font-size: 85%;
+line-height: 1.45;
+background-color: #f7f7f7;
+border-radius: 3px;
+}
+.highlight pre {
+margin-bottom: 0;
+word-break: normal;
+}
+pre {
+word-wrap: normal;
+}
+pre code {
+display: inline;
+max-width: initial;
+padding: 0;
+margin: 0;
+overflow: initial;
+line-height: inherit;
+word-wrap: normal;
+background-color: transparent;
+border: 0;
+}
+pre code:before,
+pre code:after {
+content: normal;
+}
+kbd {
+display: inline-block;
+padding: 3px 5px;
+font-size: 11px;
+line-height: 10px;
+color: #555;
+vertical-align: middle;
+background-color: #fcfcfc;
+border: solid 1px #ccc;
+border-bottom-color: #bbb;
+border-radius: 3px;
+box-shadow: inset 0 -1px 0 #bbb;
+}
+.pl-c {
+color: #969896;
+}
+.pl-c1,
+.pl-s .pl-v {
+color: #0086b3;
+}
+.pl-e,
+.pl-en {
+color: #795da3;
+}
+.pl-s .pl-s1,
+.pl-smi {
+color: #333;
+}
+.pl-ent {
+color: #63a35c;
+}
+.pl-k {
+color: #a71d5d;
+}
+.pl-pds,
+.pl-s,
+.pl-s .pl-pse .pl-s1,
+.pl-sr,
+.pl-sr .pl-cce,
+.pl-sr .pl-sra,
+.pl-sr .pl-sre {
+color: #183691;
+}
+.pl-v {
+color: #ed6a43;
+}
+.pl-id {
+color: #b52a1d;
+}
+.pl-ii {
+background-color: #b52a1d;
+color: #f8f8f8;
+}
+.pl-sr .pl-cce {
+color: #63a35c;
+font-weight: bold;
+}
+.pl-ml {
+color: #693a17;
+}
+.pl-mh,
+.pl-mh .pl-en,
+.pl-ms {
+color: #1d3e81;
+font-weight: bold;
+}
+.pl-mq {
+color: #008080;
+}
+.pl-mi {
+color: #333;
+font-style: italic;
+}
+.pl-mb {
+color: #333;
+font-weight: bold;
+}
+.pl-md {
+background-color: #ffecec;
+color: #bd2c00;
+}
+.pl-mi1 {
+background-color: #eaffea;
+color: #55a532;
+}
+.pl-mdr {
+color: #795da3;
+font-weight: bold;
+}
+.pl-mo {
+color: #1d3e81;
+}
+kbd {
+display: inline-block;
+padding: 3px 5px;
+font: 11px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+line-height: 10px;
+color: #555;
+vertical-align: middle;
+background-color: #fcfcfc;
+border: solid 1px #ccc;
+border-bottom-color: #bbb;
+border-radius: 3px;
+box-shadow: inset 0 -1px 0 #bbb;
+}
+.task-list-item {
+list-style-type: none;
+}
+.task-list-item+.task-list-item {
+margin-top: 3px;
+}
+.task-list-item input {
+margin: 0 0.35em 0.25em -1.6em;
+vertical-align: middle;
+}
+:checked+.radio-label {
+z-index: 1;
+position: relative;
+border-color: #4078c0;
+}
+.sourceLine {
+display: inline-block;
+}
+code .kw { color: #000000; }
+code .dt { color: #ed6a43; }
+code .dv { color: #009999; }
+code .bn { color: #009999; }
+code .fl { color: #009999; }
+code .ch { color: #009999; }
+code .st { color: #183691; }
+code .co { color: #969896; }
+code .ot { color: #0086b3; }
+code .al { color: #a61717; }
+code .fu { color: #63a35c; }
+code .er { color: #a61717; background-color: #e3d2d2; }
+code .wa { color: #000000; }
+code .cn { color: #008080; }
+code .sc { color: #008080; }
+code .vs { color: #183691; }
+code .ss { color: #183691; }
+code .im { color: #000000; }
+code .va {color: #008080; }
+code .cf { color: #000000; }
+code .op { color: #000000; }
+code .bu { color: #000000; }
+code .ex { color: #000000; }
+code .pp { color: #999999; }
+code .at { color: #008080; }
+code .do { color: #969896; }
+code .an { color: #008080; }
+code .cv { color: #008080; }
+code .in { color: #008080; }
+</style>
+<style>
+body {
+box-sizing: border-box;
+min-width: 200px;
+max-width: 980px;
+margin: 0 auto;
+padding: 45px;
+padding-top: 0px;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+<h1 id="fastreer-fast-tree-reconstruction-tools-for-genomics">fastreeR:
+Fast Tree Reconstruction Tools for Genomics</h1>
+<!-- badges: start -->
+
+<p><a href="https://bioconductor.org/checkResults/release/bioc-LATEST/fastreeR"><img role="img" aria-label="BioC status" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2MSIgaGVpZ2h0PSIyMCI+PGxpbmVhckdyYWRpZW50IGlkPSJiIiB4Mj0iMCIgeTI9IjEwMCUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI2JiYiIgc3RvcC1vcGFjaXR5PSIuMSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1vcGFjaXR5PSIuMSIvPjwvbGluZWFyR3JhZGllbnQ+PG1hc2sgaWQ9ImEiPjxyZWN0IHdpZHRoPSI2MSIgaGVpZ2h0PSIyMCIgcng9IjMiIGZpbGw9IiNmZmYiLz48L21hc2s+PGcgbWFzaz0idXJsKCNhKSI+PHBhdGggZmlsbD0iIzU1NSIgZD0iTTAgMGgzN3YyMEgweiIvPjxwYXRoIGZpbGw9IiM4N2IxM2YiIGQ9Ik0zNyAwaDI0djIwSDM3eiIvPjxwYXRoIGZpbGw9InVybCgjYikiIGQ9Ik0wIDBoNjF2MjBIMHoiLz48L2c+PGcgZmlsbD0iI2ZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9IkRlamFWdSBTYW5zLFZlcmRhbmEsR2VuZXZhLHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iMTEiPjx0ZXh0IHg9IjE4LjUiIHk9IjE1IiBmaWxsPSIjMDEwMTAxIiBmaWxsLW9wYWNpdHk9Ii4zIj5idWlsZDwvdGV4dD48dGV4dCB4PSIxOC41IiB5PSIxNCI+YnVpbGQ8L3RleHQ+PHRleHQgeD0iNDgiIHk9IjE1IiBmaWxsPSIjMDEwMTAxIiBmaWxsLW9wYWNpdHk9Ii4zIj5vazwvdGV4dD48dGV4dCB4PSI0OCIgeT0iMTQiPm9rPC90ZXh0PjwvZz48L3N2Zz4=" alt="BioC status" /></a></p>
+<!-- badges: end -->
+
+<p><code>fastreeR</code> is a hybrid toolkit combining a
+high-performance Java backend with a user-friendly Python command-line
+interface and R bindings, enabling seamless integration into a variety
+of genomic workflows. It enables fast computation of distance matrices
+and phylogenetic trees from genetic variant data in <strong>VCF</strong>
+or genomic sequences in <strong>FASTA</strong> format.</p>
+<h3 id="java-backend">Java backend:</h3>
+<p>Built on <a href="https://github.com/gkanogiannis/BioInfoJava-Utils"><code>BioInfoJava-Utils</code></a>
+— a modular Java library for bioinformatics pipelines.</p>
+<hr />
+<ul>
+<li><a href="#key-features">Key Features</a></li>
+<li><a href="#requirements">Requirements</a></li>
+<li><a href="#installation">Installation</a>
+<ul>
+<li><a href="#as-a-python-cli-wrapper">Python CLI</a></li>
+<li><a href="#as-an-r-package">R package</a></li>
+<li><a href="#from-java-backend-source">From Java backend
+source</a></li>
+</ul></li>
+<li><a href="#distances-from-vcf">Distances from VCF</a></li>
+<li><a href="#python-cli-usage">Python CLI Usage</a>
+<ul>
+<li><a href="#commands">Commands</a></li>
+<li><a href="#examples">Examples</a></li>
+<li><a href="#options-common-to-all-commands">Options</a></li>
+</ul></li>
+<li><a href="#integration-with-java-backend">Integration with Java
+Backend</a></li>
+<li><a href="#integration-with-r">Integration with R</a></li>
+<li><a href="#sample-data">Sample data</a></li>
+<li><a href="#citation">Citation</a></li>
+<li><a href="#author">Author</a></li>
+<li><a href="#license">License</a></li>
+</ul>
+<hr />
+<h2 id="key-features">Key Features</h2>
+<ul>
+<li>⚡ Ultra-fast computation of sample-wise cosine distances from large
+VCF and D2S k-mer based distances from FASTA files.</li>
+<li>🌳 Generate agglomerative neighbor-joining phylogenetic trees
+directly from VCF or distance matrices.</li>
+<li>🧵 Multithreaded execution for speed and scalability.</li>
+<li>Cluster distance matrices hierarchically with dynamic tree
+pruning.</li>
+<li>🧰 Clean Python CLI for scripting and pipeline integration</li>
+<li>Streamlined integration with R via <code>rJava</code></li>
+<li>🧬 Compatible with standard bioinformatics formats (PHYLIP,
+Newick)</li>
+</ul>
+<hr />
+<h2 id="requirements">Requirements</h2>
+<ul>
+<li>Java 8+</li>
+<li>Python 3.6+</li>
+<li>Maven (for building)</li>
+<li>GNU/Linux, Windows or macOS</li>
+</ul>
+<h3 id="memory-requirements-for-vcf-input">Memory requirements for VCF
+input</h3>
+<p>At minimum, make sure to allocate for JVM at least 10 bytes per
+variant per sample. If there are <code>n</code> samples and
+<code>m</code> variants allocate <code>10 x n x m</code> bytes of RAM.
+For example, for processing a VCF file containing data for 1 million
+variants and 1 thousand samples, allocate at least : 10^6 x 10^3 x 10 =
+10^10 bytes = 10GB of RAM. For optimal execution, allocate more RAM than
+minimum. This will trigger less times garbage collections and hence less
+pauses.</p>
+<p>In order to allocate RAM, a special parameter needs to be passed
+while JVM initializes. JVM parameters can be passed by setting
+<code>java.parameters</code> option. The <code>-Xmx</code> parameter,
+followed (without space) by an integer value and a letter, is used to
+tell JVM what is the maximum amount of heap RAM that it can use. The
+letter in the parameter (uppercase or lowercase), indicates RAM units.
+For example, parameters <code>-Xmx1024m</code> or <code>-Xmx1024M</code>
+or <code>-Xmx1g</code> or <code>-Xmx1G</code>, all allocate 1 Gigabyte
+or 1024 Megabytes of maximum RAM for JVM.</p>
+<p>In order to allocate 3GB of RAM for the JVM, through R code, use:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">options</span>(<span class="at">java.parameters =</span> <span class="st">&quot;-Xmx3G&quot;</span>)</span></code></pre></div>
+<p>When using <code>fastreeR</code> as a CLI, then RAM allocation can be
+achieved with the relevant argument <code>--mem MEM</code>.</p>
+<p>A rough estimation for the required RAM, if sample and variant
+numbers are not known, is half the size of the uncompressed VCF file.
+For example for processing a VCF file, which uncompressed occupies 2GB
+of disk space, allocate 1GB of RAM.</p>
+<hr />
+<h2 id="installation">Installation</h2>
+<h3 id="as-a-python-cli-wrapper">As a Python CLI wrapper</h3>
+<p>The easiest method for using <code>fastreeR</code> is by its Python
+CLI:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/gkanogiannis/fastreeR.git</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="ex">python</span> fastreeR/fastreeR.py</span></code></pre></div>
+<h3 id="as-an-r-package">As an R package</h3>
+<p>To install <code>fastreeR</code> as an R package:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">requireNamespace</span>(<span class="st">&quot;BiocManager&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="fu">install.packages</span>(<span class="st">&quot;BiocManager&quot;</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>}</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>BiocManager<span class="sc">::</span><span class="fu">install</span>(<span class="st">&quot;fastreeR&quot;</span>)</span></code></pre></div>
+<p>You can install the development version of <code>fastreeR</code> R
+package like so:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">&quot;gkanogiannis/fastreeR&quot;</span>)</span></code></pre></div>
+<h3 id="from-java-backend-source">From java backend source</h3>
+<p>To build the Java backend from source code:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/gkanogiannis/fastreeR.git</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/gkanogiannis/BioInfoJava-Utils.git</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="bu">pushd</span> BioInfoJava-Utils</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="ex">mvn</span> clean package <span class="kw">&amp;&amp;</span> <span class="bu">popd</span></span></code></pre></div>
+<p>Then copy the resulting <code>.jar</code> file(s) to the
+<code>fastreeR/inst/java/</code> directory</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">cp</span> BioInfoJava-Utils/target/<span class="pp">*</span>.jar fastreeR/inst/java/</span></code></pre></div>
+<hr />
+<h2 id="distances-from-vcf">Distances from VCF</h2>
+<p>Calculates a cosine type dissimilarity measurement between the
+<code>n</code> samples of a VCF file.</p>
+<p>Biallelic or multiallelic (maximum 7 alternate alleles) SNP and/or
+INDEL variants are considered, phased or not. Some VCF encoding examples
+are:</p>
+<ul>
+<li>heterozygous variants : <code>1/0</code> or <code>0/1</code> or
+<code>0/2</code> or <code>1|0</code> or <code>0|1</code> or
+<code>0|2</code></li>
+<li>homozygous to the reference allele variants : <code>0/0</code> or
+<code>0|0</code></li>
+<li>homozygous to the first alternate allele variants : <code>1/1</code>
+or <code>1|1</code></li>
+</ul>
+<p>If there are <code>n</code> samples and <code>m</code> variants, an
+<code>nxn</code> zero-diagonal symmetric distance matrix is calculated.
+The calculated cosine type distance (1-cosine_similarity)/2 is in the
+range <code>[0,1]</code> where value <code>0</code> means completely
+identical samples (cosine is <code>1</code>), value <code>0.5</code>
+means perpendicular samples (cosine is <code>0</code>) and value 1 means
+completely opposite samples (cosine is <code>-1</code>).</p>
+<p>The calculation is performed by a Java back-end implementation, that
+supports multi-core CPU utilization and can be demanding in terms of
+memory resources.</p>
+<p>Output distances is a PHYLIP compatible file will contain
+<code>n+1</code> lines. The first line contains the number
+<code>n</code> of samples and number <code>m</code> of variants,
+separated by space. Each of the subsequent <code>n</code> lines contains
+<code>n+1</code> values, separated by space. The first value of each
+line is a sample name and the rest <code>n</code> values are the
+calculated distances of this sample to all the samples. Example output
+file of the distances of 3 samples calculated from 1000 variants:</p>
+<table>
+<thead>
+<tr>
+<th>3 1000</th>
+<th></th>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sample1</td>
+<td>0.0</td>
+<td>0.5</td>
+<td>0.2</td>
+</tr>
+<tr>
+<td>Sample2</td>
+<td>0.5</td>
+<td>0.0</td>
+<td>0.9</td>
+</tr>
+<tr>
+<td>Sample3</td>
+<td>0.2</td>
+<td>0.9</td>
+<td>0.0</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="python-cli-usage">Python CLI Usage</h2>
+<p>The Python CLI (<code>fastreeR.py</code>) interfaces with the Java
+backend via <code>subprocess</code>, providing a unified command-line
+interface for all supported tools.</p>
+<h3 id="commands">Commands</h3>
+<h4 id="general-syntax">General Syntax</h4>
+<div class="sourceCode" id="cb7"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="ex">python3</span> fastreeR.py <span class="op">&lt;</span>COMMAND<span class="op">&gt;</span> <span class="pp">[</span><span class="ss">OPTIONS</span><span class="pp">]</span></span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>COMMAND</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>VCF2DIST</code></td>
+<td>Compute a cosine distance matrix from a VCF file</td>
+</tr>
+<tr>
+<td><code>VCF2TREE</code></td>
+<td>Compute a Newick NJ tree directly from a VCF</td>
+</tr>
+<tr>
+<td><code>DIST2TREE</code></td>
+<td>Compute a Newick NJ tree from a distance matrix</td>
+</tr>
+<tr>
+<td><code>FASTA2DIST</code></td>
+<td>Compute a D2S distance matrix from a FASTA file</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="examples">Examples</h3>
+<h4 id="compute-distance-matrix-from-vcf">Compute Distance Matrix from
+VCF</h4>
+<div class="sourceCode" id="cb8"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="ex">python</span> fastreeR.py VCF2DIST <span class="at">-i</span> input.vcf <span class="at">-o</span> output.dist <span class="at">--threads</span> 16 <span class="at">--verbose</span></span></code></pre></div>
+<h4 id="compute-newick-nj-tree-directly-from-a-vcf-file">Compute Newick
+NJ tree directly from a VCF file.</h4>
+<div class="sourceCode" id="cb9"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="ex">python</span> fastreeR.py VCF2TREE <span class="at">-i</span> input.vcf <span class="at">-o</span> output.nwk <span class="at">--threads</span> 16 <span class="at">--verbose</span></span></code></pre></div>
+<h4 id="compute-tree-from-distance-matrix">Compute Tree from Distance
+Matrix</h4>
+<div class="sourceCode" id="cb10"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="ex">python</span> fastreeR.py DIST2TREE <span class="at">-i</span> output.dist <span class="at">-o</span> output.nwk</span></code></pre></div>
+<p><strong>Input format:</strong> tab-separated PHYLIP-compatible
+matrix.</p>
+<h3 id="compute-d2s-k-mer-distance-matrix-from-a-fasta-file">Compute D2S
+k-mer distance matrix from a FASTA file.</h3>
+<div class="sourceCode" id="cb11"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="ex">python3</span> fastreeR.py FASTA2DIST <span class="at">-i</span> seqs.fasta <span class="at">-o</span> output.dist <span class="at">-k</span> 4 <span class="at">-t</span> 2 <span class="at">--normalize</span></span></code></pre></div>
+<h4 id="pipe-input-from-gzip-compressed-file">Pipe input from
+gzip-compressed file</h4>
+<div class="sourceCode" id="cb12"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">zcat</span> input.vcf.gz <span class="kw">|</span> <span class="ex">python</span> fastreeR.py VCF2TREE <span class="at">-i</span> <span class="at">-</span> <span class="at">-o</span> output.nwk</span></code></pre></div>
+<h4 id="print-version-and-citation">Print version and citation</h4>
+<div class="sourceCode" id="cb13"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="ex">python</span> fastreeR.py <span class="at">--version</span></span></code></pre></div>
+<h3 id="output-examples">Output Examples</h3>
+<ul>
+<li>Distance matrices: PHYLIP-compatible text</li>
+<li>Trees: Newick format</li>
+<li>Output is streamed line-by-line (suitable for large datasets)</li>
+</ul>
+<hr />
+<h3 id="options-common-to-all-commands">Options (common to all
+commands)</h3>
+<ul>
+<li><code>-i, --input</code> : Input file (VCF or distance matrix). Use
+<code>-</code> for stdin.</li>
+<li><code>-o, --output</code> : Output file. If omitted, prints to
+stdout.</li>
+<li><code>-t, --threads</code> : Number of threads (default: 1).</li>
+<li><code>--mem MEM</code> : Max RAM for JVM in GB (default: 1).</li>
+<li><code>--lib LIB</code> : Path to the folder containing JAR libraries
+(default: inst/java)</li>
+<li><code>--verbose</code> : Print progress information to stderr.</li>
+<li><code>--pipe-stderr</code> : Pipe stderr and forward from Python
+(default: direct passthrough to terminal).</li>
+<li><code>--version</code> : Print version and citation
+information.</li>
+</ul>
+<hr />
+<h2 id="integration-with-java-backend">Integration with Java
+Backend</h2>
+<p>The CLI wraps tools from the <a href="https://github.com/gkanogiannis/BioInfoJava-Utils">BioInfoJava-Utils</a>
+project and dynamically builds the Java classpath from all
+<code>.jar</code> files located in <code>inst/java/</code>.</p>
+<hr />
+<h2 id="integration-with-r">Integration with R</h2>
+<p>All core functionality is available via the <code>fastreeR</code> R
+package (Bioconductor/devel):</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">library</span>(fastreeR)</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>tree <span class="ot">&lt;-</span> <span class="fu">vcf2tree</span>(<span class="st">&quot;input.vcf&quot;</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="fu">plot</span>(tree)</span></code></pre></div>
+<p>See <a href="https://www.bioconductor.org/packages/release/bioc/manuals/fastreeR/man/fastreeR.pdf">fastreeR
+R manual</a> and <a href="https://www.bioconductor.org/packages/release/bioc/vignettes/fastreeR/inst/doc/fastreeR_vignette.html">fastreeR
+R vignette</a> for usage in R.</p>
+<hr />
+<h2 id="sample-data">Sample data</h2>
+<p>Toy vcf, fasta and distance sample data files are provided in
+<code>inst/extdata</code>.</p>
+<h3 id="samplesvcfgz">samples.vcf.gz</h3>
+<p>Sample VCF file of 100 individuals and 1000 variants, in
+Chromosome22, from the 1K Genomes project. Original file available at <a href="http://hgdownload.cse.ucsc.edu/gbdb/hg19/1000Genomes/phase3/">http://hgdownload.cse.ucsc.edu/gbdb/hg19/1000Genomes/phase3/</a></p>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>vcfFile <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;samples.vcf.gz&quot;</span>, <span class="at">package =</span> <span class="st">&quot;fastreeR&quot;</span>)</span></code></pre></div>
+<h3 id="samplesvcfdistgz">samples.vcf.dist.gz</h3>
+<p>Distances from the previous sample VCF</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a>vcfDist <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;samples.vcf.dist.gz&quot;</span>, <span class="at">package =</span> <span class="st">&quot;fastreeR&quot;</span>)</span></code></pre></div>
+<h3 id="samplesvcfistats">samples.vcf.istats</h3>
+<p>Individual statistics from the previous sample VCF</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" tabindex="-1"></a>vcfIstats <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;samples.vcf.istats&quot;</span>, <span class="at">package =</span> <span class="st">&quot;fastreeR&quot;</span>)</span></code></pre></div>
+<h3 id="samplesfastagz">samples.fasta.gz</h3>
+<p>Sample FASTA file of 48 random bacteria RefSeq from <a href="ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/">ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/</a>
+.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>fastaFile <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;samples.fasta.gz&quot;</span>, <span class="at">package =</span> <span class="st">&quot;fastreeR&quot;</span>)</span></code></pre></div>
+<h3 id="samplesfastadistgz">samples.fasta.dist.gz</h3>
+<p>Distances from the previous sample FASTA</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" tabindex="-1"></a>fastaDist <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;samples.fasta.dist.gz&quot;</span>, <span class="at">package =</span> <span class="st">&quot;fastreeR&quot;</span>)</span></code></pre></div>
+<hr />
+<h2 id="citation">Citation</h2>
+<p>If you use <code>fastreeR</code> in your research, please cite:</p>
+<blockquote>
+<p><strong>Anestis Gkanogiannis (2016)</strong><br />
+<em>A scalable assembly-free variable selection algorithm for biomarker
+discovery from metagenomes</em><br />
+BMC Bioinformatics 17, 311.<br />
+<a href="https://doi.org/10.1186/s12859-016-1186-3">https://doi.org/10.1186/s12859-016-1186-3</a><br />
+<a href="https://github.com/gkanogiannis/fastreeR">https://github.com/gkanogiannis/fastreeR</a></p>
+</blockquote>
+<hr />
+<h2 id="author">Author</h2>
+<p><strong>Anestis Gkanogiannis</strong><br />
+Website: <a href="https://www.gkanogiannis.com">https://www.gkanogiannis.com</a><br />
+ORCID: <a href="https://orcid.org/0000-0002-6441-0688">0000-0002-6441-0688</a></p>
+<hr />
+<h2 id="license">License</h2>
+<p><code>fastreeR</code> is licensed under the GNU General Public
+License v3.0.<br />
+See the <a href="LICENSE">LICENSE</a> file for details.</p>
+<hr />
+
+</body>
+</html>

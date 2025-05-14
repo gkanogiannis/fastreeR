@@ -1,0 +1,43 @@
+name: Sync BioinfoJavaTools Backend JAR
+
+on:
+  repository_dispatch:
+    types: [backend-release]
+
+jobs:
+  update-backend-jar:
+    runs-on: ubuntu-latest
+
+    env:
+      VERSION: ${{ github.event.client_payload.version }}
+
+    steps:
+      - name: Checkout fastreeR
+        uses: actions/checkout@v3
+
+      - name: Remove existing JAR
+        run: rm -f inst/java/BioInfoJavaUtils-*.jar
+
+      - name: Download new JAR from backend release
+        run: |
+          curl -L -o inst/java/BioInfoJavaUtils-${VERSION}.jar \
+            https://github.com/gkanogiannis/BioInfoJava-Utils/releases/download/${VERSION}/BioInfoJavaUtils-${VERSION}.jar
+
+      - name: Commit changes
+        run: |
+          git config user.name "Anestis Gkanogiannis"
+          git config user.email "ganoyan@gmail.com"
+          git add inst/java/BioInfoJavaUtils-${VERSION}.jar
+          git commit -m "Update backend to version ${VERSION}"
+          git tag -a ${VERSION} -m "Synced backend version ${VERSION}"
+          git push origin HEAD
+          git push origin ${VERSION}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.VERSION }}
+          name: fastreeR v${{ env.VERSION }}
+          body: |
+            Auto-synced with BioInfoJavaUtils backend version ${{ env.VERSION }}.
+            - New backend JAR: BioInfoJavaUtils-${{ env.VERSION }}.jar

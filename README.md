@@ -27,6 +27,9 @@ Built on
 - [Key Features](#key-features)
 - [Requirements](#requirements)
 - [Installation](#installation)
+  - [Python CLI](#as-a-python-cli-wrapper)
+  - [R package](#as-an-r-package)
+  - [From Java backend source](#from-java-backend-source)
 - [Distances from VCF](#distances-from-vcf)
 - [Python CLI Usage](#python-cli-usage)
   - [Commands](#commands)
@@ -99,7 +102,18 @@ disk space, allocate 1GB of RAM.
 
 ## Installation
 
-To install `fastreeR` R package:
+### As a Python CLI wrapper
+
+The easiest method for using `fastreeR` is by its Python CLI:
+
+``` bash
+git clone https://github.com/gkanogiannis/fastreeR.git
+python fastreeR/fastreeR.py
+```
+
+### As an R package
+
+To install `fastreeR` as an R package:
 
 ``` r
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
@@ -114,12 +128,15 @@ You can install the development version of `fastreeR` R package like so:
 devtools::install_github("gkanogiannis/fastreeR")
 ```
 
+### From java backend source
+
 To build the Java backend from source code:
 
 ``` bash
+git clone https://github.com/gkanogiannis/fastreeR.git
 git clone https://github.com/gkanogiannis/BioInfoJava-Utils.git
-cd BioInfoJava-Utils
-mvn clean compile package
+pushd BioInfoJava-Utils
+mvn clean package && popd
 ```
 
 Then copy the resulting `.jar` file(s) to the `fastreeR/inst/java/`
