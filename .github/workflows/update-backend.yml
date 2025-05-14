@@ -37,7 +37,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.VERSION }}
-          name: fastreeR v${{ env.VERSION }}
+          name: fastreeR ${{ env.VERSION }}
           body: |
             Auto-synced with BioInfoJavaUtils backend version ${{ env.VERSION }}.
             - New backend JAR: BioInfoJavaUtils-${{ env.VERSION }}.jar
