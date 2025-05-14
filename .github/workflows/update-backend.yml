@@ -31,8 +31,8 @@ jobs:
 
       - name: Download latest JARs for trove and jcommander
         run: |
-          mvn dependency:get "-Dartifact=net.sf.trove4j:trove4j:[1.0,)" -Dtransitive=false -Ddest=./inst/java/
-          mvn dependency:get "-Dartifact=com.beust:jcommander:[1.0,)" -Dtransitive=false -Ddest=./inst/java/
+          mvn dependency:get -Dartifact=net.sf.trove4j:trove4j:3.0.3 -Dtransitive=false -Ddest=./inst/java/
+          mvn dependency:get -Dartifact=com.beust:jcommander:1.82 -Dtransitive=false -Ddest=./inst/java/
 
       - name: Commit changes
         run: |
