@@ -15,6 +15,30 @@ jobs:
       - name: Checkout fastreeR
         uses: actions/checkout@v4
 
+      - name: Update DESCRIPTION version
+        run: |
+        sed -i "s/^Version: .*/Version: ${VERSION#v}/" DESCRIPTION
+
+      - name: Prepend new section to NEWS.Rd
+        run: |
+          VERSION_CLEAN="${VERSION#v}"
+          DATE=$(date -u +%Y-%m-%d)
+          HEADER="\\\\section{Version ${VERSION_CLEAN} (${DATE})}{\\\\itemize{"
+          CHANGE="\\\\item Update backend and CLI"
+          FOOTER="}}"
+
+          # Insert block at the top after \encoding
+          awk -v header="$HEADER" -v change="$CHANGE" -v footer="$FOOTER" '
+            BEGIN { inserted = 0 }
+            {
+              print
+              if (!inserted && /^\\encoding\{/ ) {
+                print ""; print header; print change; print footer; print "";
+                inserted = 1
+              }
+            }
+          ' inst/NEWS.Rd > inst/NEWS.Rd.new && mv inst/NEWS.Rd.new inst/NEWS.Rd
+
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
@@ -27,8 +51,8 @@ jobs:
       - name: Download new JAR from backend release
         run: |
           mkdir -p inst/java
-          curl -L -o inst/java/BioInfoJavaUtils-${VERSION}.jar \
-            https://github.com/gkanogiannis/BioInfoJava-Utils/releases/download/${VERSION}/BioInfoJavaUtils-${VERSION}.jar
+          curl -L -o inst/java/BioInfoJavaUtils-${VERSION#v}.jar \
+            https://github.com/gkanogiannis/BioInfoJava-Utils/releases/download/${VERSION#v}/BioInfoJavaUtils-${VERSION#v}.jar
 
       - name: Download latest JARs for trove and jcommander
         run: |
@@ -40,11 +64,11 @@ jobs:
           git config user.name "Anestis Gkanogiannis"
           git config user.email "ganoyan@gmail.com"
           git ls-files inst/java/*.jar | xargs -r git rm
-          git add inst/java/*.jar
-          git commit -m "Update backend to version ${VERSION}"
-          git tag -a ${VERSION} -m "Synced backend version ${VERSION}"
+          git add DESCRIPTION inst/NEWS.Rd inst/java/*.jar
+          git commit -m "Update backend to version ${VERSION#v}"
+          git tag -a ${VERSION#v} -m "Synced backend version ${VERSION#v}"
           git push origin HEAD
-          git push origin ${VERSION}
+          git push origin ${VERSION#v}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
