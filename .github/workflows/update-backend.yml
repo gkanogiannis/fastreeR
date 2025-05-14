@@ -17,7 +17,8 @@ jobs:
 
       - name: Update DESCRIPTION version
         run: |
-        sed -i "s/^Version: .*/Version: ${VERSION#v}/" DESCRIPTION
+          VERSION_CLEAN="${VERSION#v}"
+          sed -i "s/^Version: .*/Version: ${VERSION_CLEAN}/" DESCRIPTION
 
       - name: Prepend new section to NEWS.Rd
         run: |
@@ -50,9 +51,10 @@ jobs:
 
       - name: Download new JAR from backend release
         run: |
+          VERSION_CLEAN="${VERSION#v}"
           mkdir -p inst/java
-          curl -L -o inst/java/BioInfoJavaUtils-${VERSION#v}.jar \
-            https://github.com/gkanogiannis/BioInfoJava-Utils/releases/download/${VERSION#v}/BioInfoJavaUtils-${VERSION#v}.jar
+          curl -L -o inst/java/BioInfoJavaUtils-${VERSION_CLEAN}.jar \
+            https://github.com/gkanogiannis/BioInfoJava-Utils/releases/download/${VERSION_CLEAN}/BioInfoJavaUtils-${VERSION_CLEAN}.jar
 
       - name: Download latest JARs for trove and jcommander
         run: |
@@ -61,14 +63,15 @@ jobs:
 
       - name: Commit changes
         run: |
+          VERSION_CLEAN="${VERSION#v}"
           git config user.name "Anestis Gkanogiannis"
           git config user.email "ganoyan@gmail.com"
           git ls-files inst/java/*.jar | xargs -r git rm
           git add DESCRIPTION inst/NEWS.Rd inst/java/*.jar
-          git commit -m "Update backend to version ${VERSION#v}"
-          git tag -a ${VERSION#v} -m "Synced backend version ${VERSION#v}"
+          git commit -m "Update backend to version ${VERSION_CLEAN}"
+          git tag -a ${VERSION_CLEAN} -m "Synced backend version ${VERSION_CLEAN}"
           git push origin HEAD
-          git push origin ${VERSION#v}
+          git push origin ${VERSION_CLEAN}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
