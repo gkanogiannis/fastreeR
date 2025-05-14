@@ -27,11 +27,14 @@ jobs:
         run: |
           git config user.name "Anestis Gkanogiannis"
           git config user.email "ganoyan@gmail.com"
+          git add -u inst/java
           git add inst/java/BioInfoJavaUtils-${VERSION}.jar
           git commit -m "Update backend to version ${VERSION}"
           git tag -a ${VERSION} -m "Synced backend version ${VERSION}"
           git push origin HEAD
           git push origin ${VERSION}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
