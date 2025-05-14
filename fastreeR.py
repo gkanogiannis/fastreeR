@@ -7,7 +7,7 @@ import zipfile
 import sys
 import os
 
-JAR_DIR = os.path.join(os.path.dirname(__file__), "../inst/java")
+JAR_DIR = os.path.join(os.path.dirname(__file__), "./inst/java")
 JAVA_PARAMS = ["-Djava.awt.headless=true", "-XX:+UseG1GC", "-XX:+UseStringDeduplication"]
 MEM_GB = "1"
 
