@@ -26,6 +26,7 @@ jobs:
 
       - name: Download new JAR from backend release
         run: |
+          mkdir -p inst/java
           curl -L -o inst/java/BioInfoJavaUtils-${VERSION}.jar \
             https://github.com/gkanogiannis/BioInfoJava-Utils/releases/download/${VERSION}/BioInfoJavaUtils-${VERSION}.jar
 
