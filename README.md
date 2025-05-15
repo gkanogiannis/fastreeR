@@ -67,11 +67,11 @@ Built on
 
 ### Memory requirements for VCF input
 
-At minimum, make sure to allocate for JVM at least 10 bytes per variant
+At minimum, make sure to allocate for JVM at least 48 bytes per variant
 per sample. If there are `n` samples and `m` variants allocate
-`10 x n x m` bytes of RAM. For example, for processing a VCF file
+`48 x n x m` bytes of RAM. For example, for processing a VCF file
 containing data for 1 million variants and 1 thousand samples, allocate
-at least : 10^6 x 10^3 x 10 = 10^10 bytes = 10GB of RAM. For optimal
+at least : 48 x 10^6 x 10^3 = 48 x 10^9 bytes = 48GB of RAM. For optimal
 execution, allocate more RAM than minimum. This will trigger less times
 garbage collections and hence less pauses.
 
