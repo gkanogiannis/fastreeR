@@ -670,14 +670,14 @@ Newick)</li>
 </ul>
 <h3 id="memory-requirements-for-vcf-input">Memory requirements for VCF
 input</h3>
-<p>At minimum, make sure to allocate for JVM at least 10 bytes per
+<p>At minimum, make sure to allocate for JVM at least 48 bytes per
 variant per sample. If there are <code>n</code> samples and
-<code>m</code> variants allocate <code>10 x n x m</code> bytes of RAM.
+<code>m</code> variants allocate <code>48 x n x m</code> bytes of RAM.
 For example, for processing a VCF file containing data for 1 million
-variants and 1 thousand samples, allocate at least : 10^6 x 10^3 x 10 =
-10^10 bytes = 10GB of RAM. For optimal execution, allocate more RAM than
-minimum. This will trigger less times garbage collections and hence less
-pauses.</p>
+variants and 1 thousand samples, allocate at least : 48 x 10^6 x 10^3 =
+48 x 10^9 bytes = 48GB of RAM. For optimal execution, allocate more RAM
+than minimum. This will trigger less times garbage collections and hence
+less pauses.</p>
 <p>In order to allocate RAM, a special parameter needs to be passed
 while JVM initializes. JVM parameters can be passed by setting
 <code>java.parameters</code> option. The <code>-Xmx</code> parameter,
