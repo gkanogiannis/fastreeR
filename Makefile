@@ -1,7 +1,7 @@
 VERSION := $(shell git describe --tags --abbrev=0)
 
 PHONY: docker-build docker-tag docker-push docker-test \
-        pypi-sync-version pypi-build pypi-upload
+        pypi-build pypi-upload
 
 # ----------------------
 # Docker-related targets
@@ -25,11 +25,6 @@ PACKAGE_DIR = fastreer
 SRC_JAR_DIR = inst/java
 DEST_JAR_DIR = $(PACKAGE_DIR)/inst/java
 
-# Update setup.cfg version dynamically
-pypi-sync-version:
-	@echo "🛠️  Syncing version $(VERSION) into setup.cfg"
-	@sed -i.bak "s/^version = .*/version = $(VERSION)/" setup.cfg && rm setup.cfg.bak
-
 # Clean build artifacts
 pypi-clean:
 	rm -rf build dist *.egg-info
@@ -37,7 +32,7 @@ pypi-clean:
 	rm -rf $(DEST_JAR_DIR)/*.jar
 
 # Build PyPI wheel
-pypi-build: pypi-clean pypi-sync-version
+pypi-build: pypi-clean
 	@echo "📦 Copying .jar files from $(SRC_JAR_DIR) to $(DEST_JAR_DIR)"
 	@mkdir -p $(DEST_JAR_DIR)
 	cp fastreeR.py $(PACKAGE_DIR)/cli.py

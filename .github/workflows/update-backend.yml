@@ -43,6 +43,11 @@ jobs:
       - name: Update PyPI setup version
         run: |
           VERSION_CLEAN="${VERSION#v}"
+          sed -i "s/^version = .*/version = $(VERSION_CLEAN)/" setup.cfg
+
+      - name: Update PyPI setup version
+        run: |
+          VERSION_CLEAN="${VERSION#v}"
           sed -i "s/^version *= *.*/version = ${VERSION_CLEAN}/" setup.cfg
 
       - name: Set up JDK
