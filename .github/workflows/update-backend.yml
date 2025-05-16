@@ -69,10 +69,10 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          token: ${{ secrets.FASTREER_PAT }}
           tag_name: ${{ env.VERSION }}
           name: fastreeR ${{ env.VERSION }}
           body: |
             Auto-synced with BioInfoJavaUtils backend version ${{ env.VERSION }}.
             - New backend JAR: BioInfoJavaUtils-${{ env.VERSION }}.jar
-        env:
-          GITHUB_TOKEN: ${{ secrets.FASTREER_PAT }}
+            
