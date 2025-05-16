@@ -40,6 +40,11 @@ jobs:
             }
           ' inst/NEWS.Rd > inst/NEWS.Rd.new && mv inst/NEWS.Rd.new inst/NEWS.Rd
 
+      - name: Update PyPI setup version
+        run: |
+          VERSION_CLEAN="${VERSION#v}"
+          sed -i "s/^version *= *.*/version = ${VERSION_CLEAN}/" setup.cfg
+
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
