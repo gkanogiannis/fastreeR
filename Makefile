@@ -33,14 +33,14 @@ pypi-sync-version:
 # Clean build artifacts
 pypi-clean:
 	rm -rf build dist *.egg-info
-	rm -rf $(PACKAGE_DIR)/fastreeR.py
+	rm -rf $(PACKAGE_DIR)/cli.py
 	rm -rf $(DEST_JAR_DIR)/*.jar
 
 # Build PyPI wheel
 pypi-build: pypi-clean pypi-sync-version
 	@echo "📦 Copying .jar files from $(SRC_JAR_DIR) to $(DEST_JAR_DIR)"
 	@mkdir -p $(DEST_JAR_DIR)
-	cp fastreeR.py $(PACKAGE_DIR)/fastreeR.py
+	cp fastreeR.py $(PACKAGE_DIR)/cli.py
 	cp $(SRC_JAR_DIR)/*.jar $(DEST_JAR_DIR)
 	@echo "🔧 Building Python package for version $(VERSION)"
 	@python -m build
