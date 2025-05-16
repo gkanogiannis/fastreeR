@@ -37,7 +37,9 @@ jobs:
       - name: Extract version
         id: extract
         run: |
-          echo "version=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
+          VERSION="${GITHUB_REF##*/}"
+          CLEANED="${VERSION#v}"
+          echo "version=${CLEANED}" >> "$GITHUB_OUTPUT"
 
       - name: Debug version
         run: |
