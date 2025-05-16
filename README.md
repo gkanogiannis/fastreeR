@@ -26,12 +26,13 @@ Built on
 
 - [Key Features](#key-features)
 - [Requirements](#requirements)
-- [Installation](#installation)
-  - [Python CLI](#as-a-python-cli-wrapper)
+- [Installation and Usage](#installation-and-usage)
+  - [Docker](#via-docker)
+  - [Python CLI](#via-a-python-cli-wrapper)
   - [R package](#as-an-r-package)
   - [From Java backend source](#from-java-backend-source)
 - [Distances from VCF](#distances-from-vcf)
-- [Python CLI Usage](#python-cli-usage)
+- [CLI Interface](#cli-interface)
   - [Commands](#commands)
   - [Examples](#examples)
   - [Options](#options-common-to-all-commands)
@@ -100,11 +101,60 @@ disk space, allocate 1GB of RAM.
 
 ------------------------------------------------------------------------
 
-## Installation
+## Installation and Usage
 
-### As a Python CLI wrapper
+### Via Docker
 
-The easiest method for using `fastreeR` is by its Python CLI:
+`fastreeR` is available as a lightweight, multithreaded,
+platform-independent Docker image hosted on both **DockerHub** and
+**GHCR**.
+
+Pull the latest image From **DockerHub**:
+
+``` bash
+docker pull gkanogiannis/fastreer:latest
+```
+
+Or from GitHub Container Registry (GHCR):
+
+``` bash
+docker pull ghcr.io/gkanogiannis/fastreer:latest
+```
+
+To compute a tree directly from a VCF file:
+
+``` bash
+docker run --rm -v $(pwd):/data gkanogiannis/fastreer:latest \
+    VCF2TREE -i /data/input.vcf -o /data/output.nwk --threads 4
+```
+
+This: \* Mounts your working directory `$(pwd)` inside the container \*
+Reads `input.vcf` and writes `output.nwk` relative to your host \* Uses
+4 threads for faster computation
+
+The Docker image includes: \* Java 17 \* Python3 \* All required `.jar`
+libraries \* The `fastreeR.py` CLI entry point
+
+Example: FASTA to distance
+
+``` bash
+docker run --rm -v $(pwd):/data gkanogiannis/fastreer \
+    FASTA2DIST -i /data/sequences.fasta -o /data/sequences.dist -k 4 -t 2
+```
+
+Memory tuning Use the `--mem` option to control how much memory is
+allocated to the Java backend:
+
+``` bash
+docker run --rm -v $(pwd):/data gkanogiannis/fastreer \
+    VCF2TREE -i /data/input.vcf -o /data/output.nwk --mem 128
+```
+
+> Internally, this sets the Java heap to `-Xmx128G`.
+
+### Via a Python CLI wrapper
+
+Another easy method for using `fastreeR` is by its Python CLI:
 
 ``` bash
 git clone https://github.com/gkanogiannis/fastreeR.git
@@ -194,7 +244,7 @@ samples calculated from 1000 variants:
 
 ------------------------------------------------------------------------
 
-## Python CLI Usage
+## CLI Interface
 
 The Python CLI (`fastreeR.py`) interfaces with the Java backend via
 `subprocess`, providing a unified command-line interface for all
