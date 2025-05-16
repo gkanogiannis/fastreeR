@@ -1,5 +1,25 @@
 #!/usr/bin/env python3
 
+#
+# fastreeR https://github.com/gkanogiannis/fastreeR
+#
+# Copyright (C) 2021 Anestis Gkanogiannis <anestis@gkanogiannis.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+#
+
 import threading
 import argparse
 import subprocess
@@ -7,9 +27,11 @@ import zipfile
 import sys
 import os
 
-JAR_DIR = os.path.join(os.path.dirname(__file__), "./inst/java")
-JAVA_PARAMS = ["-Djava.awt.headless=true", "-XX:+UseG1GC", "-XX:+UseStringDeduplication"]
+# Determine JAR directory
+JAR_DIR = os.environ.get("FASTREER_JAR_DIR") or os.path.join(os.path.dirname(__file__), "./inst/java")
 MEM_GB = "1"
+JAVA_PARAMS = ["-Djava.awt.headless", "-XX:+UseG1GC", "-XX:+UseStringDeduplication", "-Xmx"+str(MEM_GB)+"G"]
+MAIN_CLASS="ciat.agrobio.javautils.JavaUtils"
 
 def build_classpath(jar_dir):
     if not os.path.isdir(jar_dir):
@@ -23,9 +45,17 @@ def build_classpath(jar_dir):
     return separator.join(jars)
 
 def run_java_tool(tool_name, params, jar_dir, mem_GB=MEM_GB, output_path=None, verbose=False, pipe_stderr=False, progress_every=100, stdin=None):
+    global JAVA_PARAMS
+    extra = os.environ.get("FASTREE_JAVA_PARAMS", "")
+    if extra:
+        JAVA_PARAMS += extra.strip().split()
+    JAVA_PARAMS += ["-Xmx"+str(mem_GB)+"G"]
     classpath = build_classpath(jar_dir)
-    cmd = ["java"] + JAVA_PARAMS + ["-Xms"+str(mem_GB)+"G", "-Xmx"+str(mem_GB)+"G", "-cp", classpath, "ciat.agrobio.javautils.JavaUtils", tool_name] + params
-    print(f"Running: {' '.join(cmd)}", file=sys.stderr)
+    cmd = ["java"] + JAVA_PARAMS + ["-cp", classpath, MAIN_CLASS, tool_name] + params
+    if verbose:
+        print(f"[fastreeR] JAVA_PARAMS: {' '.join(JAVA_PARAMS)}", file=sys.stderr)
+        print(f"[fastreeR] Using JAR directory: {jar_dir}", file=sys.stderr)
+        print(f"Running: {' '.join(cmd)}", file=sys.stderr)
     try:
         process = subprocess.Popen(
             cmd,
@@ -96,6 +126,7 @@ def main():
     parser.add_argument("--mem", type=int, default=MEM_GB, help=f"Max RAM for JVM in GB (default: {MEM_GB})")
     parser.add_argument("--pipe-stderr", action="store_true", help="Pipe Java stderr to CLI (default: direct passthrough to terminal)")
     parser.add_argument("--version", action="store_true", help="Print version information and exit")
+    parser.add_argument("--check", action="store_true", help="Test Java and backend availability")
 
     subparsers = parser.add_subparsers(dest="command", required=False)
 
@@ -137,6 +168,32 @@ def main():
     parser_fasta2dist.add_argument("-v", "--verbose", action="store_true", help="Print progress messages on stderr (default: false)")
    
     args = parser.parse_args()
+
+    if args.check:
+        global JAVA_PARAMS
+        extra = os.environ.get("FASTREE_JAVA_PARAMS", "")
+        if extra:
+            JAVA_PARAMS += extra.strip().split()
+        JAVA_PARAMS += ["-Xmx"+str(args.mem)+"G"]
+        jar_dir = os.environ.get("FASTREER_JAR_DIR") or args.lib
+        classpath = build_classpath(jar_dir)
+        try:
+            cmd = ["java"] + JAVA_PARAMS + ["-version"]
+            print(f"[fastreeR] Running Java check: {' '.join(cmd)}", file=sys.stderr)
+            result = subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            print(result.stdout.strip())
+            print(result.stderr.strip(), file=sys.stderr)
+            cmd = ["java"] + JAVA_PARAMS + ["-cp", classpath, MAIN_CLASS , "VCF2TREE"]
+            print(f"[fastreeR] Running Java check: {' '.join(cmd)}", file=sys.stderr)
+            result = subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            print(result.stdout.strip())
+            print(result.stderr.strip(), file=sys.stderr)
+            print("[fastreeR] ✅ Java check succeeded", file=sys.stderr)
+        except subprocess.CalledProcessError as e:
+            print(f"[fastreeR] ❌ Java check failed (exit code {e.returncode})", file=sys.stderr)
+            print(e.stderr, file=sys.stderr)
+            sys.exit(e.returncode)
+        sys.exit(0)
 
     if args.version:
         print_version_from_jar(args.lib)
