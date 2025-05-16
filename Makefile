@@ -38,7 +38,7 @@ pypi-build: pypi-clean
 	cp fastreeR.py $(PACKAGE_DIR)/cli.py
 	cp $(SRC_JAR_DIR)/*.jar $(DEST_JAR_DIR)
 	@echo "🔧 Building Python package for version $(VERSION)"
-	@python -m build
+	@python -m build --sdist --wheel
 
 # Local install
 pypi-local-install: pypi-build
