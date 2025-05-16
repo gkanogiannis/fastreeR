@@ -56,7 +56,7 @@ jobs:
           tags: |
             ${{ env.IMAGE_NAME }}:latest
             ${{ env.IMAGE_NAME }}:${{ steps.extract.outputs.version }}
-            ghcr.io/${{ github.repository }}:${{ steps.extract.outputs.version }}
+            ghcr.io/${{ github.repository | toLower }}:${{ steps.extract.outputs.version }}
 
       - name: Test Docker image with --check
         run: |
