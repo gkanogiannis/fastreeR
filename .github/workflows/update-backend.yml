@@ -74,3 +74,5 @@ jobs:
           body: |
             Auto-synced with BioInfoJavaUtils backend version ${{ env.VERSION }}.
             - New backend JAR: BioInfoJavaUtils-${{ env.VERSION }}.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.FASTREER_PAT }}
