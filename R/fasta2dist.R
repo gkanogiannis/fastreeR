@@ -51,7 +51,7 @@ fasta2dist <- function(..., outputFile = NULL, threads = 2, kmer = 6,
         class.loader = .rJava.class.loader)
     cmd <- paste("FASTA2DIST", "--numberOfThreads", threads,
                 ifelse(normalize, "--normalize", ""),
-                "--kmerSize", kmer, "--inputFile", inputfile, sep = " ")
+                "--kmerSize", kmer, "--verbose", "--input", inputfile, sep = " ")
     temp.out <- tempfile(fileext = ".txt"); on.exit(unlink(temp.out))
     jSys <- rJava::J("java/lang/System"); jOrigOut <- jSys$out
     jSys$setOut(rJava::.jnew("java/io/PrintStream", temp.out))

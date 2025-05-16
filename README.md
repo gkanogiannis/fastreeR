@@ -3,14 +3,39 @@
 
 # fastreeR: Fast Tree Reconstruction Tools for Genomics
 
+#### 📛 Package Status
+
+##### 📦 Containers
+
 <!-- badges: start -->
 
 [![Docker
 Pulls](https://img.shields.io/docker/pulls/gkanogiannis/fastreer)](https://hub.docker.com/r/gkanogiannis/fastreer)
-[![BioC
-status](http://www.bioconductor.org/shields/build/release/bioc/fastreeR.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/fastreeR)
+<!-- badges: end -->
+
+##### 🐍 Python CLI / Bioconda / PyPI module
+
+<!-- badges: start -->
+
 [![GitHub
 release](https://img.shields.io/github/v/release/gkanogiannis/fastreeR?include_prereleases)](https://github.com/gkanogiannis/fastreeR/releases)
+[![Bioconda](https://img.shields.io/conda/vn/bioconda/fastreer)](https://anaconda.org/bioconda/fastreer)
+[![PyPI
+version](https://img.shields.io/pypi/v/fastreeR.svg)](https://pypi.org/project/fastreeR/)
+<!-- badges: end -->
+
+##### 🧬 R / Bioconductor
+
+<!-- badges: start -->
+
+BioC release: [![BioC
+release](http://www.bioconductor.org/shields/build/release/bioc/fastreeR.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/fastreeR)
+BioC devel: [![BioC
+devel](http://www.bioconductor.org/shields/build/devel/bioc/fastreeR.svg)](https://bioconductor.org/checkResults/devel/bioc-LATEST/fastreeR)
+<!-- badges: end -->
+
+<!-- badges: start -->
+
 [![GitHub Workflow
 Status](https://img.shields.io/github/actions/workflow/status/gkanogiannis/fastreeR/docker-publish.yml)](https://github.com/gkanogiannis/fastreeR/actions)
 <!-- badges: end -->
@@ -34,6 +59,7 @@ Built on
 - [Requirements](#requirements)
 - [Installation and Usage](#installation-and-usage)
   - [Docker](#via-docker)
+  - [PyPI](#as-a-pypi-module)
   - [Python CLI](#via-a-python-cli-wrapper)
   - [R package](#as-an-r-package)
   - [From Java backend source](#from-java-backend-source)
@@ -158,6 +184,23 @@ docker run --rm -v $(pwd):/data gkanogiannis/fastreer \
 
 > Internally, this sets the Java heap to `-Xmx128G`.
 
+### As a PyPI Module
+
+You can install the Python CLI directly from PyPI using:
+
+``` bash
+pip install fastreeR
+```
+
+This will install the fastreeR command-line tool (`fastreer`) and
+include the Java backend jars required for running all commands.
+
+To check it installed correctly:
+
+``` bash
+fastreer --version
+```
+
 ### Via a Python CLI wrapper
 
 Another easy method for using `fastreeR` is by its Python CLI:
@@ -166,6 +209,9 @@ Another easy method for using `fastreeR` is by its Python CLI:
 git clone https://github.com/gkanogiannis/fastreeR.git
 python fastreeR/fastreeR.py
 ```
+
+Note: If you want to use a custom backend location, set the environment
+variable `FASTREER_JAR_DIR`.
 
 ### As an R package
 

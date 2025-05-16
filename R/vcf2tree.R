@@ -84,7 +84,8 @@ vcf2tree <- function(inputFile, threads = 2, ignoreMissing = FALSE,
         ifelse(ignoreMissing, "--ignoreMissing", ""),
         ifelse(onlyHets, "--onlyHets", ""),
         ifelse(ignoreHets, "--ignoreHets", ""),
-        inputFile,
+        "--verbose",
+        "--input", inputFile,
         sep = " "
     )
 
