@@ -43,11 +43,6 @@ jobs:
       - name: Update PyPI setup version
         run: |
           VERSION_CLEAN="${VERSION#v}"
-          sed -i "s/^version = .*/version = $(VERSION_CLEAN)/" setup.cfg
-
-      - name: Update PyPI setup version
-        run: |
-          VERSION_CLEAN="${VERSION#v}"
           sed -i "s/^version *= *.*/version = ${VERSION_CLEAN}/" setup.cfg
 
       - name: Set up JDK
@@ -68,7 +63,7 @@ jobs:
             https://github.com/gkanogiannis/BioInfoJava-Utils/releases/download/${VERSION_CLEAN}/BioInfoJavaUtils-${VERSION_CLEAN}.jar
           git config user.name "Anestis Gkanogiannis"
           git config user.email "ganoyan@gmail.com"
-          git add DESCRIPTION inst/NEWS.Rd inst/java/*.jar
+          git add DESCRIPTION inst/NEWS.Rd inst/java/*.jar setup.cfg
           git commit -m "Update backend to version ${VERSION_CLEAN}"
           git tag -a ${VERSION_CLEAN} -m "Synced backend version ${VERSION_CLEAN}"
           git push origin HEAD
