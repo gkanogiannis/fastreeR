@@ -3,61 +3,53 @@
 
 # fastreeR: Fast Tree Reconstruction Tools for Genomics
 
-#### 📛 Package Status
-
-##### 📦 Containers
-
 <!-- badges: start -->
 
+[![Bioconda](https://img.shields.io/conda/vn/bioconda/fastreer)](https://anaconda.org/bioconda/fastreer)
 [![Docker
 Pulls](https://img.shields.io/docker/pulls/gkanogiannis/fastreer)](https://hub.docker.com/r/gkanogiannis/fastreer)
-<!-- badges: end -->
-
-##### 🐍 Python CLI / Bioconda / PyPI module
-
-<!-- badges: start -->
-
-[![GitHub
-release](https://img.shields.io/github/v/release/gkanogiannis/fastreeR?include_prereleases)](https://github.com/gkanogiannis/fastreeR/releases)
-[![Bioconda](https://img.shields.io/conda/vn/bioconda/fastreer)](https://anaconda.org/bioconda/fastreer)
 [![PyPI
 version](https://img.shields.io/pypi/v/fastreeR.svg)](https://pypi.org/project/fastreeR/)
 <!-- badges: end -->
 
-##### 🧬 R / Bioconductor
-
 <!-- badges: start -->
 
-BioC release: [![BioC
+BioC [![BioC
 release](http://www.bioconductor.org/shields/build/release/bioc/fastreeR.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/fastreeR)
-BioC devel: [![BioC
-devel](http://www.bioconductor.org/shields/build/devel/bioc/fastreeR.svg)](https://bioconductor.org/checkResults/devel/bioc-LATEST/fastreeR)
-<!-- badges: end -->
-
-<!-- badges: start -->
-
-[![GitHub Workflow
-Status](https://img.shields.io/github/actions/workflow/status/gkanogiannis/fastreeR/docker-publish.yml)](https://github.com/gkanogiannis/fastreeR/actions)
 <!-- badges: end -->
 
 `fastreeR` is a hybrid toolkit combining a high-performance Java backend
-with a user-friendly Python command-line interface and R bindings,
+([`BioInfoJava-Utils`](https://github.com/gkanogiannis/BioInfoJava-Utils)—a
+modular Java library for bioinformatics pipelines) with flexible and
+user-friendly interfaces across multiple platforms and environments,
 enabling seamless integration into a variety of genomic workflows. It
 enables fast computation of distance matrices and phylogenetic trees
 from genetic variant data in **VCF** or genomic sequences in **FASTA**
 format.
 
-### Java backend:
+## Integration and Accessibility
 
-Built on
-[`BioInfoJava-Utils`](https://github.com/gkanogiannis/BioInfoJava-Utils)
-— a modular Java library for bioinformatics pipelines.
+`fastreeR` offers interface, which is accessible in the following ways:
+
+- ✅ **Bioconda**: install with `conda install -c bioconda fastreer`
+- ✅ **Docker**: available on
+  [DockerHub](https://hub.docker.com/r/gkanogiannis/fastreer) and
+  [GHCR](https://ghcr.io/gkanogiannis/fastreer) for containerized
+  execution
+- ✅ **PyPI**: install with `pip install fastreer`
+- ✅ **Python CLI**: through a lightweight [Python
+  wrapper](https://github.com/gkanogiannis/fastreeR/blob/devel/fastreeR.py)
+  that calls the Java backend via `subprocess`
+- ✅ **R / Bioconductor**: via `rJava`
+- ✅ **Pure Java API**: developers can integrate this library directly
+  in Java-based pipelines or software.
 
 ------------------------------------------------------------------------
 
 - [Key Features](#key-features)
 - [Requirements](#requirements)
 - [Installation and Usage](#installation-and-usage)
+- - [Conda](#via-conda)
   - [Docker](#via-docker)
   - [PyPI](#as-a-pypi-module)
   - [Python CLI](#via-a-python-cli-wrapper)
@@ -95,7 +87,7 @@ Built on
 
 - Java 8+
 - Python 3.6+
-- Maven (for building)
+- Maven (if you want to build from the source)
 - GNU/Linux, Windows or macOS
 
 ### Memory requirements for VCF input
@@ -135,13 +127,20 @@ disk space, allocate 1GB of RAM.
 
 ## Installation and Usage
 
+### Via Conda
+
+``` bash
+conda create -y -n fastreer-env -c bioconda fastreer && activate fastreer-env
+fastreeR --help
+```
+
 ### Via Docker
 
 `fastreeR` is available as a lightweight, multithreaded,
 platform-independent Docker image hosted on both **DockerHub** and
 **GHCR**.
 
-Pull the latest image From **DockerHub**:
+From DockerHub:
 
 ``` bash
 docker pull gkanogiannis/fastreer:latest
@@ -189,7 +188,7 @@ docker run --rm -v $(pwd):/data gkanogiannis/fastreer \
 You can install the Python CLI directly from PyPI using:
 
 ``` bash
-pip install fastreeR
+pip install fastreer
 ```
 
 This will install the fastreeR command-line tool (`fastreer`) and
@@ -198,7 +197,7 @@ include the Java backend jars required for running all commands.
 To check it installed correctly:
 
 ``` bash
-fastreer --version
+fastreeR --version
 ```
 
 ### Via a Python CLI wrapper
@@ -238,7 +237,7 @@ To build the Java backend from source code:
 git clone https://github.com/gkanogiannis/fastreeR.git
 git clone https://github.com/gkanogiannis/BioInfoJava-Utils.git
 pushd BioInfoJava-Utils
-mvn initialize clean package && popd
+mvn clean initialize package && popd
 ```
 
 Then copy the resulting `.jar` file(s) to the `fastreeR/inst/java/`
