@@ -13,3 +13,5 @@
 ^java$
 ^fastreeR\.py$
 ^tmp$
+^Dockerfile$
+^Makefile$
