@@ -41,6 +41,11 @@ jobs:
           CLEANED="${VERSION#v}"
           echo "version=${CLEANED}" >> "$GITHUB_OUTPUT"
 
+      - name: Convert repo name to lowercase
+        id: lowercase
+        run: |
+          echo "repo_lc=${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+
       - name: Debug version
         run: |
           echo "Resolved tag version: ${{ steps.extract.outputs.version }}"
@@ -56,7 +61,7 @@ jobs:
           tags: |
             ${{ env.IMAGE_NAME }}:latest
             ${{ env.IMAGE_NAME }}:${{ steps.extract.outputs.version }}
-            ghcr.io/${{ github.repository | toLower }}:${{ steps.extract.outputs.version }}
+            ghcr.io/${{ steps.lowercase.outputs.repo_lc }}:${{ steps.extract.outputs.version }}
 
       - name: Test Docker image with --check
         run: |
