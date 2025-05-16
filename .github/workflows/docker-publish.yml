@@ -62,6 +62,7 @@ jobs:
             ${{ env.IMAGE_NAME }}:latest
             ${{ env.IMAGE_NAME }}:${{ steps.extract.outputs.version }}
             ghcr.io/${{ steps.lowercase.outputs.repo_lc }}:${{ steps.extract.outputs.version }}
+            ghcr.io/gkanogiannis/fastreer:latest
 
       - name: Test Docker image with --check
         run: |
