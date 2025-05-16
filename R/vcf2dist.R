@@ -92,7 +92,8 @@ vcf2dist <- function(inputFile, outputFile=NULL,
     cmd <- paste("VCF2DIST", "--numberOfThreads", threads,
             ifelse(ignoreMissing, "--ignoreMissing", ""),
             ifelse(onlyHets, "--onlyHets", ""),
-            ifelse(ignoreHets, "--ignoreHets", ""), inputFile, sep = " ")
+            ifelse(ignoreHets, "--ignoreHets", ""), "--verbose",
+            "--input", inputFile, sep = " ")
 
     temp.out <- tempfile(fileext = ".txt"); on.exit(unlink(temp.out))
     jSys <- rJava::J("java/lang/System"); jOrigOut <- jSys$out
