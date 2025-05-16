@@ -5,8 +5,14 @@
 
 <!-- badges: start -->
 
+[![Docker
+Pulls](https://img.shields.io/docker/pulls/gkanogiannis/fastreer)](https://hub.docker.com/r/gkanogiannis/fastreer)
 [![BioC
 status](http://www.bioconductor.org/shields/build/release/bioc/fastreeR.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/fastreeR)
+[![GitHub
+release](https://img.shields.io/github/v/release/gkanogiannis/fastreeR?include_prereleases)](https://github.com/gkanogiannis/fastreeR/releases)
+[![GitHub Workflow
+Status](https://img.shields.io/github/actions/workflow/status/gkanogiannis/fastreeR/docker-publish.yml)](https://github.com/gkanogiannis/fastreeR/actions)
 <!-- badges: end -->
 
 `fastreeR` is a hybrid toolkit combining a high-performance Java backend
