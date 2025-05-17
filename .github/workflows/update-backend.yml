@@ -3,6 +3,7 @@ name: Sync BioinfoJavaTools Backend JAR
 on:
   repository_dispatch:
     types: [backend-release]
+  workflow_dispatch:
 
 jobs:
   update-backend-jar:
