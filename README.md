@@ -1,6 +1,9 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+<img src="https://raw.githubusercontent.com/gkanogiannis/fastreeR
+/main/icon.png" alt="Project Icon" width="120"/>
+
 # fastreeR: Fast Tree Reconstruction Tools for Genomics
 
 <!-- badges: start -->
