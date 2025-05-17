@@ -61,10 +61,17 @@ jobs:
           tags: |
             ${{ env.IMAGE_NAME }}:latest
             ${{ env.IMAGE_NAME }}:${{ steps.extract.outputs.version }}
-            ghcr.io/${{ steps.lowercase.outputs.repo_lc }}:${{ steps.extract.outputs.version }}
-            ghcr.io/gkanogiannis/fastreer:latest
+            ghcr.io/${{ env.IMAGE_NAME }}:latest
+            ghcr.io/${{ env.IMAGE_NAME }}:${{ steps.extract.outputs.version }}
 
       - name: Test Docker image with --check
         run: |
           docker run --rm ${{ env.IMAGE_NAME }}:${{ steps.extract.outputs.version }} --check
 
+      - name: Update DockerHub README
+        uses: peter-evans/dockerhub-description@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: ${{ env.IMAGE_NAME }}
+          readme-filepath: ./README.md
