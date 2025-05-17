@@ -6,6 +6,7 @@
 .Rproj.user
 .Ruserdata
 /.vscode/
+/build/
 /dist/
 /doc/
 /fastreer.egg-info/
