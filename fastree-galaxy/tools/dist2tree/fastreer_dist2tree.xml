@@ -1,0 +1,31 @@
+<tool id="fastreer_dist2tree" name="DIST2TREE" version="1.13.26">
+    <description>Newick tree from distance matrix</description>
+    <requirements>
+        <requirement type="package">fastreer=1.13.26</requirement>
+    </requirements>
+    <command detect_errors="exit_code"><![CDATA[
+    fastreeR DIST2TREE 
+    -i '$dist_input' 
+    -o '$output'
+    #if $verbose:
+        --verbose
+    #end if
+    ]]></command>
+    <inputs>
+        <param name="dist_input" type="data" format="txt" label="Input Distance Matrix"/>
+        <param name="verbose" type="boolean" checked="true" label="Verbose logging"/>
+    </inputs>
+    <outputs>
+        <data name="output" format="newick" label="Output Newick Tree"/>
+    </outputs>
+    <tests>
+        <test>
+            <param name="dist_input" value="test.dist"/>
+            <output name="output" file="expected.nwk"/>
+        </test>
+    </tests>
+    <help>Builds a Newick tree from a PHYLIP-compatible distance matrix.</help>
+    <citations>
+        <citation type="doi">10.1186/s12859-016-1186-3</citation>
+    </citations>
+</tool>
