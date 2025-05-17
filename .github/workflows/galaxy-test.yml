@@ -1,0 +1,41 @@
+name: Galaxy Tool Tests
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  test-tools:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install Planemo
+        run: |
+          pip install planemo
+          planemo --version
+
+      - name: Run tool tests
+        run: |
+          planemo \
+            test --skip_venv \
+            --test_output galaxy-tools-test-report.html \
+            fastree-galaxy/tools/dist2tree/fastreer_dist2tree.xml \
+            fastree-galaxy/tools/fasta2dist/fastreer_fasta2dist.xml \
+            fastree-galaxy/tools/vcf2dist/fastreer_vcf2dist.xml \
+            fastree-galaxy/tools/vcf2tree/fastreer_vcf2tree.xml
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: galaxy-tools-test-report
+          path: galaxy-tools-test-report.html
+          overwrite: true
