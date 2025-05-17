@@ -4,15 +4,22 @@ on:
   repository_dispatch:
     types: [backend-release]
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version of the backend JAR to use'
+        required: true
 
 jobs:
   update-backend-jar:
     runs-on: ubuntu-latest
 
     env:
-      VERSION: ${{ github.event.client_payload.version }}
+      VERSION: ${{ github.event.client_payload.version || inputs.version }}
 
     steps:
+      - name: Print version
+        run: echo "VERSION is $VERSION"
+
       - name: Checkout fastreeR
         uses: actions/checkout@v4
 
