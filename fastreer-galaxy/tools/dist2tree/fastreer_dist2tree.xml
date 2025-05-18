@@ -1,7 +1,7 @@
-<tool id="DIST2TREE" name="DIST2TREE" version="1.13.29">
+<tool id="DIST2TREE" name="DIST2TREE" version="1.13.30">
     <description>Newick tree from distance matrix</description>
     <requirements>
-        <requirement type="package">fastreer=1.13.29</requirement>
+        <requirement type="package">fastreer=1.13.30</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
     fastreeR DIST2TREE 
