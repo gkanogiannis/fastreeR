@@ -1,0 +1,3 @@
+include LICENSE.md
+include README.md
+include src/fastreer/inst/java/*.jar

@@ -5,15 +5,13 @@
 ^\.Rhistory$
 ^\.Rproj\.user$
 ^\.vscode$
-^dist$
 ^doc$
-^fastree-galaxy$
+^fastreer-galaxy$
+^fastreer-pypi$
 ^Dockerfile$
 ^fastreer$
-^fastreer\.egg-info$
 ^fastreeR\.py$
 ^java$
-^PyPI\_fastreer$
 ^LICENSE\.md$
 ^Makefile$
 ^MANIFEST\.in$
