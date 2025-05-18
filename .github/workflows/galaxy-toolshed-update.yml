@@ -1,9 +1,9 @@
 name: Upload Galaxy Tools to ToolShed
 
 on:
-  #release:
-  #  types: [published]
-    workflow_dispatch:
+  release:
+    types: [published]
+  workflow_dispatch:
 
 jobs:
   upload-tools:
@@ -26,10 +26,4 @@ jobs:
         env:
           PLANEMO_TOOLSHED_API_KEY: ${{ secrets.GALAXY_TOOLSHED_API_KEY }}
         run: |
-          planemo shed_upload \
-            --shed_target toolshed \
-            --shed_key $PLANEMO_TOOLSHED_API_KEY \
-            --tar_only
-          planemo shed_upload \
-            --shed_target toolshed \
-            --shed_key $PLANEMO_TOOLSHED_API_KEY
+          make galaxy-update-toolshed TOOLSHED_KEY=${PLANEMO_TOOLSHED_API_KEY}
