@@ -41,8 +41,9 @@ format.
 - ✅ **PyPI**: install with `pip install fastreer`
 - ✅ **Python CLI**: through a lightweight [Python
   wrapper](https://github.com/gkanogiannis/fastreeR/blob/devel/fastreeR.py)
-  that calls the Java backend via `subprocess`
+  that calls the Java backend
 - ✅ **R / Bioconductor**: via `rJava`
+- ✅ **Galaxy**: Also available on Galaxy Toolshed.
 - ✅ **Pure Java API**: developers can integrate this library directly
   in Java-based pipelines or software.
 
@@ -56,6 +57,7 @@ format.
   - [PyPI](#as-a-pypi-module)
   - [Python CLI](#via-a-python-cli-wrapper)
   - [R package](#as-an-r-package)
+  - [Galaxy](#with-galaxy)
   - [From Java backend source](#from-java-backend-source)
 - [Distances from VCF](#distances-from-vcf)
 - [CLI Interface](#cli-interface)
@@ -81,6 +83,7 @@ format.
 - Cluster distance matrices hierarchically with dynamic tree pruning.
 - 🧰 Clean Python CLI for scripting and pipeline integration
 - Streamlined integration with R via `rJava`
+- Available on Galaxy Toolshed
 - 🧬 Compatible with standard bioinformatics formats (PHYLIP, Newick)
 
 ------------------------------------------------------------------------
@@ -88,7 +91,7 @@ format.
 ## Requirements
 
 - Java 8+
-- Python 3.6+
+- Python 3.7+
 - Maven (if you want to build from the source)
 - GNU/Linux, Windows or macOS
 
@@ -230,6 +233,11 @@ You can install the development version of `fastreeR` R package like so:
 ``` r
 devtools::install_github("gkanogiannis/fastreeR")
 ```
+
+### With Galaxy
+
+Search in Galaxy Tools for `fastreer` or ask your Galaxy Admin to
+install it from toolshed.
 
 ### From java backend source
 
