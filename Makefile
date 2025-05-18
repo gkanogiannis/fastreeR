@@ -52,6 +52,13 @@ pypi-upload: pypi-build
 # Galaxy-related targets
 # ----------------------
 GALAXY_ROOT = fastreer-galaxy
+TOOLSHED_KEY ?= somekey
 
 galaxy-update-versions:
 	bash $(GALAXY_ROOT)/update_galaxy_versions.sh $(FASTREER_VERSION)
+
+galaxy-update-testshed:
+	-@bash $(GALAXY_ROOT)/update_galaxy_shed.sh $(TOOLSHED_KEY) testtoolshed
+
+galaxy-update-toolshed:
+	-@bash $(GALAXY_ROOT)/update_galaxy_shed.sh $(TOOLSHED_KEY) toolshed

@@ -1,5 +1,5 @@
 <tool id="fastreer_fasta2dist" name="FASTA2DIST" version="1.13.29">
-    <description>Compute cosine distance matrix from FASTA file(s)</description>
+    <description>Compute D2S distance matrix from FASTA file(s)</description>
     <requirements>
         <requirement type="package">fastreer=1.13.29</requirement>
     </requirements>
