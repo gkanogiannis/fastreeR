@@ -68,3 +68,11 @@ jobs:
       - name: Test Docker image with --check
         run: |
           docker run --rm ${{ env.IMAGE_NAME }}:${{ steps.extract.outputs.version }} --check
+
+      - name: Update DockerHub README
+        uses: peter-evans/dockerhub-description@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          repository: ${{ env.IMAGE_NAME }}
+          readme-filepath: ./README.md
