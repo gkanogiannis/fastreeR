@@ -21,29 +21,29 @@ docker-test:
 # ----------------------
 # PyPI-related targets
 # ----------------------
-PACKAGE_DIR = fastreer
+PYPI_ROOT = fastreer-pypi
+PACKAGE_DIR = ${PYPI_ROOT}/src/fastreer
 SRC_JAR_DIR = inst/java
-DEST_JAR_DIR = $(PACKAGE_DIR)/inst/java
+DEST_JAR_DIR = $(PACKAGE_DIR)/$(SRC_JAR_DIR)
 
 # Clean build artifacts
 pypi-clean:
-	rm -rf build dist *.egg-info
-	rm -rf $(PACKAGE_DIR)/cli.py
-	rm -rf $(DEST_JAR_DIR)/*.jar
+	rm -rf ${PYPI_ROOT}/build ${PYPI_ROOT}/dist ${PYPI_ROOT}/**/*.egg-info
+	rm -rf $(PACKAGE_DIR) $(PYPI_ROOT)/LICENSE.md $(PYPI_ROOT)/README.md
 
-# Build PyPI wheel
 pypi-build: pypi-clean
 	@echo "📦 Copying .jar files from $(SRC_JAR_DIR) to $(DEST_JAR_DIR)"
 	@mkdir -p $(DEST_JAR_DIR)
 	cp fastreeR.py $(PACKAGE_DIR)/cli.py
 	cp $(SRC_JAR_DIR)/*.jar $(DEST_JAR_DIR)
+	cp LICENSE.md README.md $(PYPI_ROOT)
 	@echo "🔧 Building Python package for version $(VERSION)"
-	@python -m build --sdist --wheel
+	@python -m build ${PYPI_ROOT}
 
 # Local install
 pypi-local-install: pypi-build
-	pip install dist/fastreer-*.whl --force-reinstall --no-cache-dir
+	pip install $(PYPI_ROOT)/dist/fastreer-*.whl --force-reinstall --no-cache-dir
 
 # Upload to PyPI via twine (optional)
-pypi-upload:
-	twine upload dist/*
+pypi-upload: pypi-build
+	twine upload $(PYPI_ROOT)/dist/*

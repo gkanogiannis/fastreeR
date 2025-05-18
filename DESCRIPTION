@@ -15,7 +15,7 @@ Description: Calculate distances, build phylogenetic trees or
     Functions are implemented in Java and called via rJava.
     Parallel implementation that operates directly on the VCF or FASTA file 
     for fast execution.
-License: GPL-3
+License: GPL-3.0-only
 Encoding: UTF-8
 Language: en-US
 LazyData: false
