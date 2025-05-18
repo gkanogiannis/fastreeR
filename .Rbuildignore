@@ -6,6 +6,7 @@
 ^\.Rproj\.user$
 ^\.vscode$
 ^doc$
+^fastreer-bioconda$
 ^fastreer-galaxy$
 ^fastreer-pypi$
 ^Dockerfile$
