@@ -115,7 +115,7 @@ def run_java_tool(tool_name, params, jar_dir, mem_GB=MEM_GB, output_path=None, v
 def main():
     parser = argparse.ArgumentParser(
         description="fastreeR CLI: Calculate distance matrices and phylogenetic trees from VCF or FASTA files\n\n"
-                    "📄 Citation:\n"
+                    "Citation:\n"
                     "Anestis Gkanogiannis (2016)\n."
                     "A scalable assembly-free variable selection algorithm for biomarker discovery from metagenomes.\n"
                     "BMC Bioinformatics 17, 311 (2016)\n"
@@ -268,7 +268,7 @@ def print_version_from_jar(jar_dir):
     print_citation()
 
 def print_citation():
-    print("\n📄 Citation:")
+    print("\nCitation:")
     print("Anestis Gkanogiannis (2016).")
     print("A scalable assembly-free variable selection algorithm for biomarker discovery from metagenomes.")
     print("BMC Bioinformatics 17, 311 (2016)")
