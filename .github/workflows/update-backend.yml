@@ -56,7 +56,7 @@ jobs:
       - name: Update version number for Galaxy tools
         run: |
           VERSION_CLEAN="${VERSION#v}"
-          bash fastreer-galaxy/update_galaxy_versions.sh ${VERSION_CLEAN}
+          make galaxy-update-versions FASTREER_VERSION=${VERSION_CLEAN}
 
       - name: Set up JDK
         uses: actions/setup-java@v4

@@ -1,4 +1,4 @@
-VERSION := $(shell git describe --tags --abbrev=0)
+FASTREER_VERSION ?= $(shell git describe --tags --abbrev=0)
 
 PHONY: docker-build docker-tag docker-push docker-test \
         pypi-build pypi-upload
@@ -10,10 +10,10 @@ docker-build:
 	docker build -t fastreer .
 
 docker-tag:
-	docker tag fastreer gkanogiannis/fastreer:$(VERSION)
+	docker tag fastreer gkanogiannis/fastreer:$(FASTREER_VERSION)
 
 docker-push:
-	docker push gkanogiannis/fastreer:$(VERSION)
+	docker push gkanogiannis/fastreer:$(FASTREER_VERSION)
 
 docker-test:
 	docker run --rm fastreer --check
@@ -37,7 +37,7 @@ pypi-build: pypi-clean
 	cp fastreeR.py $(PACKAGE_DIR)/cli.py
 	cp $(SRC_JAR_DIR)/*.jar $(DEST_JAR_DIR)
 	cp LICENSE.md README.md $(PYPI_ROOT)
-	@echo "🔧 Building Python package for version $(VERSION)"
+	@echo "🔧 Building Python package for version $(FASTREER_VERSION)"
 	@python -m build ${PYPI_ROOT}
 
 # Local install
@@ -47,3 +47,11 @@ pypi-local-install: pypi-build
 # Upload to PyPI via twine (optional)
 pypi-upload: pypi-build
 	twine upload $(PYPI_ROOT)/dist/*
+
+# ----------------------
+# Galaxy-related targets
+# ----------------------
+GALAXY_ROOT = fastreer-galaxy
+
+galaxy-update-versions:
+	bash $(GALAXY_ROOT)/update_galaxy_versions.sh $(FASTREER_VERSION)
