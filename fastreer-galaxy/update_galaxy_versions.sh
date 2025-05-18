@@ -15,7 +15,7 @@ done
 # Update fastreer package requirement version
 find ${dir}/tools -name "*.xml" -print0 | while IFS= read -r -d '' file; do
     echo "📦 Updating Conda requirement in: $file"
-    sed -i -E "s|(<requirement[^>]*>fastreer)([ <>=0-9\.,]*)(</requirement>)|\1=${VERSION}\3|g" "$file"
+    sed -i -E "s|(<requirement[^>]*>fastreer)([^<]*)(</requirement>)|\1=${VERSION}\3|g" "$file"
 done
 
 echo "✅ All Galaxy tool versions updated to ${VERSION}"
