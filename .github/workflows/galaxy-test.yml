@@ -26,10 +26,10 @@ jobs:
           planemo \
             test --skip_venv \
             --test_output galaxy-tools-test-report.html \
-            fastree-galaxy/tools/dist2tree/fastreer_dist2tree.xml \
-            fastree-galaxy/tools/fasta2dist/fastreer_fasta2dist.xml \
-            fastree-galaxy/tools/vcf2dist/fastreer_vcf2dist.xml \
-            fastree-galaxy/tools/vcf2tree/fastreer_vcf2tree.xml
+            fastreer-galaxy/tools/dist2tree/fastreer_dist2tree.xml \
+            fastreer-galaxy/tools/fasta2dist/fastreer_fasta2dist.xml \
+            fastreer-galaxy/tools/vcf2dist/fastreer_vcf2dist.xml \
+            fastreer-galaxy/tools/vcf2tree/fastreer_vcf2tree.xml
 
       - name: Upload test report
         if: always()
