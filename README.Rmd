@@ -36,8 +36,9 @@ BioC [![BioC release](http://www.bioconductor.org/shields/build/release/bioc/fas
 * ✅ **Bioconda**: install with `conda install -c bioconda fastreer`
 * ✅ **Docker**: available on [DockerHub](https://hub.docker.com/r/gkanogiannis/fastreer) and [GHCR](https://ghcr.io/gkanogiannis/fastreer) for containerized execution
 * ✅ **PyPI**: install with `pip install fastreer`
-* ✅ **Python CLI**: through a lightweight [Python wrapper](https://github.com/gkanogiannis/fastreeR/blob/devel/fastreeR.py) that calls the Java backend via `subprocess`
+* ✅ **Python CLI**: through a lightweight [Python wrapper](https://github.com/gkanogiannis/fastreeR/blob/devel/fastreeR.py) that calls the Java backend
 * ✅ **R / Bioconductor**: via `rJava`
+* ✅ **Galaxy**: Also available on Galaxy Toolshed.
 * ✅ **Pure Java API**: developers can integrate this library directly in Java-based pipelines or software.
 
 ---
@@ -50,6 +51,7 @@ BioC [![BioC release](http://www.bioconductor.org/shields/build/release/bioc/fas
   - [PyPI](#as-a-pypi-module)
   - [Python CLI](#via-a-python-cli-wrapper)
   - [R package](#as-an-r-package)
+  - [Galaxy](#with-galaxy)
   - [From Java backend source](#from-java-backend-source)
 - [Distances from VCF](#distances-from-vcf)
 - [CLI Interface](#cli-interface)
@@ -72,7 +74,8 @@ BioC [![BioC release](http://www.bioconductor.org/shields/build/release/bioc/fas
 - 🧵 Multithreaded execution for speed and scalability.
 - Cluster distance matrices hierarchically with dynamic tree pruning.
 - 🧰 Clean Python CLI for scripting and pipeline integration
-- Streamlined integration with R via `rJava` 
+- Streamlined integration with R via `rJava`
+- Available on Galaxy Toolshed
 - 🧬 Compatible with standard bioinformatics formats (PHYLIP, Newick)
 
 ---
@@ -80,7 +83,7 @@ BioC [![BioC release](http://www.bioconductor.org/shields/build/release/bioc/fas
 ## Requirements
 
 - Java 8+
-- Python 3.6+
+- Python 3.7+
 - Maven (if you want to build from the source)
 - GNU/Linux, Windows or macOS
 
@@ -209,6 +212,10 @@ You can install the development version of `fastreeR` R package like so:
 ```{r, eval=FALSE}
 devtools::install_github("gkanogiannis/fastreeR")
 ```
+
+### With Galaxy
+
+Search in Galaxy Tools for `fastreer` or ask your Galaxy Admin to install it from toolshed.
 
 ### From java backend source
 
