@@ -8,7 +8,6 @@
 ^doc$
 ^fastreer-bioconda$
 ^fastreer-galaxy$
-^fastreer-galaxy-test-report\.html$
 ^fastreer-pypi$
 ^Dockerfile$
 ^fastreer$
