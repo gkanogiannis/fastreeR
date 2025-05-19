@@ -1,0 +1,8 @@
+name: fastreer_fasta2dist
+owner: gkanogiannis
+description: Build D2S distance matrix from FASTA(s) using fastreeR
+homepage_url: https://github.com/gkanogiannis/fastreeR
+remote_repository_url: https://github.com/gkanogiannis/fastreeR
+long_description: >
+  Galaxy wrapper for the FASTA2DIST command of fastreeR (Java CLI, Bioconda and BioConductor package).
+type: unrestricted

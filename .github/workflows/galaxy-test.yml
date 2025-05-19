@@ -23,18 +23,12 @@ jobs:
 
       - name: Run tool tests
         run: |
-          planemo \
-            test --skip_venv \
-            --test_output galaxy-tools-test-report.html \
-            fastreer-galaxy/tools/dist2tree/fastreer_dist2tree.xml \
-            fastreer-galaxy/tools/fasta2dist/fastreer_fasta2dist.xml \
-            fastreer-galaxy/tools/vcf2dist/fastreer_vcf2dist.xml \
-            fastreer-galaxy/tools/vcf2tree/fastreer_vcf2tree.xml
+          make galaxy-test-tools
 
       - name: Upload test report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: galaxy-tools-test-report
-          path: galaxy-tools-test-report.html
+          name: fastreer-galaxy-test-report
+          path: fastreer-galaxy-test-report.html
           overwrite: true
