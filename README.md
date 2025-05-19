@@ -6,18 +6,11 @@
 # fastreeR: Fast Tree Reconstruction Tools for Genomics
 
 <!-- badges: start -->
-
-[![Bioconda](https://img.shields.io/conda/vn/bioconda/fastreer)](https://anaconda.org/bioconda/fastreer)
-[![Docker
-Pulls](https://img.shields.io/docker/pulls/gkanogiannis/fastreer)](https://hub.docker.com/r/gkanogiannis/fastreer)
-[![PyPI
-version](https://img.shields.io/pypi/v/fastreeR.svg)](https://pypi.org/project/fastreeR/)
-<!-- badges: end -->
-
-<!-- badges: start -->
-
-BioC [![BioC
-release](http://www.bioconductor.org/shields/build/release/bioc/fastreeR.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/fastreeR)
+![Conda Version](https://img.shields.io/conda/v/bioconda/fastreer)![Conda Downloads](https://img.shields.io/conda/dn/bioconda/fastreer)
+![Docker Image Version](https://img.shields.io/docker/v/gkanogiannis/fastreer?label=docker)![Docker Pulls](https://img.shields.io/docker/pulls/gkanogiannis/fastreer?label=pulls)
+![PyPI - Version](https://img.shields.io/pypi/v/fastreer)![PyPI - Downloads](https://img.shields.io/pypi/dm/fastreer)
+![Galaxy Toolshed - Tool Version](https://img.shields.io/galaxytoolshed/v/fastreer_vcf2tree/gkanogiannis/fastreer_vcf2tree)
+[![Bioc history](https://bioconductor.org/shields/years-in-bioc/fastreeR.svg)](https://bioconductor.org/packages/release/bioc/html/fastreeR.html#since)[![Bioc downloads rank](https://bioconductor.org/shields/downloads/release/fastreeR.svg)](http://bioconductor.org/packages/stats/bioc/fastreeR/)
 <!-- badges: end -->
 
 `fastreeR` is a hybrid toolkit combining a high-performance Java backend
@@ -49,27 +42,43 @@ format.
 
 ------------------------------------------------------------------------
 
-- [Key Features](#key-features)
-- [Requirements](#requirements)
-- [Installation and Usage](#installation-and-usage)
-- - [Conda](#via-conda)
-  - [Docker](#via-docker)
-  - [PyPI](#as-a-pypi-module)
-  - [Python CLI](#via-a-python-cli-wrapper)
-  - [R package](#as-an-r-package)
-  - [Galaxy](#with-galaxy)
-  - [From Java backend source](#from-java-backend-source)
-- [Distances from VCF](#distances-from-vcf)
-- [CLI Interface](#cli-interface)
-  - [Commands](#commands)
-  - [Examples](#examples)
-  - [Options](#options-common-to-all-commands)
-- [Integration with Java Backend](#integration-with-java-backend)
-- [Integration with R](#integration-with-r)
-- [Sample data](#sample-data)
-- [Citation](#citation)
-- [Author](#author)
-- [License](#license)
+- [fastreeR: Fast Tree Reconstruction Tools for Genomics](#fastreer-fast-tree-reconstruction-tools-for-genomics)
+  - [Integration and Accessibility](#integration-and-accessibility)
+  - [Key Features](#key-features)
+  - [Requirements](#requirements)
+    - [Memory requirements for VCF input](#memory-requirements-for-vcf-input)
+  - [Installation and Usage](#installation-and-usage)
+    - [Via Conda](#via-conda)
+    - [Via Docker](#via-docker)
+    - [As a PyPI Module](#as-a-pypi-module)
+    - [Via a Python CLI wrapper](#via-a-python-cli-wrapper)
+    - [As an R package](#as-an-r-package)
+    - [With Galaxy](#with-galaxy)
+    - [From java backend source](#from-java-backend-source)
+  - [Distances from VCF](#distances-from-vcf)
+  - [CLI Interface](#cli-interface)
+    - [Commands](#commands)
+      - [General Syntax](#general-syntax)
+    - [Examples](#examples)
+      - [Compute Distance Matrix from VCF](#compute-distance-matrix-from-vcf)
+      - [Compute Newick NJ tree directly from a VCF file.](#compute-newick-nj-tree-directly-from-a-vcf-file)
+      - [Compute Tree from Distance Matrix](#compute-tree-from-distance-matrix)
+    - [Compute D2S k-mer distance matrix from a FASTA file.](#compute-d2s-k-mer-distance-matrix-from-a-fasta-file)
+      - [Pipe input from gzip-compressed file](#pipe-input-from-gzip-compressed-file)
+      - [Print version and citation](#print-version-and-citation)
+    - [Output Examples](#output-examples)
+    - [Options (common to all commands)](#options-common-to-all-commands)
+  - [Integration with Java Backend](#integration-with-java-backend)
+  - [Integration with R](#integration-with-r)
+  - [Sample data](#sample-data)
+    - [samples.vcf.gz](#samplesvcfgz)
+    - [samples.vcf.dist.gz](#samplesvcfdistgz)
+    - [samples.vcf.istats](#samplesvcfistats)
+    - [samples.fasta.gz](#samplesfastagz)
+    - [samples.fasta.dist.gz](#samplesfastadistgz)
+  - [Citation](#citation)
+  - [Author](#author)
+  - [License](#license)
 
 ------------------------------------------------------------------------
 
