@@ -18,13 +18,11 @@ knitr::opts_chunk$set(
 # fastreeR: Fast Tree Reconstruction Tools for Genomics
 
 <!-- badges: start -->
-[![Bioconda](https://img.shields.io/conda/vn/bioconda/fastreer)](https://anaconda.org/bioconda/fastreer)
-[![Docker Pulls](https://img.shields.io/docker/pulls/gkanogiannis/fastreer)](https://hub.docker.com/r/gkanogiannis/fastreer)
-[![PyPI version](https://img.shields.io/pypi/v/fastreeR.svg)](https://pypi.org/project/fastreeR/)
-<!-- badges: end -->
-
-<!-- badges: start -->
-BioC [![BioC release](http://www.bioconductor.org/shields/build/release/bioc/fastreeR.svg)](https://bioconductor.org/checkResults/release/bioc-LATEST/fastreeR)
+![Conda Version](https://img.shields.io/conda/v/bioconda/fastreer)![Conda Downloads](https://img.shields.io/conda/dn/bioconda/fastreer)
+![Docker Image Version](https://img.shields.io/docker/v/gkanogiannis/fastreer?label=docker)![Docker Pulls](https://img.shields.io/docker/pulls/gkanogiannis/fastreer?label=pulls)
+![PyPI - Version](https://img.shields.io/pypi/v/fastreer)![PyPI - Downloads](https://img.shields.io/pypi/dm/fastreer)
+![Galaxy Toolshed - Tool Version](https://img.shields.io/galaxytoolshed/v/fastreer_vcf2tree/gkanogiannis/fastreer_vcf2tree)
+[![Bioc history](https://bioconductor.org/shields/years-in-bioc/fastreeR.svg)](https://bioconductor.org/packages/release/bioc/html/fastreeR.html#since)[![Bioc downloads rank](https://bioconductor.org/shields/downloads/release/fastreeR.svg)](http://bioconductor.org/packages/stats/bioc/fastreeR/)
 <!-- badges: end -->
 
 `fastreeR` is a hybrid toolkit combining a high-performance Java backend ([`BioInfoJava-Utils`](https://github.com/gkanogiannis/BioInfoJava-Utils)—a modular Java library for bioinformatics pipelines) with flexible and user-friendly interfaces across multiple platforms and environments, enabling seamless integration into a variety of genomic workflows. It enables fast computation of distance matrices and phylogenetic trees from genetic variant data in **VCF** or genomic sequences in **FASTA** format.
