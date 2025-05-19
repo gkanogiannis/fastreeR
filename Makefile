@@ -32,7 +32,7 @@ pypi-clean:
 	rm -rf $(PACKAGE_DIR) $(PYPI_ROOT)/LICENSE.md $(PYPI_ROOT)/README.md
 
 pypi-build: pypi-clean
-	@echo "📦 Copying .jar files from $(SRC_JAR_DIR) to $(DEST_JAR_DIR)"
+	@echo "Copying .jar files from $(SRC_JAR_DIR) to $(DEST_JAR_DIR)"
 	@mkdir -p $(DEST_JAR_DIR)
 	cp fastreeR.py $(PACKAGE_DIR)/cli.py
 	cp $(SRC_JAR_DIR)/*.jar $(DEST_JAR_DIR)
@@ -55,10 +55,13 @@ GALAXY_ROOT = fastreer-galaxy
 TOOLSHED_KEY ?= somekey
 
 galaxy-update-versions:
-	bash $(GALAXY_ROOT)/update_galaxy_versions.sh $(FASTREER_VERSION)
+	bash $(GALAXY_ROOT)/galaxy_update_versions.sh $(GALAXY_ROOT) $(FASTREER_VERSION)
+
+galaxy-test-tools:
+	-@bash $(GALAXY_ROOT)/galaxy_test_tools.sh $(GALAXY_ROOT)
 
 galaxy-update-testshed:
-	-@bash $(GALAXY_ROOT)/update_galaxy_shed.sh $(TOOLSHED_KEY) testtoolshed
+	-@bash $(GALAXY_ROOT)/galaxy_update_shed.sh $(GALAXY_ROOT) testtoolshed $(TOOLSHED_KEY)
 
 galaxy-update-toolshed:
-	-@bash $(GALAXY_ROOT)/update_galaxy_shed.sh $(TOOLSHED_KEY) toolshed
+	-@bash $(GALAXY_ROOT)/galaxy_update_shed.sh $(GALAXY_ROOT) toolshed $(TOOLSHED_KEY)
