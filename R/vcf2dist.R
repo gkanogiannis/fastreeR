@@ -59,6 +59,7 @@
 #' @param onlyHets Only calculate on variants with heterozygous calls.
 #' @param ignoreHets Only calculate on variants with homozygous calls.
 #' @param compress Compress output (adds .gz extension).
+#' @param verbose Logical. If TRUE, enables verbose output from the Java backend.
 #'
 #' @return A \code{\link[stats]{dist}} distances object of the calculation.
 #' @export
@@ -75,11 +76,13 @@
 
 vcf2dist <- function(inputFile, outputFile=NULL,
                     threads=2, ignoreMissing=FALSE,
-                    onlyHets = FALSE, ignoreHets = FALSE, compress = FALSE) {
+                    onlyHets = FALSE, ignoreHets = FALSE, compress = FALSE,
+                    verbose = FALSE) {
 
     vcf2dist_checkParams(inputFile = inputFile, outputFile = outputFile,
         threads = threads, ignoreMissing = ignoreMissing, onlyHets = onlyHets,
-        ignoreHets = ignoreHets, compress = compress)
+        ignoreHets = ignoreHets, compress = compress,
+        verbose = verbose)
 
     if (R.utils::isGzipped(inputFile)) {
         temp.in <- tempfile(fileext = ".vcf"); on.exit(unlink(temp.in))
@@ -92,7 +95,8 @@ vcf2dist <- function(inputFile, outputFile=NULL,
     cmd <- paste("VCF2DIST", "--numberOfThreads", threads,
             ifelse(ignoreMissing, "--ignoreMissing", ""),
             ifelse(onlyHets, "--onlyHets", ""),
-            ifelse(ignoreHets, "--ignoreHets", ""), "--verbose",
+            ifelse(ignoreHets, "--ignoreHets", ""),
+            ifelse(verbose, "--verbose", ""),
             "--input", inputFile, sep = " ")
 
     temp.out <- tempfile(fileext = ".txt"); on.exit(unlink(temp.out))
@@ -119,7 +123,8 @@ vcf2dist <- function(inputFile, outputFile=NULL,
 }
 
 vcf2dist_checkParams <- function(inputFile, outputFile, threads, ignoreMissing,
-                                            onlyHets, ignoreHets, compress) {
+                                            onlyHets, ignoreHets, compress,
+                                            verbose) {
     if (!methods::is(inputFile, "character")){
         stop("inputFile must be a file location.")
     }
@@ -141,5 +146,10 @@ vcf2dist_checkParams <- function(inputFile, outputFile, threads, ignoreMissing,
 
     if (!is.numeric(threads) || (is.numeric(threads) && threads<1)) {
         stop("threads parameter must be positive integer.")
+    }
+
+    if (!is.logical(verbose)){
+        stop("verbose",
+             "must be logical.")
     }
 }

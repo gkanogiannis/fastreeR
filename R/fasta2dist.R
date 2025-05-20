@@ -10,6 +10,7 @@
 #' @param kmer Kmer length to use for analyzing fasta sequences.
 #' @param normalize Normalize on sequences length.
 #' @param compress Compress output (adds .gz extension).
+#' @param verbose Logical. If TRUE, enables verbose output from the Java backend.
 #'
 #' @return A \code{\link[stats]{dist}} distances object of the calculation.
 #' @export
@@ -26,12 +27,14 @@
 #'
 
 fasta2dist <- function(..., outputFile = NULL, threads = 2, kmer = 6,
-                        normalize = FALSE, compress = TRUE) {
+                        normalize = FALSE, compress = TRUE,
+                        verbose = FALSE) {
     ins <- unlist(list(...))
 
     fasta2dist_checkParams(ins = ins, outputFile = outputFile,
-                                threads = threads, kmer = kmer,
-                                    normalize = normalize, compress = compress)
+                            threads = threads, kmer = kmer,
+                            normalize = normalize, compress = compress,
+                            verbose = verbose)
     inputfile <- tempfile(fileext = ".fasta")
     on.exit(unlink(inputfile))
 
@@ -51,7 +54,8 @@ fasta2dist <- function(..., outputFile = NULL, threads = 2, kmer = 6,
         class.loader = .rJava.class.loader)
     cmd <- paste("FASTA2DIST", "--numberOfThreads", threads,
                 ifelse(normalize, "--normalize", ""),
-                "--kmerSize", kmer, "--verbose", "--input", inputfile, sep = " ")
+                ifelse(verbose, "--verbose", ""),
+                "--kmerSize", kmer, "--input", inputfile, sep = " ")
     temp.out <- tempfile(fileext = ".txt"); on.exit(unlink(temp.out))
     jSys <- rJava::J("java/lang/System"); jOrigOut <- jSys$out
     jSys$setOut(rJava::.jnew("java/io/PrintStream", temp.out))
@@ -77,7 +81,8 @@ fasta2dist <- function(..., outputFile = NULL, threads = 2, kmer = 6,
 }
 
 fasta2dist_checkParams <- function(ins, outputFile, threads, kmer,
-                                                        normalize, compress) {
+                                   normalize, compress,
+                                   verbose) {
     if (length(ins)==0 || list(NULL) %in% ins) {
         stop("No input fasta files were provided.")
     }
@@ -97,5 +102,10 @@ fasta2dist_checkParams <- function(ins, outputFile, threads, kmer,
 
     if(!is.logical(normalize) || !is.logical(compress)) {
         stop("normalize and compress parameters must be logical.")
+    }
+
+    if (!is.logical(verbose)){
+        stop("verbose",
+             "must be logical.")
     }
 }

@@ -20,6 +20,7 @@
 #' @param minClusterSize Minimum size of clusters. Default 1.
 #' @param extra Boolean whether to use extra parameters
 #' for the \code{\link[dynamicTreeCut]{cutreeDynamic}}.
+#' @param verbose Logical. If TRUE, enables verbose output from the Java backend.
 #'
 #' @return A list of :
 #' \itemize{
@@ -45,16 +46,19 @@
 #' @examples
 #' my.clust <- dist2clusters(
 #'     inputDist =
-#'         system.file("extdata", "samples.vcf.dist.gz", package = "fastreeR")
+#'         system.file("extdata", "samples.vcf.dist.gz", package = "fastreeR"),
+#'     verbose = TRUE
 #' )
 #' @author Anestis Gkanogiannis, \email{anestis@@gkanogiannis.com}
 #' @references Java implementation:
 #' \url{https://github.com/gkanogiannis/BioInfoJava-Utils}
 
 dist2clusters <- function(inputDist, cutHeight = NULL,
-                                            minClusterSize = 1, extra = TRUE){
+                                            minClusterSize = 1, extra = TRUE,
+                                            verbose = FALSE) {
     dist2clusters_checkParams(inputDist = inputDist, cutHeight = cutHeight,
-                                minClusterSize = minClusterSize, extra = extra)
+                                minClusterSize = minClusterSize, extra = extra,
+                                verbose = verbose)
 
     inputfile <- inputDist
 
@@ -74,6 +78,7 @@ dist2clusters <- function(inputDist, cutHeight = NULL,
 
     hierarchicalcluster <- rJava::.jnew(
         class="ciat/agrobio/hcluster/HierarchicalCluster",
+        verbose,
         class.loader = .rJava.class.loader
     )
     generaltools <- rJava::J(class="ciat/agrobio/core/GeneralTools",
@@ -95,7 +100,8 @@ dist2clusters <- function(inputDist, cutHeight = NULL,
 }
 
 dist2clusters_checkParams <- function(inputDist, cutHeight,
-                                                        minClusterSize,extra){
+                                      minClusterSize,extra,
+                                      verbose){
     if (is.null(inputDist) || (!methods::is(inputDist, "dist") &&
             !methods::is(inputDist, "character")) ||
         (methods::is(inputDist, "character") &&
@@ -116,5 +122,10 @@ dist2clusters_checkParams <- function(inputDist, cutHeight,
 
     if (!is.logical(extra)){
         stop("extra parameter must be logical.")
+    }
+
+    if (!is.logical(verbose)){
+        stop("verbose",
+             "must be logical.")
     }
 }

@@ -4,7 +4,13 @@
 \alias{dist2clusters}
 \title{Perform Hierarchical Clustering and tree pruning on a distance matrix}
 \usage{
-dist2clusters(inputDist, cutHeight = NULL, minClusterSize = 1, extra = TRUE)
+dist2clusters(
+  inputDist,
+  cutHeight = NULL,
+  minClusterSize = 1,
+  extra = TRUE,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{inputDist}{Input distances file location
@@ -20,6 +26,8 @@ Default automatically defined.}
 
 \item{extra}{Boolean whether to use extra parameters
 for the \code{\link[dynamicTreeCut]{cutreeDynamic}}.}
+
+\item{verbose}{Logical. If TRUE, enables verbose output from the Java backend.}
 }
 \value{
 A list of :

@@ -10,7 +10,8 @@ tree2clusters(
   treeLabels = NULL,
   cutHeight = NULL,
   minClusterSize = 1,
-  extra = TRUE
+  extra = TRUE,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ Default automatically defined.}
 
 \item{extra}{Boolean whether to use extra parameters
 for the \code{\link[dynamicTreeCut]{cutreeDynamic}}.}
+
+\item{verbose}{Logical. If TRUE, enables verbose output from the Java backend.}
 }
 \value{
 \itemize{
