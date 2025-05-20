@@ -15,6 +15,7 @@
 #' @param minClusterSize Minimum size of clusters. Default 1.
 #' @param extra Boolean whether to use extra parameters
 #'   for the \code{\link[dynamicTreeCut]{cutreeDynamic}}.
+#' @param verbose Logical. If TRUE, enables verbose output from the Java backend.
 #'
 #' @return
 #' \itemize{
@@ -41,21 +42,25 @@
 #'         inputDist = system.file("extdata", "samples.vcf.dist.gz",
 #'             package = "fastreeR"
 #'         )
-#'     )
+#'     ),
+#'     verbose = TRUE
 #' )
 #' @author Anestis Gkanogiannis, \email{anestis@@gkanogiannis.com}
 #' @references Java implementation:
 #' \url{https://github.com/gkanogiannis/BioInfoJava-Utils}
 
 tree2clusters <- function(treeStr, treeDistances = NULL, treeLabels = NULL,
-                        cutHeight = NULL, minClusterSize = 1, extra = TRUE) {
+                        cutHeight = NULL, minClusterSize = 1, extra = TRUE,
+                        verbose = FALSE) {
 
     tree2clusters_checkParams(treeStr = treeStr, treeDistances = treeDistances,
                                 treeLabels = treeLabels, cutHeight = cutHeight,
-                                minClusterSize = minClusterSize, extra = extra)
+                                minClusterSize = minClusterSize, extra = extra,
+                                verbose = verbose)
 
     hierarchicalcluster <- rJava::.jnew(
         class="ciat/agrobio/hcluster/HierarchicalCluster",
+        verbose,
         class.loader = .rJava.class.loader
     )
 
@@ -123,7 +128,8 @@ dynamicTreeCut <- function(treeStr, distancesReordered = NULL,
 }
 
 tree2clusters_checkParams <- function(treeStr, treeDistances, treeLabels,
-                                            cutHeight, minClusterSize, extra) {
+                                            cutHeight, minClusterSize, extra,
+                                            verbose) {
     if (is.null(treeStr) || !methods::is(treeStr, "character")) {
         stop("treeStr parameter must be a character vector.")
     }
@@ -148,5 +154,10 @@ tree2clusters_checkParams <- function(treeStr, treeDistances, treeLabels,
 
     if (!is.null(treeLabels) && !methods::is(treeLabels, "character")) {
         stop("treeLabels parameter must be a character vector.")
+    }
+
+    if (!is.logical(verbose)){
+        stop("verbose",
+             "must be logical.")
     }
 }

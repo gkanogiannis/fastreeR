@@ -51,6 +51,7 @@
 #' @param minClusterSize Minimum size of clusters. Default 1.
 #' @param extra Boolean whether to use extra parameters
 #'     for the \code{\link[dynamicTreeCut]{cutreeDynamic}}.
+#' @param verbose Logical. If TRUE, enables verbose output from the Java backend.
 #'
 #' @return A list of :
 #' \itemize{
@@ -86,11 +87,13 @@
 
 vcf2clusters <- function(inputFile, threads = 2, ignoreMissing = FALSE,
                         onlyHets = FALSE, ignoreHets = FALSE, cutHeight = NULL,
-                        minClusterSize = 1, extra = TRUE) {
+                        minClusterSize = 1, extra = TRUE,
+                        verbose = FALSE) {
     vcf2clusters_checkParams(inputFile = inputFile, threads = threads,
                         ignoreMissing = ignoreMissing, onlyHets = onlyHets,
-                            ignoreHets = ignoreHets, cutHeight = cutHeight,
-                                minClusterSize = minClusterSize, extra = extra)
+                        ignoreHets = ignoreHets, cutHeight = cutHeight,
+                        minClusterSize = minClusterSize, extra = extra,
+                        verbose = verbose)
 
     if (R.utils::isGzipped(inputFile)) {
         temp.in <- tempfile(fileext = ".vcf")
@@ -107,20 +110,23 @@ vcf2clusters <- function(inputFile, threads = 2, ignoreMissing = FALSE,
         threads = threads,
         ignoreMissing = ignoreMissing,
         onlyHets = onlyHets,
-        ignoreHets = ignoreHets
+        ignoreHets = ignoreHets,
+        verbose = verbose
     )
     my.clusters <- fastreeR::dist2clusters(
         inputDist = my.dist,
         cutHeight = cutHeight,
         minClusterSize = minClusterSize,
-        extra = extra
+        extra = extra,
+        verbose = verbose
     )
 
     return(list(my.dist, my.clusters[[1]], my.clusters[[2]]))
 }
 
 vcf2clusters_checkParams <- function(inputFile, threads, ignoreMissing,
-                    onlyHets, ignoreHets, cutHeight, minClusterSize, extra) {
+                    onlyHets, ignoreHets, cutHeight, minClusterSize, extra,
+                    verbose) {
     if (!methods::is(inputFile, "character")){
         stop("inputFile must be a file location.")
     }
@@ -144,5 +150,10 @@ vcf2clusters_checkParams <- function(inputFile, threads, ignoreMissing,
     if (!is.null(cutHeight) &&
         (!is.numeric(cutHeight) || (is.numeric(cutHeight) && cutHeight<0))) {
         stop("cutHeight parameter must be positive numeric.")
+    }
+
+    if (!is.logical(verbose)){
+        stop("verbose",
+             "must be logical.")
     }
 }
