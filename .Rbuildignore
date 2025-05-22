@@ -1,5 +1,6 @@
 ^\.git$
 ^\.github$
+^\.gitattributes$
 ^\.gitignore$
 ^.*\.Rproj$
 ^\.Rhistory$
