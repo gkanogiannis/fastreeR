@@ -6,11 +6,21 @@
 # fastreeR: Fast Tree Reconstruction Tools for Genomics
 
 <!-- badges: start -->
-![Conda Version](https://img.shields.io/conda/v/bioconda/fastreer)![Conda Downloads](https://img.shields.io/conda/dn/bioconda/fastreer)
-![Docker Image Version](https://img.shields.io/docker/v/gkanogiannis/fastreer?label=docker)![Docker Pulls](https://img.shields.io/docker/pulls/gkanogiannis/fastreer?label=pulls)
-![PyPI - Version](https://img.shields.io/pypi/v/fastreer)![PyPI - Downloads](https://img.shields.io/pypi/dm/fastreer)
-![Galaxy Toolshed - Tool Version](https://img.shields.io/galaxytoolshed/v/fastreer_vcf2tree/gkanogiannis/fastreer_vcf2tree)
-[![Bioc history](https://bioconductor.org/shields/years-in-bioc/fastreeR.svg)](https://bioconductor.org/packages/release/bioc/html/fastreeR.html#since)[![Bioc downloads rank](https://bioconductor.org/shields/downloads/release/fastreeR.svg)](http://bioconductor.org/packages/stats/bioc/fastreeR/)
+
+![Conda
+Version](https://img.shields.io/conda/v/bioconda/fastreer)![Conda
+Downloads](https://img.shields.io/conda/dn/bioconda/fastreer) ![Docker
+Image
+Version](https://img.shields.io/docker/v/gkanogiannis/fastreer?label=docker)![Docker
+Pulls](https://img.shields.io/docker/pulls/gkanogiannis/fastreer?label=pulls)
+![PyPI - Version](https://img.shields.io/pypi/v/fastreer)![PyPI -
+Downloads](https://img.shields.io/pypi/dm/fastreer) ![Galaxy Toolshed -
+Tool
+Version](https://img.shields.io/galaxytoolshed/v/fastreer_vcf2tree/gkanogiannis/fastreer_vcf2tree)
+[![Bioc
+history](https://bioconductor.org/shields/years-in-bioc/fastreeR.svg)](https://bioconductor.org/packages/release/bioc/html/fastreeR.html#since)[![Bioc
+downloads
+rank](https://bioconductor.org/shields/downloads/release/fastreeR.svg)](http://bioconductor.org/packages/stats/bioc/fastreeR/)
 <!-- badges: end -->
 
 `fastreeR` is a hybrid toolkit combining a high-performance Java backend
@@ -42,43 +52,28 @@ format.
 
 ------------------------------------------------------------------------
 
-- [fastreeR: Fast Tree Reconstruction Tools for Genomics](#fastreer-fast-tree-reconstruction-tools-for-genomics)
-  - [Integration and Accessibility](#integration-and-accessibility)
-  - [Key Features](#key-features)
-  - [Requirements](#requirements)
-    - [Memory requirements for VCF input](#memory-requirements-for-vcf-input)
-  - [Installation and Usage](#installation-and-usage)
-    - [Via Conda](#via-conda)
-    - [Via Docker](#via-docker)
-    - [As a PyPI Module](#as-a-pypi-module)
-    - [Via a Python CLI wrapper](#via-a-python-cli-wrapper)
-    - [As an R package](#as-an-r-package)
-    - [With Galaxy](#with-galaxy)
-    - [From java backend source](#from-java-backend-source)
-  - [Distances from VCF](#distances-from-vcf)
-  - [CLI Interface](#cli-interface)
-    - [Commands](#commands)
-      - [General Syntax](#general-syntax)
-    - [Examples](#examples)
-      - [Compute Distance Matrix from VCF](#compute-distance-matrix-from-vcf)
-      - [Compute Newick NJ tree directly from a VCF file.](#compute-newick-nj-tree-directly-from-a-vcf-file)
-      - [Compute Tree from Distance Matrix](#compute-tree-from-distance-matrix)
-    - [Compute D2S k-mer distance matrix from a FASTA file.](#compute-d2s-k-mer-distance-matrix-from-a-fasta-file)
-      - [Pipe input from gzip-compressed file](#pipe-input-from-gzip-compressed-file)
-      - [Print version and citation](#print-version-and-citation)
-    - [Output Examples](#output-examples)
-    - [Options (common to all commands)](#options-common-to-all-commands)
-  - [Integration with Java Backend](#integration-with-java-backend)
-  - [Integration with R](#integration-with-r)
-  - [Sample data](#sample-data)
-    - [samples.vcf.gz](#samplesvcfgz)
-    - [samples.vcf.dist.gz](#samplesvcfdistgz)
-    - [samples.vcf.istats](#samplesvcfistats)
-    - [samples.fasta.gz](#samplesfastagz)
-    - [samples.fasta.dist.gz](#samplesfastadistgz)
-  - [Citation](#citation)
-  - [Author](#author)
-  - [License](#license)
+- [Key Features](#key-features)
+- [Requirements](#requirements)
+  - [RAM Requirements](#memory-requirements-for-vcf-input)
+- [Installation and Usage](#installation-and-usage)
+- - [Conda](#via-conda)
+  - [Docker](#via-docker)
+  - [PyPI](#as-a-pypi-module)
+  - [Python CLI](#via-a-python-cli-wrapper)
+  - [R package](#as-an-r-package)
+  - [Galaxy](#with-galaxy)
+  - [From Java backend source](#from-java-backend-source)
+- [Distances from VCF](#distances-from-vcf)
+- [CLI Interface](#cli-interface)
+  - [Commands](#commands)
+  - [Examples](#examples)
+  - [Options](#options-common-to-all-commands)
+- [Integration with Java Backend](#integration-with-java-backend)
+- [Integration with R](#integration-with-r)
+- [Sample data](#sample-data)
+- [Citation](#citation)
+- [Author](#author)
+- [License](#license)
 
 ------------------------------------------------------------------------
 
@@ -106,13 +101,18 @@ format.
 
 ### Memory requirements for VCF input
 
-At minimum, make sure to allocate for JVM at least 48 bytes per variant
-per sample. If there are `n` samples and `m` variants allocate
-`48 x n x m` bytes of RAM. For example, for processing a VCF file
-containing data for 1 million variants and 1 thousand samples, allocate
-at least : 48 x 10^6 x 10^3 = 48 x 10^9 bytes = 48GB of RAM. For optimal
-execution, allocate more RAM than minimum. This will trigger less times
-garbage collections and hence less pauses.
+It is not straightforward to define a strict minimum amount of RAM
+required for a given number of SNPs and samples, as JVM behavior can
+vary across different systems and configurations. From our own
+experiments, a rough estimate for the minimum usable memory is around 10
+bytes per variant per sample. For example, a VCF file with 1 million
+variants and 1,000 samples would require at least 10 × 10⁶ × 10³ = 10 GB
+of allocated memory. However, running with this minimal allocation may
+result in frequent and prolonged garbage collection events, leading to
+significantly longer runtimes. For optimal execution, we recommend
+allocating 15–20 bytes per variant per sample (i.e., 15–20 GB for the
+same example), which reduces garbage collection overhead and ensures
+smoother performance.
 
 In order to allocate RAM, a special parameter needs to be passed while
 JVM initializes. JVM parameters can be passed by setting
@@ -123,19 +123,14 @@ maximum amount of heap RAM that it can use. The letter in the parameter
 `-Xmx1024m` or `-Xmx1024M` or `-Xmx1g` or `-Xmx1G`, all allocate 1
 Gigabyte or 1024 Megabytes of maximum RAM for JVM.
 
-In order to allocate 3GB of RAM for the JVM, through R code, use:
+In order to allocate 15GB of RAM for the JVM, through R code, use:
 
 ``` r
-options(java.parameters = "-Xmx3G")
+options(java.parameters = "-Xmx15G")
 ```
 
-When using `fastreeR` as a CLI, then RAM allocation can be achieved with
-the relevant argument `--mem MEM`.
-
-A rough estimation for the required RAM, if sample and variant numbers
-are not known, is half the size of the uncompressed VCF file. For
-example for processing a VCF file, which uncompressed occupies 2GB of
-disk space, allocate 1GB of RAM.
+When using `fastreeR` as a CLI, then RAM allocation in GB can be
+achieved with the relevant argument `--mem MEM`.
 
 ------------------------------------------------------------------------
 
