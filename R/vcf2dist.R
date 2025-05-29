@@ -90,7 +90,7 @@ vcf2dist <- function(inputFile, outputFile=NULL,
         inputFile <- temp.in
     }
 
-    bioinfojavautils <- rJava::.jnew(class="ciat/agrobio/javautils/JavaUtils",
+    bioinfojavautils <- rJava::.jnew(class="com/gkano/bioinfo/javautils/JavaUtils",
                                     class.loader = .rJava.class.loader)
     cmd <- paste("VCF2DIST", "--numberOfThreads", threads,
             ifelse(ignoreMissing, "--ignoreMissing", ""),
