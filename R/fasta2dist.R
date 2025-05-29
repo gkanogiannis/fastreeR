@@ -47,11 +47,11 @@ fasta2dist <- function(..., outputFile = NULL, threads = 2, kmer = 6,
     }
 
     bioinfojavautils <- rJava::.jnew(
-        class="ciat/agrobio/javautils/JavaUtils",
+        class="com/gkano/bioinfo/javautils/JavaUtils",
         class.loader = .rJava.class.loader)
     cmd <- paste("FASTA2DIST", "--numberOfThreads", threads,
                 ifelse(normalize, "--normalize", ""),
-                "--kmerSize", kmer, "--inputFile", inputfile, sep = " ")
+                "--kmerSize", kmer, "--input", inputfile, sep = " ")
     temp.out <- tempfile(fileext = ".txt"); on.exit(unlink(temp.out))
     jSys <- rJava::J("java/lang/System"); jOrigOut <- jSys$out
     jSys$setOut(rJava::.jnew("java/io/PrintStream", temp.out))

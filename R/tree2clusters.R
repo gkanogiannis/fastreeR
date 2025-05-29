@@ -55,7 +55,7 @@ tree2clusters <- function(treeStr, treeDistances = NULL, treeLabels = NULL,
                                 minClusterSize = minClusterSize, extra = extra)
 
     hierarchicalcluster <- rJava::.jnew(
-        class="ciat/agrobio/hcluster/HierarchicalCluster",
+        class="com/gkano/bioinfo/tree/HierarchicalCluster",
         class.loader = .rJava.class.loader
     )
 
