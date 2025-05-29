@@ -52,11 +52,11 @@ dist2tree <- function(inputDist) {
     }
 
     hierarchicalcluster <- rJava::.jnew(
-        class="ciat/agrobio/hcluster/HierarchicalCluster",
+        class="com/gkano/bioinfo/tree/HierarchicalCluster",
         class.loader = .rJava.class.loader
     )
     generaltools <- rJava::J(
-        class="ciat/agrobio/core/GeneralTools",
+        class="com/gkano/bioinfo/var/GeneralTools",
         class.loader = .rJava.class.loader
     )$getInstance()
 

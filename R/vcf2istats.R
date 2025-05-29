@@ -39,7 +39,7 @@ vcf2istats <- function(inputFile, outputFile = NULL) {
     vcf2istats_checkParams(inputFile = inputFile, outputFile = outputFile)
 
     bioinfojavautils <- rJava::.jnew(
-        class="ciat/agrobio/javautils/JavaUtils",
+        class="com/gkano/bioinfo/javautils/JavaUtils",
         class.loader = .rJava.class.loader
     )
     cmd <- paste(
