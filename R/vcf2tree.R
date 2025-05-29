@@ -79,7 +79,7 @@ vcf2tree <- function(inputFile, threads = 2, ignoreMissing = FALSE,
     }
 
     bioinfojavautils <- rJava::.jnew(
-        class="ciat/agrobio/javautils/JavaUtils",
+        class="com/gkano/bioinfo/javautils/JavaUtils",
         class.loader = .rJava.class.loader
     )
     cmd <- paste(

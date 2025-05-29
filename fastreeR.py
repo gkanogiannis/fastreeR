@@ -31,7 +31,7 @@ import os
 JAR_DIR = os.environ.get("FASTREER_JAR_DIR") or os.path.join(os.path.dirname(__file__), "inst/java")
 MEM_GB = "1"
 JAVA_PARAMS = ["-Djava.awt.headless", "-XX:+UseG1GC", "-XX:+UseStringDeduplication", "-Xmx"+str(MEM_GB)+"G"]
-MAIN_CLASS="ciat.agrobio.javautils.JavaUtils"
+MAIN_CLASS="com.gkano.bioinfo.javautils.JavaUtils"
 
 def build_classpath(jar_dir):
     if not os.path.isdir(jar_dir):
