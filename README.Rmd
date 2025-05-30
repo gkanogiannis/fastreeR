@@ -68,6 +68,7 @@ knitr::opts_chunk$set(
 
 ## Key Features
 
+- 🚀 **Now ultra-fast with a superior multithreaded concurrency model and minimal RAM usage — from GBs down to just MBs!**
 - ⚡ Ultra-fast computation of sample-wise cosine distances from large VCF and D2S k-mer based distances from FASTA files.
 - 🌳 Generate agglomerative neighbor-joining phylogenetic trees directly from VCF or distance matrices.
 - 🧵 Multithreaded execution for speed and scalability.
@@ -81,18 +82,36 @@ knitr::opts_chunk$set(
 
 ## Requirements
 
-- Java 8+
+- Java 11+ (LTS version with improved concurrency)
 - Python 3.7+
 - Maven (if you want to build from the source)
 - GNU/Linux, Windows or macOS
 
 ### Memory requirements for VCF input
 
-It is not straightforward to define a strict minimum amount of RAM required for a given number of SNPs and samples, as JVM behavior can vary across different systems and configurations. 
+**No more GBs of RAM!** Only the distance matrix is kept in memory:
+
+* `4 bytes × (#samples²) × #threads`
+* Example: 1000 samples with 32 threads → **\~128MB RAM**
+
+**VCF caching is minimal:**
+Only **2 VCF lines per thread** are pre-cached.
+
+* In the simple diploid case (e.g., `0/1`, `1|0`), each genotype requires \~4 characters (8 bytes).
+* For 1000 samples and 32 threads, this adds up to **\~1MB RAM**.
+
+💡 **Total memory footprint: just a few hundred MB, even for large datasets.**
+
+No more GBs of RAM!! Only distance matrix kept in RAM.
+4 bytes per pair per thread. 1000 samples? 4MB of RAM. Using 32 threads? 128MB RAM.
+There is also some RAM consumed for vcf caching. 2 vcf lines per thread are precached. This is more complicated to calculate, as it depends on genotype encoding, ploidy and presense of extra fileds in the genotyping string.
+In the simple diploid case, where each genotype is simply ref / or | alt, the it is needed 4 characters (8 bytes) per sample. For 1000 samples and 32 threads it will require 1MB or so.
+
+~~It is not straightforward to define a strict minimum amount of RAM required for a given number of SNPs and samples, as JVM behavior can vary across different systems and configurations. 
 From our own experiments, a rough estimate for the minimum usable memory is around 10 bytes per variant per sample. 
 For example, a VCF file with 1 million variants and 1,000 samples would require at least 10 × 10⁶ × 10³ = 10 GB of allocated memory. 
 However, running with this minimal allocation may result in frequent and prolonged garbage collection events, leading to significantly longer runtimes.
-For optimal execution, we recommend allocating 15–20 bytes per variant per sample (i.e., 15–20 GB for the same example), which reduces garbage collection overhead and ensures smoother performance.
+For optimal execution, we recommend allocating 15–20 bytes per variant per sample (i.e., 15–20 GB for the same example), which reduces garbage collection overhead and ensures smoother performance.~~
 
 In order to allocate RAM, a special parameter needs to be passed while JVM 
 initializes. JVM parameters can be passed by setting `java.parameters` option.
@@ -102,12 +121,12 @@ use. The letter in the parameter (uppercase or lowercase), indicates RAM units.
 For example, parameters `-Xmx1024m` or `-Xmx1024M` or `-Xmx1g` or `-Xmx1G`, all
 allocate 1 Gigabyte or 1024 Megabytes of maximum RAM for JVM.
 
-In order to allocate 15GB of RAM for the JVM, through R code, use:
+In order to allocate 1024MB of RAM for the JVM, through R code, use:
 ```{r, eval=FALSE}
-options(java.parameters = "-Xmx15G")
+options(java.parameters = "-Xmx1024M")
 ```
 
-When using `fastreeR` as a CLI, then RAM allocation in GB can be achieved with the relevant argument `--mem MEM`.
+When using `fastreeR` as a CLI, then RAM allocation in MB can be achieved with the relevant argument `--mem MEM`.
 
 ---
 
