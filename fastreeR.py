@@ -29,9 +29,29 @@ import os
 
 # Determine JAR directory
 JAR_DIR = os.environ.get("FASTREER_JAR_DIR") or os.path.join(os.path.dirname(__file__), "inst/java")
-MEM_GB = "1"
-JAVA_PARAMS = ["-Djava.awt.headless", "-XX:+UseG1GC", "-XX:+UseStringDeduplication", "-Xmx"+str(MEM_GB)+"G"]
+MEM_MB = "256"
+JAVA_PARAMS = ["-Djava.awt.headless", "-XX:+UseG1GC", "-XX:+UseStringDeduplication", "-Xmx"+str(MEM_MB)+"M"]
 MAIN_CLASS="com.gkano.bioinfo.javautils.JavaUtils"
+
+def check_java_version(min_major=11):
+    try:
+        result = subprocess.run(["java", "-version"], stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
+        version_output = result.stderr.splitlines()[0] if result.stderr else result.stdout.splitlines()[0]
+        # Example: 'java version "11.0.20"' or 'openjdk version "17.0.9"'
+        if '"' in version_output:
+            version_str = version_output.split('"')[1]
+            major_version = int(version_str.split('.')[0]) if version_str.startswith("1.") is False else int(version_str.split('.')[1])
+            if major_version < min_major:
+                print(f"[fastreeR] x Java version {version_str} is too old (need >= {min_major})", file=sys.stderr)
+                sys.exit(1)
+            else:
+                print(f"[fastreeR] ✓ Java version OK: {version_str}", file=sys.stderr)
+        else:
+            print("[fastreeR] x Unable to parse Java version output.", file=sys.stderr)
+            sys.exit(1)
+    except Exception as e:
+        print(f"[fastreeR] x Failed to check Java version: {e}", file=sys.stderr)
+        sys.exit(1)
 
 def build_classpath(jar_dir):
     if not os.path.isdir(jar_dir):
@@ -44,12 +64,12 @@ def build_classpath(jar_dir):
     separator = ";" if os.name == "nt" else ":"  # Windows uses semicolon, Unix uses colon
     return separator.join(jars)
 
-def run_java_tool(tool_name, params, jar_dir, mem_GB=MEM_GB, output_path=None, verbose=False, pipe_stderr=False, progress_every=100, stdin=None):
+def run_java_tool(tool_name, params, jar_dir, mem_MB=MEM_MB, output_path=None, verbose=False, pipe_stderr=False, progress_every=100, stdin=None):
     global JAVA_PARAMS
     extra = os.environ.get("FASTREE_JAVA_PARAMS", "")
     if extra:
         JAVA_PARAMS += extra.strip().split()
-    JAVA_PARAMS += ["-Xmx"+str(mem_GB)+"G"]
+    JAVA_PARAMS += ["-Xmx"+str(mem_MB)+"M"]
     classpath = build_classpath(jar_dir)
     cmd = ["java"] + JAVA_PARAMS + ["-cp", classpath, MAIN_CLASS, tool_name] + params
     if verbose:
@@ -113,6 +133,8 @@ def run_java_tool(tool_name, params, jar_dir, mem_GB=MEM_GB, output_path=None, v
         sys.exit(e.returncode)
 
 def main():
+    check_java_version(min_major=11)
+    
     parser = argparse.ArgumentParser(
         description="fastreeR CLI: Calculate distance matrices and phylogenetic trees from VCF or FASTA files\n\n"
                     "Citation:\n"
@@ -123,7 +145,7 @@ def main():
                     "https://github.com/gkanogiannis/fastreeR\n"
     )
     parser.add_argument("--lib", type=str, default=JAR_DIR, help=f"Path to JAR library folder (default: {JAR_DIR})")
-    parser.add_argument("--mem", type=int, default=MEM_GB, help=f"Max RAM for JVM in GB (default: {MEM_GB})")
+    parser.add_argument("--mem", type=int, default=MEM_MB, help=f"Max RAM for JVM in MB (default: {MEM_MB})")
     parser.add_argument("--pipe-stderr", action="store_true", help="Pipe Java stderr to CLI (default: direct passthrough to terminal)")
     parser.add_argument("--version", action="store_true", help="Print version information and exit")
     parser.add_argument("--check", action="store_true", help="Test Java and backend availability")
@@ -174,7 +196,7 @@ def main():
         extra = os.environ.get("FASTREE_JAVA_PARAMS", "")
         if extra:
             JAVA_PARAMS += extra.strip().split()
-        JAVA_PARAMS += ["-Xmx"+str(args.mem)+"G"]
+        JAVA_PARAMS += ["-Xmx"+str(args.mem)+"M"]
         jar_dir = os.environ.get("FASTREER_JAR_DIR") or args.lib
         classpath = build_classpath(jar_dir)
         try:
@@ -188,9 +210,9 @@ def main():
             result = subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             print(result.stdout.strip())
             print(result.stderr.strip(), file=sys.stderr)
-            print("[fastreeR] ✅ Java check succeeded", file=sys.stderr)
+            print("[fastreeR] v Java check succeeded", file=sys.stderr)
         except subprocess.CalledProcessError as e:
-            print(f"[fastreeR] ❌ Java check failed (exit code {e.returncode})", file=sys.stderr)
+            print(f"[fastreeR] x Java check failed (exit code {e.returncode})", file=sys.stderr)
             print(e.stderr, file=sys.stderr)
             sys.exit(e.returncode)
         sys.exit(0)
