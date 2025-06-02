@@ -16,4 +16,5 @@ inst/script/*.html
 vignettes/*.html
 vignettes/*.md
 vignettes/*.R
-/benchmark/
+/benchmark/vcf/subsets/
+/benchmark/benchmark_logs/
