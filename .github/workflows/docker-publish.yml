@@ -4,6 +4,10 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version of the backend JAR to use'
+        required: true
     
 permissions:
   contents: write
@@ -15,6 +19,10 @@ env:
 jobs:
   docker:
     runs-on: ubuntu-latest
+
+    env:
+      VERSION: ${{ inputs.version }}
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -38,7 +46,7 @@ jobs:
       - name: Extract version
         id: extract
         run: |
-          VERSION="${GITHUB_REF##*/}"
+          VERSION="${VERSION:=${GITHUB_REF##*/}}"
           CLEANED="${VERSION#v}"
           echo "version=${CLEANED}" >> "$GITHUB_OUTPUT"
 
