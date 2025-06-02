@@ -36,6 +36,8 @@ format.
 
 `fastreeR` offers interface, which is accessible in the following ways:
 
+- **NEW Java Backend (v2.y.z) !!** 100x times **FAST**re**ER** and only
+  a couple hundred MB RAM needed. Java 11+ suggested.
 - ✅ **Bioconda**: install with `conda install -c bioconda fastreer`
 - ✅ **Docker**: available on
   [DockerHub](https://hub.docker.com/r/gkanogiannis/fastreer) and
@@ -115,17 +117,10 @@ pre-cached.
   requires ~4 characters (8 bytes).
 - For 1000 samples and 32 threads, this adds up to **~1MB RAM**.
 
-💡 **Total memory footprint: just a few hundred MB, even for large
-datasets.**
+JVM will need at least 64-128 MB in order to efficiently run.
 
-No more GBs of RAM!! Only distance matrix kept in RAM. 4 bytes per pair
-per thread. 1000 samples? 4MB of RAM. Using 32 threads? 128MB RAM. There
-is also some RAM consumed for vcf caching. 2 vcf lines per thread are
-precached. This is more complicated to calculate, as it depends on
-genotype encoding, ploidy and presense of extra fileds in the genotyping
-string. In the simple diploid case, where each genotype is simply ref /
-or \| alt, the it is needed 4 characters (8 bytes) per sample. For 1000
-samples and 32 threads it will require 1MB or so.
+**Total memory footprint: just a few hundred MB, even for large
+datasets.**
 
 ~~It is not straightforward to define a strict minimum amount of RAM
 required for a given number of SNPs and samples, as JVM behavior can
@@ -412,9 +407,9 @@ python fastreeR.py --version
   stdin.
 - `-o, --output` : Output file. If omitted, prints to stdout.
 - `-t, --threads` : Number of threads (default: 1).
-- `--mem MEM` : Max RAM for JVM in GB (default: 1).
-- `--lib LIB` : Path to the folder containing JAR libraries (default:
-  inst/java)
+- `--mem MEM` : Max RAM for JVM in MB (default: 256).
+- `--lib LIB` : Path to the folder containing backend JAR libraries
+  (default: inst/java)
 - `--verbose` : Print progress information to stderr.
 - `--pipe-stderr` : Pipe stderr and forward from Python (default: direct
   passthrough to terminal).

@@ -64,7 +64,7 @@ def build_classpath(jar_dir):
     separator = ";" if os.name == "nt" else ":"  # Windows uses semicolon, Unix uses colon
     return separator.join(jars)
 
-def run_java_tool(tool_name, params, jar_dir, mem_MB=MEM_MB, output_path=None, verbose=False, pipe_stderr=False, progress_every=100, stdin=None):
+def run_java_tool(tool_name, params, jar_dir, mem_MB=MEM_MB, output_path=None, verbose=False, extraVerbose=False, pipe_stderr=False, progress_every=100, stdin=None):
     global JAVA_PARAMS
     extra = os.environ.get("FASTREE_JAVA_PARAMS", "")
     if extra:
@@ -72,7 +72,8 @@ def run_java_tool(tool_name, params, jar_dir, mem_MB=MEM_MB, output_path=None, v
     JAVA_PARAMS += ["-Xmx"+str(mem_MB)+"M"]
     classpath = build_classpath(jar_dir)
     cmd = ["java"] + JAVA_PARAMS + ["-cp", classpath, MAIN_CLASS, tool_name] + params
-    if verbose:
+    if extraVerbose:
+        check_java_version(min_major=11)
         print(f"[fastreeR] JAVA_PARAMS: {' '.join(JAVA_PARAMS)}", file=sys.stderr)
         print(f"[fastreeR] Using JAR directory: {jar_dir}", file=sys.stderr)
         print(f"Running: {' '.join(cmd)}", file=sys.stderr)
@@ -133,8 +134,6 @@ def run_java_tool(tool_name, params, jar_dir, mem_MB=MEM_MB, output_path=None, v
         sys.exit(e.returncode)
 
 def main():
-    check_java_version(min_major=11)
-    
     parser = argparse.ArgumentParser(
         description="fastreeR CLI: Calculate distance matrices and phylogenetic trees from VCF or FASTA files\n\n"
                     "Citation:\n"
@@ -149,6 +148,7 @@ def main():
     parser.add_argument("--pipe-stderr", action="store_true", help="Pipe Java stderr to CLI (default: direct passthrough to terminal)")
     parser.add_argument("--version", action="store_true", help="Print version information and exit")
     parser.add_argument("--check", action="store_true", help="Test Java and backend availability")
+    parser.add_argument("--extraVerbose", action="store_true", help="Print extra messages on stderr (default: false)")
 
     subparsers = parser.add_subparsers(dest="command", required=False)
 
@@ -238,14 +238,14 @@ def main():
     if args.command in ("VCF2DIST", "VCF2TREE"):
         input_files = resolve_inputs(args)
         params = []
-        if args.verbose: params.append("--verbose")
+        if args.verbose or args.extraVerbose: params.append("--verbose")
         if args.ignoreHets: params.append("--ignoreHets")
         if args.onlyHets: params.append("--onlyHets")
         if args.ignoreMissing: params.append("--ignoreMissing")
         params.extend(["-t", str(args.threads)])
         for f in input_files:
             params.extend(["-i", f])
-        run_java_tool(args.command, params, args.lib, args.mem, args.output, args.verbose, args.pipe_stderr)
+        run_java_tool(args.command, params, args.lib, args.mem, args.output, args.verbose, args.extraVerbose, args.pipe_stderr)
 
     elif args.command == "DIST2TREE":
         input_file = args.named_input or args.input_file
@@ -253,19 +253,19 @@ def main():
             print("Error: No input distance matrix provided.", file=sys.stderr)
             sys.exit(1)
         params = []
-        if args.verbose: params.append("--verbose")
+        if args.verbose or args.extraVerbose: params.append("--verbose")
         params.append(input_file)
-        run_java_tool("DIST2TREE", params, args.lib, args.mem, args.output, args.verbose, args.pipe_stderr)
+        run_java_tool("DIST2TREE", params, args.lib, args.mem, args.output, args.verbose, args.extraVerbose, args.pipe_stderr)
     
     elif args.command == "FASTA2DIST":
         input_files = resolve_inputs(args)
         params = []
-        if args.verbose: params.append("--verbose")
+        if args.verbose or args.extraVerbose: params.append("--verbose")
         if args.normalize: params.append("--normalize")
         params.extend(["-k", str(args.kmerSize), "-t", str(args.threads)])
         for f in input_files:
             params.extend(["-i", f])
-        run_java_tool("FASTA2DIST", params, args.lib, args.mem, args.output, args.verbose, args.pipe_stderr)
+        run_java_tool("FASTA2DIST", params, args.lib, args.mem, args.output, args.verbose, args.extraVerbose, args.pipe_stderr)
             
     else:
         print("Unknown command", file=sys.stderr)

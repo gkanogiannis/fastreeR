@@ -16,3 +16,4 @@ inst/script/*.html
 vignettes/*.html
 vignettes/*.md
 vignettes/*.R
+/benchmark/
