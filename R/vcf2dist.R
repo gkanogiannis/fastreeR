@@ -54,10 +54,6 @@
 #' @param inputFile Input vcf file location (uncompressed or gzip compressed).
 #' @param outputFile Output distances file location.
 #' @param threads Number of java threads to use.
-#' @param ignoreMissing Ignore variants with missing data
-#'     (\code{./.} or \code{.|.})
-#' @param onlyHets Only calculate on variants with heterozygous calls.
-#' @param ignoreHets Only calculate on variants with homozygous calls.
 #' @param compress Compress output (adds .gz extension).
 #' @param verbose Logical. If TRUE, enables verbose output from the Java backend.
 #'
@@ -75,13 +71,12 @@
 #' \url{https://github.com/gkanogiannis/BioInfoJava-Utils}
 
 vcf2dist <- function(inputFile, outputFile=NULL,
-                    threads=2, ignoreMissing=FALSE,
-                    onlyHets = FALSE, ignoreHets = FALSE, compress = FALSE,
+                    threads=2, compress = FALSE,
                     verbose = FALSE) {
 
     vcf2dist_checkParams(inputFile = inputFile, outputFile = outputFile,
-        threads = threads, ignoreMissing = ignoreMissing, onlyHets = onlyHets,
-        ignoreHets = ignoreHets, compress = compress,
+        threads = threads,
+        compress = compress,
         verbose = verbose)
 
     if (R.utils::isGzipped(inputFile)) {
@@ -93,9 +88,6 @@ vcf2dist <- function(inputFile, outputFile=NULL,
     bioinfojavautils <- rJava::.jnew(class="com/gkano/bioinfo/javautils/JavaUtils",
                                     class.loader = .rJava.class.loader)
     cmd <- paste("VCF2DIST", "--numberOfThreads", threads,
-            ifelse(ignoreMissing, "--ignoreMissing", ""),
-            ifelse(onlyHets, "--onlyHets", ""),
-            ifelse(ignoreHets, "--ignoreHets", ""),
             ifelse(verbose, "--verbose", ""),
             "--input", inputFile, sep = " ")
 
@@ -122,8 +114,7 @@ vcf2dist <- function(inputFile, outputFile=NULL,
     return(stats::as.dist(as.matrix(ret.df), diag = TRUE, upper = TRUE))
 }
 
-vcf2dist_checkParams <- function(inputFile, outputFile, threads, ignoreMissing,
-                                            onlyHets, ignoreHets, compress,
+vcf2dist_checkParams <- function(inputFile, outputFile, threads, compress,
                                             verbose) {
     if (!methods::is(inputFile, "character")){
         stop("inputFile must be a file location.")
@@ -138,10 +129,8 @@ vcf2dist_checkParams <- function(inputFile, outputFile, threads, ignoreMissing,
         stop("outputFile must be a file location.")
     }
 
-    if(!is.logical(ignoreMissing) || !is.logical(onlyHets) ||
-        !is.logical(ignoreHets) || !is.logical(compress)){
-        stop("ignoreMissing, onlyHets, ignoreHets ",
-                                    "and compress parameters must be logical.")
+    if(!is.logical(compress)){
+        stop("compress parameters must be logical.")
     }
 
     if (!is.numeric(threads) || (is.numeric(threads) && threads<1)) {

@@ -8,10 +8,8 @@ vcf2dist(
   inputFile,
   outputFile = NULL,
   threads = 2,
-  ignoreMissing = FALSE,
-  onlyHets = FALSE,
-  ignoreHets = FALSE,
-  compress = FALSE
+  compress = FALSE,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -21,14 +19,9 @@ vcf2dist(
 
 \item{threads}{Number of java threads to use.}
 
-\item{ignoreMissing}{Ignore variants with missing data
-(\code{./.} or \code{.|.})}
-
-\item{onlyHets}{Only calculate on variants with heterozygous calls.}
-
-\item{ignoreHets}{Only calculate on variants with homozygous calls.}
-
 \item{compress}{Compress output (adds .gz extension).}
+
+\item{verbose}{Logical. If TRUE, enables verbose output from the Java backend.}
 }
 \value{
 A \code{\link[stats]{dist}} distances object of the calculation.

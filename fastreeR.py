@@ -159,9 +159,9 @@ def main():
 
     def add_common_vcf_args(p):
         p.add_argument("-t", "--threads", type=int, default=1, help="Number of threads (default: 1)")
-        p.add_argument("--ignoreHets", action="store_true", help="Ignore heterozygous loci (default: false)")
-        p.add_argument("--onlyHets", action="store_true", help="Use only heterozygous loci (default: false)")
-        p.add_argument("--ignoreMissing", action="store_true", help="Ignore missing loci (default: false)")
+        #p.add_argument("--ignoreHets", action="store_true", help="Ignore heterozygous loci (default: false)")
+        #p.add_argument("--onlyHets", action="store_true", help="Use only heterozygous loci (default: false)")
+        #p.add_argument("--ignoreMissing", action="store_true", help="Ignore missing loci (default: false)")
         p.add_argument("-v", "--verbose", action="store_true", help="Print progress messages on stderr (default: false)")
 
     # Subcommand for VCF-based distance matrix
@@ -239,9 +239,9 @@ def main():
         input_files = resolve_inputs(args)
         params = []
         if args.verbose or args.extraVerbose: params.append("--verbose")
-        if args.ignoreHets: params.append("--ignoreHets")
-        if args.onlyHets: params.append("--onlyHets")
-        if args.ignoreMissing: params.append("--ignoreMissing")
+        #if args.ignoreHets: params.append("--ignoreHets")
+        #if args.onlyHets: params.append("--onlyHets")
+        #if args.ignoreMissing: params.append("--ignoreMissing")
         params.extend(["-t", str(args.threads)])
         for f in input_files:
             params.extend(["-i", f])

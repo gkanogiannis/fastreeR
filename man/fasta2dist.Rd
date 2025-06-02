@@ -10,7 +10,8 @@ fasta2dist(
   threads = 2,
   kmer = 6,
   normalize = FALSE,
-  compress = TRUE
+  compress = TRUE,
+  verbose = FALSE
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ fasta2dist(
 \item{normalize}{Normalize on sequences length.}
 
 \item{compress}{Compress output (adds .gz extension).}
+
+\item{verbose}{Logical. If TRUE, enables verbose output from the Java backend.}
 }
 \value{
 A \code{\link[stats]{dist}} distances object of the calculation.

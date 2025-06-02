@@ -40,10 +40,6 @@
 #'
 #' @param inputFile Input vcf file location (uncompressed or gzip compressed).
 #' @param threads Number of java threads to use.
-#' @param ignoreMissing Ignore variants with missing data
-#'     (\code{./.} or \code{.|.})
-#' @param onlyHets Only calculate on variants with heterozygous calls.
-#' @param ignoreHets Only calculate on variants with homozygous calls.
 #' @param verbose Logical. If TRUE, enables verbose output from the Java backend.
 #'
 #' @return A \code{\link[base]{character}} vector of the generated
@@ -60,13 +56,9 @@
 #' @references Java implementation:
 #' \url{https://github.com/gkanogiannis/BioInfoJava-Utils}
 
-vcf2tree <- function(inputFile, threads = 2, ignoreMissing = FALSE,
-                    onlyHets = FALSE, ignoreHets = FALSE,
+vcf2tree <- function(inputFile, threads = 2,
                     verbose = FALSE) {
     vcf2tree_checkParams(inputFile = inputFile, threads = threads,
-                        ignoreMissing = ignoreMissing, 
-                        onlyHets = onlyHets,
-                        ignoreHets = ignoreHets,
                         verbose = verbose)
 
     if (R.utils::isGzipped(inputFile)) {
@@ -85,9 +77,6 @@ vcf2tree <- function(inputFile, threads = 2, ignoreMissing = FALSE,
     cmd <- paste(
         "VCF2TREE",
         "--numberOfThreads", threads,
-        ifelse(ignoreMissing, "--ignoreMissing", ""),
-        ifelse(onlyHets, "--onlyHets", ""),
-        ifelse(ignoreHets, "--ignoreHets", ""),
         ifelse(verbose, "--verbose", ""),
         "--input", inputFile,
         sep = " "
@@ -106,20 +95,13 @@ vcf2tree <- function(inputFile, threads = 2, ignoreMissing = FALSE,
     return(ret.str)
 }
 
-vcf2tree_checkParams <- function(inputFile, threads, ignoreMissing,
-                                onlyHets, ignoreHets, verbose) {
+vcf2tree_checkParams <- function(inputFile, threads, verbose) {
     if (!methods::is(inputFile, "character")){
         stop("inputFile must be a file location.")
     }
 
     if (is.null(inputFile) || !file.exists(inputFile)) {
         stop("inputFile=",inputFile," does not exist.")
-    }
-
-    if(!is.logical(ignoreMissing) || !is.logical(onlyHets) ||
-                                                    !is.logical(ignoreHets)){
-        stop("ignoreMissing, onlyHets",
-                                "and ignoreHets parameters must be logical.")
     }
 
     if (!is.numeric(threads) || (is.numeric(threads) && threads<1)) {
