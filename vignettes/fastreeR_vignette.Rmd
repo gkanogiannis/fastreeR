@@ -38,14 +38,32 @@ BiocManager::install("fastreeR")
 # Preparation
 
 ## Allocate RAM and load required libraries
-You should allocate minimum 10kb per sample per variant of RAM for the JVM.
+
+**No more GBs of RAM!** Only the distance matrix is kept in memory:
+
+* `4 bytes × (#samples²) × #threads`
+* Example: 1000 samples with 32 threads → **\~128MB RAM**
+
+**VCF caching is minimal:**
+Only **2 VCF lines per thread** are pre-cached.
+
+* In the simple diploid case (e.g., `0/1`, `1|0`), each genotype requires \~4 characters (8 bytes).
+* For 1000 samples and 32 threads, this adds up to **\~1MB RAM**.
+
+JVM will need at least 64-128 MB in order to efficiently run.
+
+**Total memory footprint: just a few hundred MB, even for large datasets.**
+
+~~You should allocate minimum 10 bytes per sample per variant of RAM for the JVM.
 The more RAM you allocate, the faster the execution will be (less pauses 
-for garbage collection).
+for garbage collection).~~
+
 In order to allocate RAM, a special parameter needs to be passed while JVM 
 initializes. JVM parameters can be passed by setting `java.parameters` option.
 The `-Xmx` parameter, followed (without space) by an integer value and a 
 letter, is used to tell JVM what is the maximum amount of heap RAM that it can
 use. The letter in the parameter (uppercase or lowercase), indicates RAM units.
+
 For example, parameters `-Xmx1024m` or `-Xmx1024M` or `-Xmx1g` or `-Xmx1G`, all
 allocate 1 Gigabyte or 1024 Megabytes of maximum RAM for JVM.
 

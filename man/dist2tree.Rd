@@ -4,7 +4,7 @@
 \alias{dist2tree}
 \title{Generate phylogenetic tree from samples of a distance matrix}
 \usage{
-dist2tree(inputDist)
+dist2tree(inputDist, verbose = FALSE)
 }
 \arguments{
 \item{inputDist}{Input distances file location
@@ -12,6 +12,8 @@ dist2tree(inputDist)
 or \code{\link[fastreeR]{fasta2dist}}).
 File can be gzip compressed.
 Or a \code{\link[stats]{dist}} distances object.}
+
+\item{verbose}{Logical. If TRUE, enables verbose output from the Java backend.}
 }
 \value{
 A \code{\link[base]{character} vector} of the generated
@@ -27,7 +29,8 @@ agglomerative Neighbor Joining method (complete linkage).
 \examples{
 my.tree <- dist2tree(
     inputDist =
-        system.file("extdata", "samples.vcf.dist.gz", package = "fastreeR")
+    system.file("extdata", "samples.vcf.dist.gz", package = "fastreeR"),
+    verbose = TRUE
 )
 }
 \references{

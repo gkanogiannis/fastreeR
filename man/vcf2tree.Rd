@@ -4,25 +4,14 @@
 \alias{vcf2tree}
 \title{Generate phylogenetic tree from samples of a VCF file}
 \usage{
-vcf2tree(
-  inputFile,
-  threads = 2,
-  ignoreMissing = FALSE,
-  onlyHets = FALSE,
-  ignoreHets = FALSE
-)
+vcf2tree(inputFile, threads = 2, verbose = FALSE)
 }
 \arguments{
 \item{inputFile}{Input vcf file location (uncompressed or gzip compressed).}
 
 \item{threads}{Number of java threads to use.}
 
-\item{ignoreMissing}{Ignore variants with missing data
-(\code{./.} or \code{.|.})}
-
-\item{onlyHets}{Only calculate on variants with heterozygous calls.}
-
-\item{ignoreHets}{Only calculate on variants with homozygous calls.}
+\item{verbose}{Logical. If TRUE, enables verbose output from the Java backend.}
 }
 \value{
 A \code{\link[base]{character}} vector of the generated

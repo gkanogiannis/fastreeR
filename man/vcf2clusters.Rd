@@ -7,25 +7,16 @@
 vcf2clusters(
   inputFile,
   threads = 2,
-  ignoreMissing = FALSE,
-  onlyHets = FALSE,
-  ignoreHets = FALSE,
   cutHeight = NULL,
   minClusterSize = 1,
-  extra = TRUE
+  extra = TRUE,
+  verbose = FALSE
 )
 }
 \arguments{
 \item{inputFile}{Input vcf file location (uncompressed or gzip compressed).}
 
 \item{threads}{Number of java threads to use.}
-
-\item{ignoreMissing}{Ignore variants with missing data
-(\code{./.} or \code{.|.})}
-
-\item{onlyHets}{Only calculate on variants with heterozygous calls.}
-
-\item{ignoreHets}{Only calculate on variants with homozygous calls.}
 
 \item{cutHeight}{Define at which height to cut tree.
 Default automatically defined.}
@@ -34,6 +25,8 @@ Default automatically defined.}
 
 \item{extra}{Boolean whether to use extra parameters
 for the \code{\link[dynamicTreeCut]{cutreeDynamic}}.}
+
+\item{verbose}{Logical. If TRUE, enables verbose output from the Java backend.}
 }
 \value{
 A list of :

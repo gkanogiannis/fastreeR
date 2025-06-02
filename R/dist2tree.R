@@ -11,6 +11,7 @@
 #' or \code{\link[fastreeR]{fasta2dist}}).
 #' File can be gzip compressed.
 #' Or a \code{\link[stats]{dist}} distances object.
+#' @param verbose Logical. If TRUE, enables verbose output from the Java backend.
 #'
 #' @return A \code{\link[base]{character} vector} of the generated
 #' phylogenetic tree in Newick format.
@@ -19,18 +20,19 @@
 #' @examples
 #' my.tree <- dist2tree(
 #'     inputDist =
-#'         system.file("extdata", "samples.vcf.dist.gz", package = "fastreeR")
+#'     system.file("extdata", "samples.vcf.dist.gz", package = "fastreeR"),
+#'     verbose = TRUE
 #' )
 #' @author Anestis Gkanogiannis, \email{anestis@@gkanogiannis.com}
 #' @references Java implementation:
 #' \url{https://github.com/gkanogiannis/BioInfoJava-Utils}
 
-dist2tree <- function(inputDist) {
-    dist2tree_checkParams(inputDist = inputDist)
+dist2tree <- function(inputDist, verbose = FALSE) {
+    dist2tree_checkParams(inputDist = inputDist, verbose = verbose)
 
     inputfile <- inputDist
 
-    if(methods::is(inputDist, "character") && R.utils::isGzipped(inputDist)) {
+    if (methods::is(inputDist, "character") && R.utils::isGzipped(inputDist)) {
         temp.in <- tempfile(fileext = ".dist")
         on.exit(unlink(temp.in))
         R.utils::gunzip(filename = inputDist, destname = temp.in,
@@ -53,6 +55,7 @@ dist2tree <- function(inputDist) {
 
     hierarchicalcluster <- rJava::.jnew(
         class="com/gkano/bioinfo/tree/HierarchicalCluster",
+        verbose,
         class.loader = .rJava.class.loader
     )
     generaltools <- rJava::J(
@@ -69,13 +72,18 @@ dist2tree <- function(inputDist) {
     return(treeStr)
 }
 
-dist2tree_checkParams <- function(inputDist) {
+dist2tree_checkParams <- function(inputDist, verbose) {
     if (is.null(inputDist) ||
         (!methods::is(inputDist, "dist") &&
-            !methods::is(inputDist, "character")) ||
+         !methods::is(inputDist, "character")) ||
         (methods::is(inputDist, "character") &&
-            (!file.exists(inputDist) || nchar(inputDist)==0))) {
+         (!file.exists(inputDist) || nchar(inputDist)==0))) {
         stop("inputDist parameter must be a valid file location ",
-                                                            "or a dist object.")
+             "or a dist object.")
+    }
+
+    if (!is.logical(verbose)){
+        stop("verbose",
+             "must be logical.")
     }
 }
