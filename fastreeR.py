@@ -205,7 +205,7 @@ def main():
             result = subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             print(result.stdout.strip())
             print(result.stderr.strip(), file=sys.stderr)
-            cmd = ["java"] + JAVA_PARAMS + ["-cp", classpath, MAIN_CLASS , "VCF2TREE"]
+            cmd = ["java"] + JAVA_PARAMS + ["-cp", classpath, MAIN_CLASS]
             print(f"[fastreeR] Running Java check: {' '.join(cmd)}", file=sys.stderr)
             result = subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             print(result.stdout.strip())
