@@ -13,6 +13,7 @@
 ^Dockerfile$
 ^fastreer$
 ^fastreeR\.py$
+^icon\.png$
 ^java$
 ^LICENSE\.md$
 ^Makefile$

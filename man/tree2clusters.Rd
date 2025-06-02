@@ -63,7 +63,8 @@ my.clust <- tree2clusters(
         inputDist = system.file("extdata", "samples.vcf.dist.gz",
             package = "fastreeR"
         )
-    )
+    ),
+    verbose = TRUE
 )
 }
 \references{

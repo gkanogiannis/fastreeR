@@ -6,7 +6,7 @@
 \alias{fastreeR-package}
 \title{fastreeR: Phylogenetic, Distance and Other Calculations on VCF and Fasta Files}
 \description{
-Calculate distances, build phylogenetic trees or perform hierarchical clustering between the samples of a VCF or FASTA file. Functions are implemented in Java and called via rJava. Parallel implementation that operates directly on the VCF or FASTA file for fast execution.
+Calculate distances, build phylogenetic trees or perform hierarchical clustering between the samples of a VCF or FASTA file. Functions are implemented in Java-11 and called via rJava. Parallel implementation that operates directly on the VCF or FASTA file for fast execution.
 }
 \seealso{
 Useful links:
