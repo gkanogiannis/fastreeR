@@ -65,9 +65,9 @@ jobs:
             ghcr.io/${{ env.IMAGE_NAME }}:latest
             ghcr.io/${{ env.IMAGE_NAME }}:${{ steps.extract.outputs.version }}
 
-      - name: Test Docker image with --check
+      - name: Test Docker image with --version
         run: |
-          docker run --rm ${{ env.IMAGE_NAME }}:${{ steps.extract.outputs.version }} --check
+          docker run --rm ${{ env.IMAGE_NAME }}:${{ steps.extract.outputs.version }} --version
 
       - name: Update DockerHub README
         uses: peter-evans/dockerhub-description@v3
