@@ -8,9 +8,9 @@
 /.vscode/
 /doc/
 /Meta/
-/README.html/
-/README.Rmd/
-/tests/
+/README.html
+/README.Rmd
+/tests/testthat/testthat-problems.rds
 /tmp/
 fastreeR.Rproj
 inst/script/*.html
