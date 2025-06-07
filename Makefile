@@ -21,7 +21,7 @@ docker-test:
 # ----------------------
 # PyPI-related targets
 # ----------------------
-PYPI_ROOT = fastreer-pypi
+PYPI_ROOT = deploy/fastreer-pypi
 PACKAGE_DIR = ${PYPI_ROOT}/src/fastreer
 SRC_JAR_DIR = inst/java
 DEST_JAR_DIR = $(PACKAGE_DIR)/$(SRC_JAR_DIR)
@@ -36,6 +36,7 @@ pypi-build: pypi-clean
 	@mkdir -p $(DEST_JAR_DIR)
 	cp fastreeR.py $(PACKAGE_DIR)/cli.py
 	cp $(SRC_JAR_DIR)/*.jar $(DEST_JAR_DIR)
+	@mkdir -p $(PYPI_ROOT)
 	cp LICENSE.md README.md $(PYPI_ROOT)
 	@echo "🔧 Building Python package for version $(FASTREER_VERSION)"
 	@python -m build ${PYPI_ROOT}
@@ -51,7 +52,7 @@ pypi-upload: pypi-build
 # ----------------------
 # Galaxy-related targets
 # ----------------------
-GALAXY_ROOT = fastreer-galaxy
+GALAXY_ROOT = deploy/fastreer-galaxy
 TOOLSHED_KEY ?= somekey
 
 galaxy-update-versions:
