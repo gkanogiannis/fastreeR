@@ -1,4 +1,4 @@
-name: Upload Galaxy Tools to ToolShed
+name: Publish to Galaxy ToolShed
 
 on:
   release:
@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  upload-tools:
-    name: Upload Galaxy tools to ToolShed
+  publish-toolshed:
+    name: Publish to Galaxy ToolShed
     runs-on: ubuntu-latest
 
     steps:

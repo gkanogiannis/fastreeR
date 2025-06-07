@@ -1,4 +1,4 @@
-name: Upload to Galaxy Test ToolShed
+name: Publish to Galaxy TestShed
 
 on:
   release:
@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  upload-test-toolshed:
-    name: Upload to Test ToolShed
+  publish-testshed:
+    name: Publish to Galaxy TestShed
     runs-on: ubuntu-latest
 
     steps:
@@ -22,7 +22,7 @@ jobs:
       - name: Install Planemo
         run: pip install planemo
 
-      - name: Upload tools to Test ToolShed
+      - name: Upload tools to TestShed
         env:
           PLANEMO_TOOLSHED_API_KEY: ${{ secrets.GALAXY_TESTSHED_API_KEY }}
         run: |
