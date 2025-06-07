@@ -7,9 +7,7 @@
 ^\.Rproj\.user$
 ^\.vscode$
 ^doc$
-^fastreer-bioconda$
-^fastreer-galaxy$
-^fastreer-pypi$
+^deploy$
 ^Dockerfile$
 ^fastreer$
 ^fastreeR\.py$
