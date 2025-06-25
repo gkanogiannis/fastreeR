@@ -28,6 +28,7 @@ test:
   commands:
     - fastreeR --version
     - fastreeR --help
+    #- fastreeR --check
 
 about:
   home: "https://github.com/gkanogiannis/fastreeR"
