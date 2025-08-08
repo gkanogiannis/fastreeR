@@ -1,7 +1,7 @@
 Package: fastreeR
 Type: Package
 Title: Phylogenetic, Distance and Other Calculations on VCF and Fasta Files
-Version: 1.99.3
+Version: 1.99.4
 biocViews: Phylogenetics, Metagenomics, Clustering
 Authors@R:
     c(person(given = "Anestis",
@@ -15,7 +15,7 @@ Description: Calculate distances, build phylogenetic trees or
     Functions are implemented in Java-11 and called via rJava.
     Parallel implementation that operates directly on the VCF or FASTA file 
     for fast execution.
-License: GPL-3.0
+License: GPL-3
 Encoding: UTF-8
 Language: en-US
 LazyData: false
