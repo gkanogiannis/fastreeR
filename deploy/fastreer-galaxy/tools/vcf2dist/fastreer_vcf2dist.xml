@@ -1,7 +1,7 @@
-<tool id="fastreer_vcf2dist" name="VCF2DIST" version="1.99.7">
+<tool id="fastreer_vcf2dist" name="VCF2DIST" version="1.99.8">
     <description>Cosine distance matrix from VCF files</description>
     <requirements>
-        <requirement type="package">fastreer=1.99.7</requirement>
+        <requirement type="package">fastreer=1.99.8</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
     fastreeR VCF2DIST 
