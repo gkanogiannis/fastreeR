@@ -1,6 +1,4 @@
 
-<!-- README.md is generated from README.Rmd. Please edit that file -->
-
 <img src="https://raw.githubusercontent.com/gkanogiannis/fastreeR/master/icon.png" alt="Project Icon" width="120"/>
 
 # fastreeR: Fast Tree Reconstruction Tools for Genomics
@@ -36,8 +34,10 @@ format.
 
 `fastreeR` offers interface, which is accessible in the following ways:
 
-- **NEW Java Backend (v2.y.z) !!** 100x times **FAST**re**ER** and only
-  a couple hundred MB RAM needed. Java 11+ suggested.
+- 🆕 **Java Backend (v2.1.0) !!** implements streaming bootstrap; from
+  VCF file get a newick tree with encoded **bootstrap support values**
+- Java Backend (v2.0.0) 100x times **FAST**re**ER** and only a couple
+  hundred MB RAM needed. Java 11+ suggested.
 - ✅ **Bioconda**: install with `conda install -c bioconda fastreer`
 - ✅ **Docker**: available on
   [DockerHub](https://hub.docker.com/r/gkanogiannis/fastreer) and
@@ -54,35 +54,39 @@ format.
 
 ------------------------------------------------------------------------
 
-- [Key Features](#key-features)
-- [Requirements](#requirements)
-  - [RAM Requirements](#memory-requirements-for-vcf-input)
-- [Installation and Usage](#installation-and-usage)
-- - [Conda](#via-conda)
-  - [Docker](#via-docker)
-  - [PyPI](#as-a-pypi-module)
-  - [Python CLI](#via-a-python-cli-wrapper)
-  - [R package](#as-an-r-package)
-  - [Galaxy](#with-galaxy)
-  - [From Java backend source](#from-java-backend-source)
-- [Distances from VCF](#distances-from-vcf)
-- [CLI Interface](#cli-interface)
-  - [Commands](#commands)
-  - [Examples](#examples)
-  - [Options](#options-common-to-all-commands)
-- [Integration with Java Backend](#integration-with-java-backend)
-- [Integration with R](#integration-with-r)
-- [Sample data](#sample-data)
-- [Citation](#citation)
-- [Author](#author)
-- [License](#license)
+- [fastreeR: Fast Tree Reconstruction Tools for
+  Genomics](#fastreer-fast-tree-reconstruction-tools-for-genomics)
+  - [Integration and Accessibility](#integration-and-accessibility)
+  - [Key Features](#key-features)
+  - [Requirements](#requirements)
+    - [RAM Requirements](#memory-requirements-for-vcf-input)
+  - [Installation and Usage](#installation-and-usage)
+  - - [Conda](#via-conda)
+    - [Docker](#via-docker)
+    - [PyPI](#as-a-pypi-module)
+    - [Python CLI](#via-a-python-cli-wrapper)
+    - [R package](#as-an-r-package)
+    - [Galaxy](#with-galaxy)
+    - [From Java backend source](#from-java-backend-source)
+  - [Distances from VCF](#distances-from-vcf)
+  - [CLI Interface](#cli-interface)
+    - [Commands](#commands)
+    - [Examples](#examples)
+    - [Options](#options-common-to-all-commands)
+  - [Integration with Java Backend](#integration-with-java-backend)
+  - [Integration with R](#integration-with-r)
+  - [Sample data](#sample-data)
+  - [Citation](#citation)
+  - [Author](#author)
+  - [License](#license)
 
 ------------------------------------------------------------------------
 
 ## Key Features
 
-- 🚀 **Now ultra-fast with a superior multithreaded concurrency model
-  and minimal RAM usage — from GBs down to just MBs!**
+- 🥾 Streaming bootstrap support from VCF to NEWICK.
+- 🚀 With a superior multithreaded concurrency model and minimal RAM
+  usage, from GBs down to just MBs!
 - ⚡ Ultra-fast computation of sample-wise cosine distances from large
   VCF and D2S k-mer based distances from FASTA files.
 - 🌳 Generate agglomerative neighbor-joining phylogenetic trees directly
@@ -107,7 +111,7 @@ format.
 
 **No more GBs of RAM!** Only the distance matrix is kept in memory:
 
-- `4 bytes × (#samples²) × #threads`
+- `4 bytes x (#samples²) x #threads`
 - Example: 1000 samples with 32 threads → **~128MB RAM**
 
 **VCF caching is minimal:** Only **2 VCF lines per thread** are
@@ -127,11 +131,11 @@ required for a given number of SNPs and samples, as JVM behavior can
 vary across different systems and configurations. From our own
 experiments, a rough estimate for the minimum usable memory is around 10
 bytes per variant per sample. For example, a VCF file with 1 million
-variants and 1,000 samples would require at least 10 × 10⁶ × 10³ = 10 GB
+variants and 1,000 samples would require at least 10 x 10⁶ x 10³ = 10 GB
 of allocated memory. However, running with this minimal allocation may
 result in frequent and prolonged garbage collection events, leading to
 significantly longer runtimes. For optimal execution, we recommend
-allocating 15–20 bytes per variant per sample (i.e., 15–20 GB for the
+allocating 15-20 bytes per variant per sample (i.e., 15-20 GB for the
 same example), which reduces garbage collection overhead and ensures
 smoother performance.~~
 
@@ -366,6 +370,19 @@ python fastreeR.py VCF2DIST -i input.vcf -o output.dist --threads 16 --verbose
 ``` bash
 python fastreeR.py VCF2TREE -i input.vcf -o output.nwk --threads 16 --verbose
 ```
+
+You can also request bootstrap replicates directly from the VCF source.
+The Java backend will perform streaming bootstrap sampling and encode
+bootstrap support values at internal nodes of the returned Newick
+string. For example:
+
+``` bash
+python fastreeR.py VCF2TREE -i input.vcf -o output_with_boot.nwk --threads 8 --bootstrap 100
+```
+
+The generated Newick will contain node support values (percentage across
+replicates) which can be inspected with phylogenetic tools such as `ape`
+in R.
 
 #### Compute Tree from Distance Matrix
 

@@ -7,6 +7,13 @@
 #' A phylogenetic tree is calculated with
 #' agglomerative Neighbor Joining method (complete linkage).
 #'
+#' If the \code{bootstrap} parameter is set to a positive integer, the
+#' Java backend performs streaming bootstrap sampling of variants for the
+#' requested number of replicates. Bootstrap support values are encoded in
+#' the returned Newick string at internal nodes (percent support across
+#' replicates). Note that enabling bootstrapping increases runtime and
+#' memory usage proportionally to the number of replicates.
+#'
 #' Biallelic or multiallelic (maximum 7 alternate alleles) SNP and/or INDEL
 #' variants are considered, phased or not. Some VCF encoding examples are:
 #'
@@ -39,8 +46,9 @@
 #' before \code{library(fastreeR)}.
 #'
 #' @param inputFile Input vcf file location (uncompressed or gzip compressed).
-#' @param threads Number of java threads to use.
+#' @param threads Number of java threads to use (default 1).
 #' @param verbose Logical. If TRUE, enables verbose output from the Java backend.
+#' @param bootstrap Number of bootstrap replicates to perform (default 0, no bootstrapping).
 #'
 #' @return A \code{\link[base]{character}} vector of the generated
 #' phylogenetic tree in Newick format.
@@ -56,10 +64,10 @@
 #' @references Java implementation:
 #' \url{https://github.com/gkanogiannis/BioInfoJava-Utils}
 
-vcf2tree <- function(inputFile, threads = 2,
-                    verbose = FALSE) {
+vcf2tree <- function(inputFile, threads = 1,
+                    verbose = FALSE, bootstrap = 0) {
     vcf2tree_checkParams(inputFile = inputFile, threads = threads,
-                        verbose = verbose)
+                        verbose = verbose, bootstrap = bootstrap)
 
     if (R.utils::isGzipped(inputFile)) {
         temp.in <- tempfile(fileext = ".vcf")
@@ -79,6 +87,7 @@ vcf2tree <- function(inputFile, threads = 2,
         "--numberOfThreads", threads,
         ifelse(verbose, "--verbose", ""),
         "--input", inputFile,
+        "--bootstrap", bootstrap,
         sep = " "
     )
 
@@ -95,7 +104,7 @@ vcf2tree <- function(inputFile, threads = 2,
     return(ret.str)
 }
 
-vcf2tree_checkParams <- function(inputFile, threads, verbose) {
+vcf2tree_checkParams <- function(inputFile, threads, verbose, bootstrap) {
     if (!methods::is(inputFile, "character")){
         stop("inputFile must be a file location.")
     }
@@ -111,5 +120,9 @@ vcf2tree_checkParams <- function(inputFile, threads, verbose) {
     if (!is.logical(verbose)){
         stop("verbose",
              "must be logical.")
+    }
+
+    if (!is.numeric(bootstrap) || (is.numeric(bootstrap) && bootstrap<0)) {
+        stop("bootstrap parameter must be non-negative integer.")
     }
 }

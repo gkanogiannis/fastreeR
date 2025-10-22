@@ -15,6 +15,7 @@ vignette: >
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
+    warning = FALSE,
     collapse = TRUE,
     comment = "#>"
 )
@@ -41,7 +42,7 @@ BiocManager::install("fastreeR")
 
 **No more GBs of RAM!** Only the distance matrix is kept in memory:
 
-* `4 bytes × (#samples²) × #threads`
+* `4 bytes x (#samples²) x #threads`
 * Example: 1000 samples with 32 threads → **\~128MB RAM**
 
 **VCF caching is minimal:**
@@ -76,9 +77,11 @@ library(ape)
 library(stats)
 library(grid)
 library(BiocFileCache)
+library(ggtree)
 ```
 
 ## Download sample vcf file
+
 We download, in a temporary location, a small vcf file 
 from 1K project, with around 150 samples and 100k variants (SNPs and INDELs).
 We use `BiocFileCache` for this retrieval process 
@@ -112,6 +115,7 @@ if(!file.exists(tempVcf) ||  file.size(tempVcf) == 0L) {
 ```
 
 ## Download sample fasta files
+
 We download, in temporary location, some small bacterial genomes.
 We use `BiocFileCache` for this retrieval process 
 so that it is not repeated needlessly.
@@ -178,19 +182,22 @@ for (i in seq(1,5)) {
 # Functions on vcf files
 
 ## Sample Statistics
+
 ```{r echo=TRUE, fig.cap="Sample statistics from vcf file", fig.wide=TRUE}
 myVcfIstats <- fastreeR::vcf2istats(inputFile = tempVcf)
 plot(myVcfIstats[,7:9])
 ```
 
 ## Calculate distances from vcf
+
 The most time consuming process is calculating distances between samples.
 Assign more processors in order to speed up this operation.
 ```{r, eval=TRUE}
-myVcfDist <- fastreeR::vcf2dist(inputFile = tempVcf, threads = 2)
+myVcfDist <- fastreeR::vcf2dist(inputFile = tempVcf, threads = 1)
 ```
 
 ## Histogram of distances
+
 ```{r echo=TRUE, fig.cap="Histogram of distances from vcf file", fig.wide=TRUE}
 graphics::hist(myVcfDist, breaks = 100, main=NULL, 
                                 xlab = "Distance", xlim = c(0,max(myVcfDist)))
@@ -199,6 +206,7 @@ We note two distinct groups of distances. One around of
 distance value 0.05 and the second around distance value 0.065.
 
 ## Plot tree from `fastreeR::dist2tree`
+
 Notice that the generated tree is ultrametric.
 ```{r echo=TRUE, fig.cap="Tree from vcf with fastreeR", fig.wide=TRUE}
 myVcfTree <- fastreeR::dist2tree(inputDist = myVcfDist)
@@ -210,7 +218,7 @@ ape::axisPhylo(side = 2)
 Of course the same can be achieved directly from the vcf file, 
 without calculating distances.
 ```{r echo=TRUE, fig.cap="Tree from vcf with fastreeR", fig.wide=TRUE}
-myVcfTree <- fastreeR::vcf2tree(inputFile = tempVcf, threads = 2)
+myVcfTree <- fastreeR::vcf2tree(inputFile = tempVcf, threads = 1)
 plot(ape::read.tree(text = myVcfTree), direction = "down", cex = 0.3)
 ape::add.scale.bar()
 ape::axisPhylo(side = 2)
@@ -219,7 +227,155 @@ As expected from the histogram of distances, two groups of samples also
 emerge in the tree. The two branches, one at height around 0.055 and the second 
 around height 0.065, are clearly visible.
 
+## Bootstrapping example
+
+You can request streaming bootstrap replicates directly from the VCF source
+by setting the `bootstrap` parameter. The Java backend will perform the
+requested number of replicates and encode bootstrap support values at internal
+nodes in the returned Newick string. The following example shows how to call
+`vcf2tree` with bootstrapping and how to inspect the node support values using
+`ape`.
+
+### Bootstrap support explained
+
+Setting the `bootstrap` parameter instructs the Java backend to resample
+variants (SNP columns) and compute replicate trees. The per-node support is calculated as
+the percentage of replicates that contain the same bipartition (standard
+bootstrap). These support values are encoded in the Newick string returned by
+`vcf2tree` and are accessible after parsing the Newick with
+`ape::read.tree()` (they typically appear in `tree$node.label`).
+
+### Interpretation guidance
+
+As a rule of thumb, interpret bootstrap values roughly as:
+
+- more than 90% : strong support
+- 70-89% : moderate support
+- < 70%  : weak support
+
+These are heuristic guidelines and should be used with caution.
+
+### Bootstrap example (small, runnable)
+
+The chunk below runs a modest number of replicates so it is safe for local
+testing. For production use, increase `bt_reps` to 100-1000 as appropriate.
+
+```{r eval=TRUE, fig.cap="Tree from vcf with fastreeR and bootstrap support (ape)", fig.wide=TRUE}
+# Calculate a tree with a small number of bootstrap replicates (adjust as needed)
+bt_reps <- 10
+myBootTree <- fastreeR::vcf2tree(inputFile = tempVcf, threads = 1, bootstrap = bt_reps)
+
+# Parse with ape and inspect bootstrap support (stored in node.label)
+tr <- ape::read.tree(text = myBootTree)
+# robust parse: remove anything but digits and dot, then as.numeric
+raw_lbls <- tr$node.label
+node_support <- if (!is.null(raw_lbls)) {
+  # turn "", NA or non-numeric into NA
+  s <- gsub("[^0-9.]", "", raw_lbls)
+  s[s == ""] <- NA
+  as.numeric(s)
+} else {
+  numeric(0)
+}
+print(head(tr$node.label))
+plot(tr, direction = "down", cex = 0.3)
+if (length(node_support) > 0) {
+  # round and show as integers, place without frames
+  ape::nodelabels(text = round(node_support, 0),
+                  cex = 0.7,
+                  frame = "none",
+                  adj = c(-0.2, 0.5))      # adjust to move labels slightly off-node
+
+  # optional: color labels by support
+  cols <- ifelse(node_support >= 90, "black",
+                 ifelse(node_support >= 70, "orange", "red"))
+  ape::nodelabels(text = round(node_support, 0), cex = 0.7, frame = "none", col = cols)
+  
+  # colour the branch behind each internal node
+  bgcols <- ifelse(node_support >= 90, "lightgreen",
+                   ifelse(node_support >= 70, "khaki", "lightpink"))
+  ape::nodelabels(text = round(node_support, 0), cex = 0.7, frame = "circle", bg = bgcols, col = "black")
+}
+```
+
+### Optional: nicer plotting with ggtree
+
+If you have `ggtree` installed, you can produce a more polished plot and
+annotate node supports.
+
+```{r eval=TRUE, fig.cap="Tree from vcf with fastreeR and bootstrap support (ggtree)", fig.wide=TRUE}
+  # internal node numbers are Ntip+1 : Ntip+Nnode
+  ntips <- ape::Ntip(tr)
+  nints <- ape::Nnode(tr)
+  internal_nodes <- (ntips + 1):(ntips + nints)
+
+  df_nodes <- data.frame(node = internal_nodes, support = node_support)
+
+  # Create categorical support classes for coloring and define colors
+  df_nodes$category <- cut(df_nodes$support,
+                           breaks = c(-Inf, 69, 89, Inf),
+                           labels = c("weak", "moderate", "strong"))
+
+  fills <- c(strong = "lightgreen", moderate = "khaki", weak = "lightpink")
+  cols <- c(strong = "black", moderate = "orange", weak = "red")
+
+  p <- ggtree(tr) + geom_tiplab(size = 2)
+
+  # Attach node support data to the tree plotting data and add colored points + labels
+  p <- p %<+% df_nodes +
+      ggtree::geom_point2(aes(subset = !isTip, fill = category), shape = 21,
+                          color = "black", size = 3, show.legend = FALSE) +
+      ggtree::geom_text2(aes(subset = !isTip, label = round(support, 0)),
+                          hjust = -0.2, size = 2, show.legend = FALSE) +
+      scale_fill_manual(values = fills)
+
+  print(p)
+```
+
+Command-line examples
+---------------------
+
+Run from the Python CLI (local JVM memory allocation via `--mem`):
+
+```bash
+python fastreeR.py VCF2TREE -i input.vcf -o output_with_boot.nwk --threads 8 --bootstrap 100 --mem 1024
+```
+
+Or using Docker:
+
+```bash
+docker run --rm -v $(pwd):/data gkanogiannis/fastreer:latest \
+    VCF2TREE -i /data/input.vcf -o /data/output_with_boot.nwk --threads 8 --bootstrap 100 --mem 1024
+```
+
+These commands produce a Newick tree file with bootstrap support values encoded
+at internal nodes; parse it in R with `ape::read.tree()` to inspect `node.label`.
+
+JVM / rJava troubleshooting tips
+--------------------------------
+
+If you encounter `rJava` initialization errors or out-of-memory issues when
+calling `vcf2tree()` from R, set the JVM heap before loading the package, for
+example:
+
+```{r eval=FALSE}
+# set JVM max heap to 2GB before loading fastreeR
+options(java.parameters = '-Xmx2G')
+library(fastreeR)
+```
+
+Also ensure Java 11+ is installed and on your PATH. On Windows, point R to
+the correct Java installation (matching 64/32-bit R) if needed.
+
+Reproducibility note
+--------------------
+
+Bootstrapping is stochastic. Results may vary
+across runs and environments. You can also save and share the generated
+Newick output for deterministic downstream analyses.
+
 ## Plot tree from `stats::hclust`
+
 For comparison, we generate a tree by using `stats` package and distances
 calculated by `fastreeR`.
 ```{r echo=TRUE, fig.cap="Tree from vcf with stats::hclust", fig.wide=TRUE}
@@ -232,6 +388,7 @@ of samples and the 4 samples, possibly clones, that they show very close
 distances between them.
 
 ## Hierarchical Clustering
+
 We can identify the two groups of samples, apparent from the hierarchical tree,
 by using `dist2clusters` 
 or `vcf2clusters` 
@@ -255,6 +412,7 @@ Similar analysis we can perform when we have samples represented as
 sequences in a fasta file.
 
 ## Calculate distances from fasta
+
 Use of the downloaded sample fasta file :
 ```{r, eval=TRUE}
 myFastaDist <- fastreeR::fasta2dist(tempFastas, kmer = 6)
@@ -267,12 +425,14 @@ myFastaDist <- fastreeR::fasta2dist(
 
 
 ## Histogram of distances
+
 ```{r echo=TRUE, fig.cap="Histogram of distances from fasta file",fig.wide=TRUE}
 graphics::hist(myFastaDist, breaks = 100, main=NULL, 
                                 xlab="Distance", xlim = c(0,max(myFastaDist)))
 ```
 
 ## Plot tree from `fastreeR::dist2tree`
+
 ```{r echo=TRUE, fig.cap="Tree from fasta with fastreeR", fig.wide=TRUE}
 myFastaTree <- fastreeR::dist2tree(inputDist = myFastaDist)
 plot(ape::read.tree(text = myFastaTree), direction = "down", cex = 0.3)
@@ -281,12 +441,14 @@ ape::axisPhylo(side = 2)
 ```
 
 ## Plot tree from `stats::hclust`
+
 ```{r echo=TRUE, fig.cap="Tree from fasta with stats::hclust", fig.wide=TRUE}
 myFastaTreeStats <- stats::hclust(myFastaDist)
 plot(myFastaTreeStats, ann = FALSE, cex = 0.3)
 ```
 
 # Session Info
+
 ```{r setup}
 utils::sessionInfo()
 ```

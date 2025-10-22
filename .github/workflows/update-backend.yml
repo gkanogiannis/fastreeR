@@ -1,39 +1,112 @@
-name: Sync BioinfoJavaTools Backend JAR
+name: Update backend & release fastreeR
 
 on:
   repository_dispatch:
-    types: [backend-release]
+    types: [backend_released]   # from external repo; include client_payload.backend_version
   workflow_dispatch:
     inputs:
-      version:
-        description: 'Version of the backend JAR to use'
-        required: true
+      backend_version:
+        description: "BioInfoJavaUtils backend version to pull (e.g., 1.4.0)"
+        required: false
+        type: string
+      fastreer_version:
+        description: "Override fastreeR version (x.y.z). If empty, we auto-increment patch."
+        required: false
+        type: string
+
+permissions:
+  contents: write   # allow committing, tagging, releasing
 
 jobs:
-  update-backend-jar:
+  release:
     runs-on: ubuntu-latest
 
-    env:
-      VERSION: ${{ github.event.client_payload.version || inputs.version }}
-
     steps:
-      - name: Print version
-        run: echo "VERSION is $VERSION"
-
-      - name: Checkout fastreeR
+      - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Update DESCRIPTION version
+        with:
+          fetch-depth: 0
+    
+      - name: Determine BACKEND_VERSION (repo_dispatch or manual)
+        id: backend
         run: |
-          VERSION_CLEAN="${VERSION#v}"
-          sed -i "s/^Version: .*/Version: ${VERSION_CLEAN}/" DESCRIPTION
+          set -euo pipefail
+
+          from_dispatch='${{ github.event.client_payload.backend_version }}'
+          from_input='${{ inputs.backend_version }}'
+
+          if [ -n "${from_input}" ]; then
+            BV="${from_input}"
+            SRC="workflow_dispatch.input"
+          elif [ -n "${from_dispatch}" ]; then
+            BV="${from_dispatch}"
+            SRC="repository_dispatch.payload"
+          else
+            BV=""
+            SRC="none"
+          fi
+
+          BV="${BV#v}"
+          echo "backend_version=${BV}" >> "$GITHUB_OUTPUT"
+          echo "backend_source=${SRC}" >> "$GITHUB_OUTPUT"
+          echo "BACKEND_VERSION=${BV}" >> "$GITHUB_ENV"
+          echo "BACKEND_SOURCE=${SRC}" >> "$GITHUB_ENV"
+
+      - name: Determine FASTREER_VERSION (explicit or bump patch)
+        id: fastreer
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          explicit='${{ inputs.fastreer_version }}'
+          if [ -n "${explicit}" ]; then
+            # Use the provided version verbatim (validate a bit)
+            if [[ ! "${explicit}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "Provided fastreer_version is not x.y.z: ${explicit}" >&2
+              exit 1
+            fi
+            NEW="${explicit}"
+            MODE="explicit"
+          else
+            # Auto-increment patch from DESCRIPTION
+            version=$(awk -F': *' '/^Version:/{print $2; exit}' DESCRIPTION | tr -d '\r')
+            if [[ ! "${version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "DESCRIPTION has invalid Version: '${version}'" >&2
+              exit 1
+            fi
+            IFS='.' read -r MA MI PA <<< "${version}"
+            NEW="${MA}.${MI}.$((10#${PA} + 1))"
+            MODE="auto_patch"
+          fi
+
+          NEW="${NEW#v}"
+          echo "FASTREER_VERSION=${NEW}" >> "$GITHUB_ENV"
+          echo "mode=${MODE}"            >> "$GITHUB_OUTPUT"
+          echo "version=${NEW}"          >> "$GITHUB_OUTPUT"
+
+      - name: Update DESCRIPTION if needed
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          CUR=$(awk -F': *' '/^Version:/{print $2; exit}' DESCRIPTION | tr -d '\r' || true)
+          echo "Current DESCRIPTION Version: '${CUR}'"
+          echo "Target fastreeR Version:     '${FASTREER_VERSION}'"
+          if [ "${CUR}" != "${FASTREER_VERSION}" ]; then
+            sed -i "s/^Version: .*/Version: ${FASTREER_VERSION}/" DESCRIPTION
+            echo "Updated DESCRIPTION."
+          else
+            echo "No change to DESCRIPTION."
+          fi 
 
       - name: Prepend new section to NEWS.Rd
+        shell: bash
         run: |
-          VERSION_CLEAN="${VERSION#v}"
+          set -euo pipefail
+
           DATE=$(date -u +%Y-%m-%d)
-          HEADER="\\\\section{Version ${VERSION_CLEAN} (${DATE})}{\\\\itemize{"
-          CHANGE="\\\\item Update backend and CLI"
+          HEADER="\\\\section{Version ${FASTREER_VERSION} (${DATE})}{\\\\itemize{"
+          CHANGE="\\\\item Update backend (${BACKEND_VERSION}) and CLI"
           FOOTER="}}"
 
           # Insert block at the top after \encoding
@@ -48,15 +121,13 @@ jobs:
             }
           ' inst/NEWS.Rd > inst/NEWS.Rd.new && mv inst/NEWS.Rd.new inst/NEWS.Rd
 
-      - name: Update PyPI setup version
+      - name: Update PyPI
         run: |
-          VERSION_CLEAN="${VERSION#v}"
-          sed -i "s/^version *= *.*/version = ${VERSION_CLEAN}/" deploy/fastreer-pypi/setup.cfg
+          sed -i "s/^version *= *.*/version = ${FASTREER_VERSION}/" deploy/fastreer-pypi/setup.cfg
       
-      - name: Update version number for Galaxy tools
+      - name: Update Galaxy tools
         run: |
-          VERSION_CLEAN="${VERSION#v}"
-          make galaxy-update-versions FASTREER_VERSION=${VERSION_CLEAN}
+          make galaxy-update-versions FASTREER_VERSION=${FASTREER_VERSION}
 
       - name: Set up JDK
         uses: actions/setup-java@v4
@@ -65,33 +136,41 @@ jobs:
           distribution: "temurin"
 
       - name: Commit changes
+        shell: bash
         run: |
-          VERSION_CLEAN="${VERSION#v}"
+          set -euo pipefail
+
           mkdir -p inst/java
           rm -f inst/java/*.jar
           git ls-files inst/java/*.jar | xargs -r git rm
           mvn dependency:copy -Dartifact=net.sf.trove4j:trove4j:3.0.3 -DoutputDirectory=inst/java
           mvn dependency:copy -Dartifact=com.beust:jcommander:1.82 -DoutputDirectory=inst/java
-          curl -L -o inst/java/BioInfoJavaUtils-${VERSION_CLEAN}.jar \
-            https://github.com/gkanogiannis/BioInfoJava-Utils/releases/download/${VERSION_CLEAN}/BioInfoJavaUtils-${VERSION_CLEAN}.jar
+          curl -L -o inst/java/BioInfoJavaUtils-${BACKEND_VERSION}.jar \
+            https://github.com/gkanogiannis/BioInfoJava-Utils/releases/download/${BACKEND_VERSION}/BioInfoJavaUtils-${BACKEND_VERSION}.jar
           git config user.name "Anestis Gkanogiannis"
           git config user.email "ganoyan@gmail.com"
           git add DESCRIPTION inst/NEWS.Rd inst/java/*.jar deploy/fastreer-pypi/setup.cfg
           find deploy/fastreer-galaxy/tools -name '*.xml' -print0 | xargs -0 git add
-          git commit -m "Update backend to version ${VERSION_CLEAN}"
-          git tag -a ${VERSION_CLEAN} -m "Synced backend version ${VERSION_CLEAN}"
+          git commit -m "Update fastreeR to version ${FASTREER_VERSION} with backend version ${BACKEND_VERSION}"
           git push origin HEAD
-          git push origin ${VERSION_CLEAN}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG="${FASTREER_VERSION}"
+          if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
+            echo "Tag ${TAG} already exists."
+          else
+            git tag -a "${TAG}" -m "fastreeR version ${FASTREER_VERSION} with backend version ${BACKEND_VERSION}"
+            git push origin "${TAG}"
+          fi
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.FASTREER_PAT }}
-          tag_name: ${{ env.VERSION }}
-          name: fastreeR ${{ env.VERSION }}
+          tag_name: ${{ env.FASTREER_VERSION }}
+          name: fastreeR ${{ env.FASTREER_VERSION }}
           body: |
-            Auto-synced with BioInfoJavaUtils backend version ${{ env.VERSION }}.
-            - New backend JAR: BioInfoJavaUtils-${{ env.VERSION }}.jar
+            Auto-synced with BioInfoJavaUtils backend version: ${{ env.BACKEND_VERSION || 'N/A' }}
+            - New backend JAR: BioInfoJavaUtils-${{ env.BACKEND_VERSION || 'N/A' }}.jar
+            - fastreeR version: ${{ env.FASTREER_VERSION }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.FASTREER_PAT }}
             

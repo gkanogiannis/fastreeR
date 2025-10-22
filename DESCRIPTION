@@ -1,7 +1,7 @@
 Package: fastreeR
 Type: Package
 Title: Phylogenetic, Distance and Other Calculations on VCF and Fasta Files
-Version: 1.99.4
+Version: 1.99.5
 biocViews: Phylogenetics, Metagenomics, Clustering
 Authors@R:
     c(person(given = "Anestis",
@@ -39,6 +39,7 @@ BugReports: https://github.com/gkanogiannis/fastreeR/issues
 Suggests: 
     BiocFileCache,
     BiocStyle,
+    ggtree,
     graphics,
     knitr,
     memuse,

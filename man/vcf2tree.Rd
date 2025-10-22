@@ -4,14 +4,16 @@
 \alias{vcf2tree}
 \title{Generate phylogenetic tree from samples of a VCF file}
 \usage{
-vcf2tree(inputFile, threads = 2, verbose = FALSE)
+vcf2tree(inputFile, threads = 1, verbose = FALSE, bootstrap = 0)
 }
 \arguments{
 \item{inputFile}{Input vcf file location (uncompressed or gzip compressed).}
 
-\item{threads}{Number of java threads to use.}
+\item{threads}{Number of java threads to use (default 1).}
 
 \item{verbose}{Logical. If TRUE, enables verbose output from the Java backend.}
+
+\item{bootstrap}{Number of bootstrap replicates to perform (default 0, no bootstrapping).}
 }
 \value{
 A \code{\link[base]{character}} vector of the generated
@@ -26,6 +28,13 @@ A phylogenetic tree is calculated with
 agglomerative Neighbor Joining method (complete linkage).
 }
 \details{
+If the \code{bootstrap} parameter is set to a positive integer, the
+Java backend performs streaming bootstrap sampling of variants for the
+requested number of replicates. Bootstrap support values are encoded in
+the returned Newick string at internal nodes (percent support across
+replicates). Note that enabling bootstrapping increases runtime and
+memory usage proportionally to the number of replicates.
+
 Biallelic or multiallelic (maximum 7 alternate alleles) SNP and/or INDEL
 variants are considered, phased or not. Some VCF encoding examples are:
 
