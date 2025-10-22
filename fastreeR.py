@@ -163,6 +163,8 @@ def main():
         #p.add_argument("--onlyHets", action="store_true", help="Use only heterozygous loci (default: false)")
         #p.add_argument("--ignoreMissing", action="store_true", help="Ignore missing loci (default: false)")
         p.add_argument("-v", "--verbose", action="store_true", help="Print progress messages on stderr (default: false)")
+        p.add_argument("-b", "--bootstrap", type=int, default=0,
+                       help="Number of bootstrap replicates to perform (default: 0, no bootstrapping)")
 
     # Subcommand for VCF-based distance matrix
     parser_vcf2dist = subparsers.add_parser("VCF2DIST", help="Compute distance matrix from VCF(s)")
@@ -243,6 +245,9 @@ def main():
         #if args.onlyHets: params.append("--onlyHets")
         #if args.ignoreMissing: params.append("--ignoreMissing")
         params.extend(["-t", str(args.threads)])
+        # forward bootstrap only when requesting tree generation
+        if args.command == "VCF2TREE" and getattr(args, 'bootstrap', 0) and int(args.bootstrap) > 0:
+            params.extend(["--bootstrap", str(int(args.bootstrap))])
         for f in input_files:
             params.extend(["-i", f])
         run_java_tool(args.command, params, args.lib, args.mem, args.output, args.verbose, args.extraVerbose, args.pipe_stderr)

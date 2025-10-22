@@ -81,12 +81,32 @@ dist2clusters <- function(inputDist, cutHeight = NULL,
         verbose,
         class.loader = .rJava.class.loader
     )
-    generaltools <- rJava::J(class="com/gkano/bioinfo/var/GeneralTools",
-        class.loader = .rJava.class.loader)$getInstance()
+    generaltools <- rJava::J(
+        class="com/gkano/bioinfo/var/GeneralTools",
+        class.loader = .rJava.class.loader
+    )$getInstance()
 
     # data[[1]] distances, data[[2]] labels
     data <- generaltools$readDistancesSamples(inputfile)
-    treeStr <- hierarchicalcluster$hclusteringTree(data[[2]], data[[1]])
+    
+    # Call the Java method which returns an Object[] and convert it to R
+    ret_java <- hierarchicalcluster$hclusteringTree(data[[2]], data[[1]])
+    # Convert Java array to an R vector; simplify=TRUE will convert Java strings to R character
+    ret_r <- rJava::.jevalArray(ret_java, simplify = TRUE)
+    if (length(ret_r) >= 1 && is.character(ret_r[[1]])) {
+        # ret_r is a character vector when Java returned strings
+        treeStr <- as.character(ret_r[[1]])
+    } else if (length(ret_r) >= 1) {
+        # Fallback: try calling Java toString() on the first element
+        first_java_elem <- ret_java[[1]]
+        # safe try
+        treeStr <- tryCatch(
+            rJava::.jcall(first_java_elem, "S", "toString"),
+            error = function(e) character(0)
+        )
+    } else {
+        treeStr <- character(0)
+    }
 
     labelsReordered <- generaltools$reorderLabels(data[[2]], treeStr)
     distancesReordered <- rJava::.jevalArray(
