@@ -22,7 +22,7 @@ FROM python:3.10-slim
 
 # Install Java
 RUN apt-get update && \
-    apt-get install -y openjdk-17-jre-headless && \
+    apt-get install -y openjdk-21-jre && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
