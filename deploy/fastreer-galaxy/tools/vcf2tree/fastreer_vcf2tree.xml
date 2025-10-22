@@ -1,7 +1,7 @@
-<tool id="fastreer_vcf2tree" name="VCF2TREE" version="2.0.0">
+<tool id="fastreer_vcf2tree" name="VCF2TREE" version="1.99.6">
     <description>Newick tree from VCF files</description>
     <requirements>
-        <requirement type="package">fastreer=2.0.0</requirement>
+        <requirement type="package">fastreer=1.99.6</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
     fastreeR VCF2TREE 

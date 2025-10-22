@@ -1,7 +1,7 @@
-<tool id="fastreer_fasta2dist" name="FASTA2DIST" version="2.0.0">
+<tool id="fastreer_fasta2dist" name="FASTA2DIST" version="1.99.6">
     <description>Compute D2S distance matrix from FASTA file(s)</description>
     <requirements>
-        <requirement type="package">fastreer=2.0.0</requirement>
+        <requirement type="package">fastreer=1.99.6</requirement>
     </requirements>
     <command detect_errors="exit_code"><![CDATA[
     fastreeR FASTA2DIST
