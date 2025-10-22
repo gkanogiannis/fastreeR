@@ -2,6 +2,11 @@
 \title{fastreeR News}
 \encoding{UTF-8}
 
+\section{Version 1.99.8 (2025-10-22)}{\itemize{
+\item Update backend (2.1.1) and CLI
+}}
+
+
 
 \section{Version 1.99.6 (2025-10-22)}{\itemize{
 \item Update backend (2.1.0) and CLI
