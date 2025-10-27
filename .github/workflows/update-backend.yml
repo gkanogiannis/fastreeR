@@ -25,7 +25,7 @@ on:
         default: "no"
 
 jobs:
-  release:
+  release-and-update-backend:
     runs-on: ubuntu-latest
     permissions:
       contents: write   # allow committing, tagging, releasing
@@ -268,11 +268,11 @@ jobs:
         run: |
           set -euo pipefail
 
-          FINAL_VER=${{ steps.meta.outputs.final_fastreer_version }}
-          FINAL_BACK=${{ steps.meta.outputs.final_backend_version }}
-          NOTES=${{ steps.meta.outputs.release_notes }}
+          FINAL_VER='${{ steps.meta.outputs.final_fastreer_version }}'
+          FINAL_BACK='${{ steps.meta.outputs.final_backend_version }}'
+          NOTES='${{ steps.meta.outputs.release_notes }}'
 
-          # Update NEWS.Rd
+          # Update inst/NEWS.Rd
 
           if [ ! -f inst/NEWS.Rd ]; then
             echo "inst/NEWS.Rd missing, creating new."
