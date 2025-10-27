@@ -38,7 +38,7 @@ pypi-build: pypi-clean
 	cp $(SRC_JAR_DIR)/*.jar $(DEST_JAR_DIR)
 	@mkdir -p $(PYPI_ROOT)
 	cp LICENSE.md README.md $(PYPI_ROOT)
-	@echo "🔧 Building Python package for version $(FASTREER_VERSION)"
+	@echo "Building Python package for version $(FASTREER_VERSION)"
 	@python -m build ${PYPI_ROOT}
 
 # Local install
