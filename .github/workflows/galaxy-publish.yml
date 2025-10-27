@@ -1,4 +1,4 @@
-name: Publish fastreeR to PyPI
+name: Publish fastreeR to Galaxy TestShed and ToolShed
 
 on:
   release:
@@ -86,74 +86,61 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install build deps
+      - name: Install Planemo
         run: |
           set -euo pipefail
-          python -m pip install --upgrade pip
-          pip install build twine
+          python -m pip install --upgrade pip 
+          pip install planemo
 
       ##################################################################
-      # 4. Patch fastreeR version into deploy/fastreer-pypi before build
-      #
-      # We want the wheel metadata to match version_clean.
-      # We'll inject that into setup.cfg OR pyproject/toml-equivalent *before* build.
+      # 4. Patch fastreeR version into Galaxy before build
       ##################################################################
-      - name: Apply version into PyPI package
+      - name: Apply version into Galaxy tool wrappers
         run: |
           set -euo pipefail
 
           TARGET_VERSION='${{ steps.resolve.outputs.version_clean }}'
 
-          echo "Target PyPI package version: $TARGET_VERSION"
+          echo "Target Galaxy package version: $TARGET_VERSION"
 
-          # Update setup.cfg version field to TARGET_VERSION
-          sed -i -E "s/^version *= *.*/version = ${TARGET_VERSION}/" deploy/fastreer-pypi/setup.cfg
+          make galaxy-update-versions FASTREER_VERSION=${TARGET_VERSION}
 
           echo "After patch:"
-          grep -E '^version *= ' deploy/fastreer-pypi/setup.cfg || true
+          grep -E 'version=' deploy/fastreer-galaxy/vcf2tree/fastreer_vcf2tree.xml || true
 
       ##################################################################
-      # 5. Build the PyPI artifacts using Makefile
+      # 5. Test Galaxy tools before upload
       ##################################################################
-      - name: Build Python package (Makefile)
+      - name: Test Galaxy tools
         run: |
           set -euo pipefail
-          make pypi-build FASTREER_VERSION='${{ steps.resolve.outputs.version_clean }}'
+          make galaxy-test-tools
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fastreer-galaxy-test-report
+          path: "**galaxy/**/galaxy-test-report.html"
+          overwrite: true
 
       ##################################################################
-      # 6. Debug build output and jars for sanity
+      # 6. Upload to Galaxy (unless dry-run)
       ##################################################################
-      - name: Inspect built dist
-        run: |
-          set -euo pipefail
-          echo "Contents of deploy/fastreer-pypi/dist:"
-          ls -l deploy/fastreer-pypi/dist || true
-
-          echo
-          echo "Wheel metadata:"
-          python -m zipfile --list deploy/fastreer-pypi/dist/*.whl || true
-
-          echo
-          echo "Checking copied jars:"
-          ls -l deploy/fastreer-pypi/src/fastreer/inst/java || true
-
-      ##################################################################
-      # 7. Upload to PyPI (unless dry-run)
-      ##################################################################
-      - name: Publish to PyPI
+      - name: Publish to Galaxy TestShed and ToolShed
         if: steps.resolve.outputs.dry_run != 'yes'
         env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+          PLANEMO_TESTSHED_API_KEY: ${{ secrets.GALAXY_TESTSHED_API_KEY }}
+          PLANEMO_TOOLSHED_API_KEY: ${{ secrets.GALAXY_TOOLSHED_API_KEY }}
         run: |
           set -euo pipefail
-          make pypi-upload FASTREER_VERSION='${{ steps.resolve.outputs.version_clean }}'
+          make galaxy-update-testshed TOOLSHED_KEY=${PLANEMO_TESTSHED_API_KEY}
+          make galaxy-update-toolshed TOOLSHED_KEY=${PLANEMO_TOOLSHED_API_KEY}
 
       ##################################################################
-      # 8. Dry-run summary if we skipped upload
+      # 7. Dry-run summary if we skipped upload
       ##################################################################
       - name: Dry-run summary
         if: steps.resolve.outputs.dry_run == 'yes'
         run: |
           echo "DRY RUN: built fastreer==${{ steps.resolve.outputs.version_clean }} from tag ${{ steps.resolve.outputs.git_tag }}"
-          echo "Would have uploaded wheel(s) in deploy/fastreer-pypi/dist to PyPI."
+          echo "Would have uploaded deploy/fastreer-galaxy/tools to Galaxy."

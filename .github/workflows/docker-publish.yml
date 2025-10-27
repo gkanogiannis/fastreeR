@@ -1,14 +1,24 @@
-name: Publish to Docker
+name: Publish fastreeR to DockerHub and GHCR
 
 on:
   release:
     types: [published]
+
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version of the backend JAR to use'
-        required: true
-    
+        description: "fastreeR version/tag to containerize (e.g. 1.4.0 or v1.4.0). Optional. If empty, uses latest release tag."
+        required: false
+        type: string
+      dry_run:
+        description: "Dry run (yes/no). If 'yes', build but DO NOT push images or update DockerHub."
+        required: false
+        type: choice
+        options:
+          - "no"
+          - "yes"
+        default: "no"
+
 permissions:
   contents: write
   packages: write
@@ -19,65 +29,149 @@ env:
 jobs:
   docker:
     runs-on: ubuntu-latest
-
-    env:
-      VERSION: ${{ inputs.version }}
     
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      ##################################################################
+      # 1. Figure out which version/tag we are building
+      #
+      # Cases:
+      #   - release event: GITHUB_REF is refs/tags/vX.Y.Z (or X.Y.Z)
+      #   - manual: we take workflow_dispatch.input.version if provided
+      #             otherwise we fall back to latest release tag
+      ##################################################################
+      - name: Resolve version/tag
+        id: resolve
+        run: |
+          set -euo pipefail
 
+          INPUT_VERSION="${{ github.event.inputs.version || '' }}"
+          INPUT_DRY="${{ github.event.inputs.dry_run || '' }}"
+          REF_TAG="${GITHUB_REF##*/}"
+
+          # 1. Candidate from event:
+          #    - release: REF_TAG will already be something like v1.4.0
+          #    - manual: REF_TAG will just be 'workflow_dispatch', ignore it
+          CANDIDATE="$REF_TAG"
+
+          # 2. Override with manual input if provided
+          if [ -n "$INPUT_VERSION" ]; then
+            CANDIDATE="$INPUT_VERSION"
+          fi
+
+          # 3. If still empty (manual run with no version), query latest release
+          if [ -z "$CANDIDATE" ] || [ "$CANDIDATE" = "workflow_dispatch" ]; then
+            echo "No explicit version provided. Fetching latest release tag from GitHub..."
+            API_URL="https://api.github.com/repos/${{ github.repository }}/releases/latest"
+            RESP=$(curl -sSL -H "Accept: application/vnd.github+json" "$API_URL")
+            TAG_NAME=$(echo "$RESP" | jq -r .tag_name)
+
+            if [ "$TAG_NAME" = "null" ] || [ -z "$TAG_NAME" ]; then
+              echo "ERROR: Could not determine version: no latest release found."
+              exit 1
+            fi
+            CANDIDATE="$TAG_NAME"
+          fi
+
+          # Clean tag of leading v for consistency when we tag Docker images.
+          CLEANED="${CANDIDATE#v}"
+
+          echo "Resolved build tag:       $CANDIDATE"
+          echo "Normalized version tag:   $CLEANED"
+          echo "Dry run:                  ${INPUT_DRY:-no}"
+
+          {
+            echo "git_tag=$CANDIDATE"
+            echo "version_clean=$CLEANED"
+            echo "dry_run=${INPUT_DRY:-no}"
+          } >> "$GITHUB_OUTPUT"
+
+      ##################################################################
+      # 2. Check out that exact tag so build context matches that release
+      ##################################################################
+      - name: Checkout fastreeR at target version
+        uses: actions/checkout@v4
+        with:
+          # We need full history so we can checkout arbitrary tags
+          fetch-depth: 0
+          ref: ${{ steps.resolve.outputs.git_tag }}
+
+      ##################################################################
+      # 3. Show what we're about to build
+      ##################################################################
+      - name: Show container build context
+        run: |
+          set -euo pipefail
+          echo "Building Docker image for fastreeR tag: ${{ steps.resolve.outputs.git_tag }}"
+          echo "Container version label will be:        ${{ steps.resolve.outputs.version_clean }}"
+          echo "Dry run mode:                           ${{ steps.resolve.outputs.dry_run }}"
+          echo
+          echo "Listing inst/java:"
+          ls -l inst/java || true
+          echo
+          echo "Showing DESCRIPTION version fields:"
+          grep -E '^(Version|Backend):' DESCRIPTION || true
+          echo
+          echo "Showing first lines of fastreeR.py:"
+          head -n 20 fastreeR.py || true
+
+      ##################################################################
+      # 4. Set up Docker Buildx
+      ##################################################################
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+
+      ##################################################################
+      # 5. Login to registries (but only if NOT dry-run)
+      ##################################################################
       - name: Log in to DockerHub
+        if: steps.resolve.outputs.dry_run != 'yes'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Log in to GitHub Container Registry
+        if: steps.resolve.outputs.dry_run != 'yes'
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract version
-        id: extract
-        run: |
-          VERSION="${VERSION:=${GITHUB_REF##*/}}"
-          CLEANED="${VERSION#v}"
-          echo "version=${CLEANED}" >> "$GITHUB_OUTPUT"
-
-      - name: Convert repo name to lowercase
-        id: lowercase
-        run: |
-          echo "repo_lc=${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
-
-      - name: Debug version
-        run: |
-          echo "Resolved tag version: ${{ steps.extract.outputs.version }}"
-
-      - name: Build and push Docker image
+      ##################################################################
+      # 6. Build (and maybe push) the image
+      #
+      # We always build, even in dry run, to make sure it works.
+      # We only push if NOT dry-run.
+      ##################################################################
+      - name: Build and maybe push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile
-          push: true
+          file: ./deploy/fastreer-docker/Dockerfile
           pull: true
           platforms: linux/amd64,linux/arm64
+          push: ${{ steps.resolve.outputs.dry_run != 'yes' }}
           tags: |
             ${{ env.IMAGE_NAME }}:latest
-            ${{ env.IMAGE_NAME }}:${{ steps.extract.outputs.version }}
+            ${{ env.IMAGE_NAME }}:${{ steps.resolve.outputs.version_clean }}
             ghcr.io/${{ env.IMAGE_NAME }}:latest
-            ghcr.io/${{ env.IMAGE_NAME }}:${{ steps.extract.outputs.version }}
+            ghcr.io/${{ env.IMAGE_NAME }}:${{ steps.resolve.outputs.version_clean }}
 
+      ##################################################################
+      # 7. Test image locally (works even in dry-run because image is locally built)
+      ##################################################################
       - name: Test Docker image with --version
         run: |
-          docker run --rm ${{ env.IMAGE_NAME }}:${{ steps.extract.outputs.version }} --version
+          set -euo pipefail
+          docker run --rm ${{ env.IMAGE_NAME }}:${{ steps.resolve.outputs.version_clean }} --version
 
+      ##################################################################
+      # 8. Update DockerHub README (only if not dry-run)
+      ##################################################################
       - name: Update DockerHub README
+        if: steps.resolve.outputs.dry_run != 'yes'
         uses: peter-evans/dockerhub-description@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
