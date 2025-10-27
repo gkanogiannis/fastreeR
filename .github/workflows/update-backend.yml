@@ -1,176 +1,467 @@
-name: Update backend & release fastreeR
+name: fastreeR manual release and backend update
 
 on:
-  repository_dispatch:
-    types: [backend_released]   # from external repo; include client_payload.backend_version
   workflow_dispatch:
     inputs:
-      backend_version:
-        description: "BioInfoJavaUtils backend version to pull (e.g., 1.4.0)"
-        required: false
-        type: string
       fastreer_version:
-        description: "Override fastreeR version (x.y.z). If empty, we auto-increment patch."
+        description: "fastreeR version to release (x.y.z). Optional. If not provided, DESCRIPTION Version is used."
         required: false
         type: string
-
-permissions:
-  contents: write   # allow committing, tagging, releasing
+      backend_version:
+        description: "Backend (BioInfoJavaUtils) version (a.b.c). Optional. If not provided, DESCRIPTION Backend is used."
+        required: false
+        type: string
+      notes:
+        description: "Release notes body. Optional. If empty, last commit message is used."
+        required: false
+        type: string
+      dry_run:
+        description: "Dry run (yes/no). If 'yes', do NOT push commits or create a GitHub Release."
+        required: false
+        type: choice
+        options:
+          - "no"
+          - "yes"
+        default: "no"
 
 jobs:
   release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write   # allow committing, tagging, releasing
 
     steps:
-      - name: Checkout
+      - name: Checkout fastreeR repo
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-    
-      - name: Determine BACKEND_VERSION (repo_dispatch or manual)
-        id: backend
+          fetch-depth: 0  # need tags and commit metadata
+
+      - name: Ensure tools
         run: |
-          set -euo pipefail
-
-          from_dispatch='${{ github.event.client_payload.backend_version }}'
-          from_input='${{ inputs.backend_version }}'
-
-          if [ -n "${from_input}" ]; then
-            BV="${from_input}"
-            SRC="workflow_dispatch.input"
-          elif [ -n "${from_dispatch}" ]; then
-            BV="${from_dispatch}"
-            SRC="repository_dispatch.payload"
-          else
-            BV=""
-            SRC="none"
-          fi
-
-          BV="${BV#v}"
-          echo "backend_version=${BV}" >> "$GITHUB_OUTPUT"
-          echo "backend_source=${SRC}" >> "$GITHUB_OUTPUT"
-          echo "BACKEND_VERSION=${BV}" >> "$GITHUB_ENV"
-          echo "BACKEND_SOURCE=${SRC}" >> "$GITHUB_ENV"
-
-      - name: Determine FASTREER_VERSION (explicit or bump patch)
-        id: fastreer
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          explicit='${{ inputs.fastreer_version }}'
-          if [ -n "${explicit}" ]; then
-            # Use the provided version verbatim (validate a bit)
-            if [[ ! "${explicit}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-              echo "Provided fastreer_version is not x.y.z: ${explicit}" >&2
-              exit 1
-            fi
-            NEW="${explicit}"
-            MODE="explicit"
-          else
-            # Auto-increment patch from DESCRIPTION
-            version=$(awk -F': *' '/^Version:/{print $2; exit}' DESCRIPTION | tr -d '\r')
-            if [[ ! "${version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-              echo "DESCRIPTION has invalid Version: '${version}'" >&2
-              exit 1
-            fi
-            IFS='.' read -r MA MI PA <<< "${version}"
-            NEW="${MA}.${MI}.$((10#${PA} + 1))"
-            MODE="auto_patch"
-          fi
-
-          NEW="${NEW#v}"
-          echo "FASTREER_VERSION=${NEW}" >> "$GITHUB_ENV"
-          echo "mode=${MODE}"            >> "$GITHUB_OUTPUT"
-          echo "version=${NEW}"          >> "$GITHUB_OUTPUT"
-
-      - name: Update DESCRIPTION if needed
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          CUR=$(awk -F': *' '/^Version:/{print $2; exit}' DESCRIPTION | tr -d '\r' || true)
-          echo "Current DESCRIPTION Version: '${CUR}'"
-          echo "Target fastreeR Version:     '${FASTREER_VERSION}'"
-          if [ "${CUR}" != "${FASTREER_VERSION}" ]; then
-            sed -i "s/^Version: .*/Version: ${FASTREER_VERSION}/" DESCRIPTION
-            echo "Updated DESCRIPTION."
-          else
-            echo "No change to DESCRIPTION."
-          fi 
-
-      - name: Prepend new section to NEWS.Rd
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          DATE=$(date -u +%Y-%m-%d)
-          HEADER="\\\\section{Version ${FASTREER_VERSION} (${DATE})}{\\\\itemize{"
-          CHANGE="\\\\item Update backend (${BACKEND_VERSION}) and CLI"
-          FOOTER="}}"
-
-          # Insert block at the top after \encoding
-          awk -v header="$HEADER" -v change="$CHANGE" -v footer="$FOOTER" '
-            BEGIN { inserted = 0 }
-            {
-              print
-              if (!inserted && /^\\encoding\{/ ) {
-                print ""; print header; print change; print footer; print "";
-                inserted = 1
-              }
-            }
-          ' inst/NEWS.Rd > inst/NEWS.Rd.new && mv inst/NEWS.Rd.new inst/NEWS.Rd
-
-      - name: Update PyPI
-        run: |
-          sed -i "s/^version *= *.*/version = ${FASTREER_VERSION}/" deploy/fastreer-pypi/setup.cfg
+          sudo apt-get update
+          sudo apt-get install -y curl jq
       
-      - name: Update Galaxy tools
-        run: |
-          make galaxy-update-versions FASTREER_VERSION=${FASTREER_VERSION}
-
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           java-version: "17"
           distribution: "temurin"
 
-      - name: Commit changes
-        shell: bash
+      ####################################################################
+      # 1. Read current metadata from DESCRIPTION
+      ####################################################################
+      - name: Parse DESCRIPTION
+        id: desc
         run: |
           set -euo pipefail
 
-          mkdir -p inst/java
-          rm -f inst/java/*.jar
-          git ls-files inst/java/*.jar | xargs -r git rm
-          mvn dependency:copy -Dartifact=net.sf.trove4j:trove4j:3.0.3 -DoutputDirectory=inst/java
-          mvn dependency:copy -Dartifact=com.beust:jcommander:1.82 -DoutputDirectory=inst/java
-          curl -L -o inst/java/BioInfoJavaUtils-${BACKEND_VERSION}.jar \
-            https://github.com/gkanogiannis/BioInfoJava-Utils/releases/download/${BACKEND_VERSION}/BioInfoJavaUtils-${BACKEND_VERSION}.jar
-          git config user.name "Anestis Gkanogiannis"
-          git config user.email "ganoyan@gmail.com"
-          git add DESCRIPTION inst/NEWS.Rd inst/java/*.jar deploy/fastreer-pypi/setup.cfg
-          find deploy/fastreer-galaxy/tools -name '*.xml' -print0 | xargs -0 git add
-          git commit -m "Update fastreeR to version ${FASTREER_VERSION} with backend version ${BACKEND_VERSION}"
-          git push origin HEAD
-          TAG="${FASTREER_VERSION}"
-          if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
-            echo "Tag ${TAG} already exists."
-          else
-            git tag -a "${TAG}" -m "fastreeR version ${FASTREER_VERSION} with backend version ${BACKEND_VERSION}"
-            git push origin "${TAG}"
+          # fastreeR version from DESCRIPTION
+          CUR_FASTR_VER=$(grep -E '^Version:' DESCRIPTION | head -n1 | sed 's/Version:[[:space:]]*//')
+          # backend version from DESCRIPTION (custom field "Backend:")
+          CUR_BACKEND_VER=$(grep -E '^Backend:' DESCRIPTION | head -n1 | sed 's/Backend:[[:space:]]*//')
+
+          if [ -z "$CUR_FASTR_VER" ]; then
+            echo "ERROR: Could not read Version from DESCRIPTION"
+            exit 1
+          fi
+          if [ -z "$CUR_BACKEND_VER" ]; then
+            echo "WARNING: Could not read Backend from DESCRIPTION"
           fi
 
+          echo "fastreeR in DESCRIPTION: $CUR_FASTR_VER"
+          echo "Backend in DESCRIPTION:  $CUR_BACKEND_VER"
+
+          # split current DESCRIPTION fastreeR version
+          IFS='.' read -r DF_MAJ DF_MIN DF_PATCH <<< "$CUR_FASTR_VER"
+
+          {
+            echo "desc_fastreer_version=$CUR_FASTR_VER"
+            echo "desc_fast_major=$DF_MAJ"
+            echo "desc_fast_minor=$DF_MIN"
+            echo "desc_fast_patch=$DF_PATCH"
+            echo "desc_backend_version=$CUR_BACKEND_VER"
+          } >> "$GITHUB_OUTPUT"
+
+      ####################################################################
+      # 2. Resolve requested versions from inputs vs DESCRIPTION defaults
+      ####################################################################
+      - name: Resolve requested versions and notes
+        id: meta
+        run: |
+          set -euo pipefail
+
+          INPUT_FAST_VER="${{ github.event.inputs.fastreer_version }}"
+          INPUT_BACK_VER="${{ github.event.inputs.backend_version }}"
+          INPUT_NOTES="${{ github.event.inputs.notes }}"
+          INPUT_DRY="${{ github.event.inputs.dry_run }}"
+          LAST_COMMIT_MSG=$(git log -1 --pretty=%s)
+
+          # Decide which fastreeR version to propose for release:
+          # Rule:
+          #   - If provided by user AND major/minor differ from DESCRIPTION -> use user version
+          #   - Else fall back to DESCRIPTION version
+          #
+          # Step 1: parse DESCRIPTION version
+          DESC_VER="${{ steps.desc.outputs.desc_fastreer_version }}"
+          IFS='.' read -r DESC_MAJ DESC_MIN DESC_PATCH <<< "$DESC_VER"
+
+          if [ -n "$INPUT_FAST_VER" ]; then
+            IFS='.' read -r IN_MAJ IN_MIN IN_PATCH <<< "$INPUT_FAST_VER"
+
+            if [ "$IN_MAJ" != "$DESC_MAJ" ] || [ "$IN_MIN" != "$DESC_MIN" ]; then
+              FINAL_FAST_VER="$INPUT_FAST_VER"
+              echo "Using user-specified fastreeR version $INPUT_FAST_VER (major/minor changed)."
+            else
+              FINAL_FAST_VER="$DESC_VER"
+              echo "User fastreeR version only changed patch or same. Using DESCRIPTION version $DESC_VER."
+            fi
+          else
+            FINAL_FAST_VER="$DESC_VER"
+            echo "No user fastreeR version provided. Using DESCRIPTION version $DESC_VER."
+          fi
+
+          # Backend jar logic:
+          #   - If user provided backend_version AND it's different from DESCRIPTION backend -> use that
+          #   - Else use DESCRIPTION backend
+          DESC_BACK_VER="${{ steps.desc.outputs.desc_backend_version }}"
+
+          if [ -n "$INPUT_BACK_VER" ] && [ -n "$DESC_BACK_VER" ] && [ "$INPUT_BACK_VER" != "$DESC_BACK_VER" ]; then
+            FINAL_BACK_VER="$INPUT_BACK_VER"
+            echo "Using user-specified backend version $INPUT_BACK_VER."
+          else
+            FINAL_BACK_VER="$DESC_BACK_VER"
+            echo "Using DESCRIPTION backend version $DESC_BACK_VER."
+          fi
+
+          # Release notes priority:
+          #   - manual input notes if provided
+          #   - else last commit message
+          if [ -n "$INPUT_NOTES" ]; then
+            FINAL_NOTES="$INPUT_NOTES"
+            echo "Using manual notes."
+          else
+            FINAL_NOTES="$LAST_COMMIT_MSG"
+            echo "Using last commit message as notes."
+          fi
+
+          # Export split of FINAL_FAST_VER for later release eligibility check
+          IFS='.' read -r FIN_MAJ FIN_MIN FIN_PATCH <<< "$FINAL_FAST_VER"
+
+          {
+            echo "final_fastreer_version=$FINAL_FAST_VER"
+            echo "final_fast_major=$FIN_MAJ"
+            echo "final_fast_minor=$FIN_MIN"
+            echo "final_fast_patch=$FIN_PATCH"
+            echo "final_backend_version=$FINAL_BACK_VER"
+            echo "dry_run=$INPUT_DRY"
+          } >> "$GITHUB_OUTPUT"
+
+          {
+            echo "release_notes<<EOF"
+            echo "$FINAL_NOTES"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Show run mode summary
+        run: |
+          set -euo pipefail
+
+          echo "fastreeR final version:   ${{ steps.meta.outputs.final_fastreer_version }}"
+          echo "Backend final version:    ${{ steps.meta.outputs.final_backend_version }}"
+          echo "Release notes source:"
+          echo "${{ steps.meta.outputs.release_notes }}"
+          if [ "${{ steps.meta.outputs.dry_run }}" = "yes" ]; then
+            echo "MODE: DRY RUN (no push, no GitHub Release)"
+          else
+            echo "MODE: LIVE RUN"
+          fi
+
+      ####################################################################
+      # 3. Download/prepare backend JAR
+      #
+      # We now have FINAL_BACK_VER (a.b.c). We will:
+      #  - download BioInfoJavaUtils-a.b.c.jar from backend repo
+      #  - put it in inst/java
+      #  - remove older jars
+      #
+      ####################################################################
+      - name: Prepare backend jar
+        id: backend
+        run: |
+          set -euo pipefail
+          
+          FINAL_BACK_VER=${{ steps.meta.outputs.final_backend_version }}
+          REPO_BACKEND="gkanogiannis/BioInfoJava-Utils"
+          ASSET_NAME="BioInfoJavaUtils-${FINAL_BACK_VER}.jar"
+
+          mkdir -p inst/java
+
+          if [ -z "$FINAL_BACK_VER" ]; then
+            echo "No backend version known. Leaving inst/java untouched."
+            # collect whatever is already there (first jar) just so artifacts isn't empty later
+            CURRENT_JARS=$(ls inst/java/*.jar 2>/dev/null | head -n1 || true)
+          else
+            echo "Fetching backend $FINAL_BACK_VER from $REPO_BACKEND"
+
+            API_URL_1="https://api.github.com/repos/${REPO_BACKEND}/releases/tags/v${FINAL_BACK_VER}"
+            API_URL_2="https://api.github.com/repos/${REPO_BACKEND}/releases/tags/${FINAL_BACK_VER}"
+
+            RESP=$(curl -sSL -H "Accept: application/vnd.github+json" "$API_URL_1")
+            if [ "$(echo "$RESP" | jq -r .message)" = "Not Found" ]; then
+              RESP=$(curl -sSL -H "Accept: application/vnd.github+json" "$API_URL_2")
+            fi
+
+            # Extract all asset download URLs for .jar files,
+            # EXCLUDING anything with 'jri', 'jfreechart' or 'dependencies' in the filename
+            echo "$RESP" | jq -r '.assets[].name' > /tmp/all_assets.txt
+
+            NEW_JARS=()
+            while read -r NAME; do
+              case "$NAME" in
+                *.jar)
+            # EXCLUDING anything with 'jri', 'jfreechart' or 'dependencies' in the filename
+                  if echo "$NAME" | grep -qiE 'jri|jfreechart|dependencies'; then
+                    echo "Skipping $NAME (filtered)"
+                    continue
+                  fi
+                  DL_URL=$(echo "$RESP" | jq -r --arg NAME "$NAME" '.assets[] | select(.name==$NAME) | .browser_download_url')
+                  if [ -n "$DL_URL" ] && [ "$DL_URL" != "null" ]; then
+                    echo "Downloading $NAME"
+                    curl -sSL "$DL_URL" -o "inst/java/$NAME"
+                    NEW_JARS+=("inst/java/$NAME")
+                  fi
+                  ;;
+                *)
+                  # not a jar, ignore
+                  ;;
+              esac
+            done < /tmp/all_assets.txt
+
+            # Clean up any old jars in inst/java that are not in NEW_JARS
+            for OLD in inst/java/*.jar; do
+              [ -e "$OLD" ] || continue
+              KEEP="no"
+              for NJ in "${NEW_JARS[@]}"; do
+                if [ "$OLD" = "$NJ" ]; then
+                  KEEP="yes"
+                  break
+                fi
+              done
+              if [ "$KEEP" = "no" ]; then
+                echo "Removing old jar $OLD"
+                rm -f "$OLD"
+              fi
+            done
+  
+            CURRENT_JAR="inst/java/${ASSET_NAME}"
+            echo "backend_jar_path=$CURRENT_JAR"
+          fi
+
+          {
+            echo "backend_jar_path=$CURRENT_JAR"
+          } >> "$GITHUB_OUTPUT"
+
+      ####################################################################
+      # 4. Update NEWS.Rd and DESCRIPTION with final versions and notes
+      ####################################################################
+      - name: Update NEWS.Rd and DESCRIPTION
+        run: |
+          set -euo pipefail
+
+          FINAL_VER=${{ steps.meta.outputs.final_fastreer_version }}
+          FINAL_BACK=${{ steps.meta.outputs.final_backend_version }}
+          NOTES=${{ steps.meta.outputs.release_notes }}
+
+          # Update NEWS.Rd
+
+          if [ ! -f inst/NEWS.Rd ]; then
+            echo "inst/NEWS.Rd missing, creating new."
+            echo "\\name{NEWS}"            >  inst/NEWS.Rd
+            echo "\\title{fastreeR NEWS}" >> inst/NEWS.Rd
+            echo ""                       >> inst/NEWS.Rd
+          fi
+
+          cp inst/NEWS.Rd inst/NEWS.Rd.bak
+
+          {
+            echo "\\name{NEWS}"
+            echo "\\title{fastreeR NEWS}"
+            echo ""
+            echo "\\section{fastreeR ${FINAL_VER} with java backend ${FINAL_BACK}}{"
+            echo "  * ${NOTES}"
+            echo "}"
+            echo ""
+            tail -n +4 inst/NEWS.Rd.bak || true
+          } > inst/NEWS.Rd.new
+
+          mv inst/NEWS.Rd.new inst/NEWS.Rd
+          rm inst/NEWS.Rd.bak
+
+          echo "Updated inst/NEWS.Rd for ${FINAL_VER} and backend ${FINAL_BACK}."
+
+          # Update DESCRIPTION
+
+          if [ ! -f DESCRIPTION ]; then
+            echo "ERROR: DESCRIPTION not found."
+            exit 1
+          fi
+
+          cp DESCRIPTION DESCRIPTION.bak
+
+          # Update Version:
+          if [ -n "$FINAL_VER" ]; then
+            # If Version: exists, replace it. Otherwise append.
+            if grep -qE '^Version:' DESCRIPTION.bak; then
+              sed -E "s/^Version:.*$/Version: ${FINAL_VER}/" DESCRIPTION.bak > DESCRIPTION.tmp1
+            else
+              cat DESCRIPTION.bak > DESCRIPTION.tmp1
+              echo "Version: ${FINAL_VER}" >> DESCRIPTION.tmp1
+            fi
+          else
+            # No final version? just carry over untouched.
+            cat DESCRIPTION.bak > DESCRIPTION.tmp1
+          fi
+
+          # Update Backend:
+          if [ -n "$FINAL_BACK" ]; then
+            if grep -qE '^Backend:' DESCRIPTION.tmp1; then
+              sed -E "s/^Backend:.*$/Backend: ${FINAL_BACK}/" DESCRIPTION.tmp1 > DESCRIPTION.tmp2
+            else
+              cat DESCRIPTION.tmp1 > DESCRIPTION.tmp2
+              echo "Backend: ${FINAL_BACK}" >> DESCRIPTION.tmp2
+            fi
+          else
+            # No backend version? keep tmp1 as final.
+            cat DESCRIPTION.tmp1 > DESCRIPTION.tmp2
+          fi
+
+          mv DESCRIPTION.tmp2 DESCRIPTION
+          rm -f DESCRIPTION.tmp1 DESCRIPTION.bak
+
+          echo "Updated DESCRIPTION:"
+          echo "  Version:  ${FINAL_VER}"
+          echo "  Backend:  ${FINAL_BACK}"
+
+      ####################################################################
+      # 5. Update containers, PyPI, Galaxy tools, etc
+      ####################################################################
+      - name: Update PyPI and Galaxy tools
+        run: |
+          set -euo pipefail
+
+          FASTREER_VERSION=${{ steps.meta.outputs.final_fastreer_version }}
+          BACKEND_VERSION=${{ steps.meta.outputs.final_backend_version }}
+
+          sed -i -E "s/^version *= *.*/version = ${FASTREER_VERSION}/" deploy/fastreer-pypi/setup.cfg
+
+          make galaxy-update-versions FASTREER_VERSION=${FASTREER_VERSION}
+
+      ####################################################################
+      # 6. Commit changes (inst/java, inst/NEWS.Rd, DESCRIPTION)
+      ####################################################################
+      - name: Commit updated files
+        run: |
+          set -euo pipefail
+
+          if [ "${{ steps.meta.outputs.dry_run }}" = "yes" ]; then
+            echo "DRY RUN: Skipping git commit & push."
+            exit 0
+          fi
+
+          git config user.name "Anestis Gkanogiannis"
+          git config user.email "ganoyan@gmail.com"
+
+          git add DESCRIPTION inst/NEWS.Rd inst/java/*.jar deploy/fastreer-pypi/setup.cfg || true
+          find deploy/fastreer-galaxy/tools -name '*.xml' -print0 | xargs -0 git add || true
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            MSG="Prepare release ${{ steps.meta.outputs.final_fastreer_version }} (backend ${{ steps.meta.outputs.final_backend_version }})"
+            git commit -m "$MSG"
+            git push
+          fi
+
+      ####################################################################
+      # 7. Get the latest GitHub release to compare major/minor
+      ####################################################################
+      - name: Get latest release tag
+        id: prev
+        run: |
+          API_URL="https://api.github.com/repos/${{ github.repository }}/releases/latest"
+          RESP=$(curl -sSL -H "Accept: application/vnd.github+json" "$API_URL")
+          TAG_NAME=$(echo "$RESP" | jq -r .tag_name)
+
+          if [ "$TAG_NAME" = "null" ] || [ -z "$TAG_NAME" ]; then
+            TAG_NAME="0.0.0"
+          fi
+
+          TAG_NAME="${TAG_NAME#v}"
+
+          IFS='.' read -r PREV_MAJ PREV_MIN PREV_PATCH <<< "$TAG_NAME"
+
+          {
+            echo "previous_version=$TAG_NAME"
+            echo "prev_major=$PREV_MAJ"
+            echo "prev_minor=$PREV_MIN"
+            echo "prev_patch=$PREV_PATCH"
+          } >> "$GITHUB_OUTPUT"
+
+      ####################################################################
+      # 8. Decide if we *should* create a new GitHub Release.
+      #    We compare latest published release vs FINAL_FAST_VER.
+      #    Only if major/minor changed we proceed.
+      ####################################################################
+      - name: Decide release eligibility
+        id: gate
+        run: |
+          FIN_MAJ=${{ steps.meta.outputs.final_fast_major }}
+          FIN_MIN=${{ steps.meta.outputs.final_fast_minor }}
+          PREV_MAJ=${{ steps.prev.outputs.prev_major }}
+          PREV_MIN=${{ steps.prev.outputs.prev_minor }}
+
+          SHOULD_RELEASE="no"
+          if [ "$FIN_MAJ" != "$PREV_MAJ" ] || [ "$FIN_MIN" != "$PREV_MIN" ]; then
+            SHOULD_RELEASE="yes"
+          fi
+
+          {
+            echo "should_release=$SHOULD_RELEASE"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "Previous release:  ${{ steps.prev.outputs.previous_version }}"
+          echo "Target fastreeR:   ${{ steps.meta.outputs.final_fastreer_version }}"
+          echo "Should release?:   $SHOULD_RELEASE"
+
+      ####################################################################
+      # 9. Stop early if patch-only or if dry-run
+      ####################################################################
+      - name: Stop if patch-only bump
+        if: steps.gate.outputs.should_release == 'no'
+        run: |
+          echo "Patch-only or no major/minor change. No GitHub Release will be created."
+          exit 0
+      - name: Stop if dry run
+        if: steps.gate.outputs.should_release == 'yes' && steps.meta.outputs.dry_run == 'yes'
+        run: |
+          echo "DRY RUN: would have created GitHub Release v${{ steps.meta.outputs.final_fastreer_version }} with backend ${{ steps.meta.outputs.final_backend_version }}."
+          echo "Notes:"
+          echo "${{ steps.meta.outputs.release_notes }}"
+          exit 0
+
+      ####################################################################
+      # 10. Create GitHub Release
+      #    Tag: v<FINAL_FAST_VER>
+      #    Body: release_notes (manual or last commit msg)
+      #    Attach the backend jar we're shipping.
+      ####################################################################
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
+        if: steps.gate.outputs.should_release == 'yes' && steps.meta.outputs.dry_run != 'yes'
+        uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.FASTREER_PAT }}
-          tag_name: ${{ env.FASTREER_VERSION }}
-          name: fastreeR ${{ env.FASTREER_VERSION }}
-          body: |
-            Auto-synced with BioInfoJavaUtils backend version: ${{ env.BACKEND_VERSION || 'N/A' }}
-            - New backend JAR: BioInfoJavaUtils-${{ env.BACKEND_VERSION || 'N/A' }}.jar
-            - fastreeR version: ${{ env.FASTREER_VERSION }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.FASTREER_PAT }}
-            
+          tag: v${{ steps.meta.outputs.final_fastreer_version }}
+          name: fastreeR ${{ steps.meta.outputs.final_fastreer_version }} (backend ${{ steps.meta.outputs.final_backend_version }})
+          body: ${{ steps.meta.outputs.release_notes }}
+          draft: false
+          prerelease: false
