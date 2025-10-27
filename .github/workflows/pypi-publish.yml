@@ -90,6 +90,14 @@ jobs:
         with:
           fetch-depth: 0
           ref: ${{ steps.resolve.outputs.git_tag }}
+      - name: Validate tag layout
+        run: |
+          set -euo pipefail
+          echo "Checking required paths for PyPI packaging..."
+          test -f deploy/fastreer-pypi/setup.cfg || { echo "ERROR: missing deploy/fastreer-pypi/setup.cfg in this tag"; exit 1; }
+          test -d inst/java || { echo "ERROR: missing inst/java (no backend jars?) in this tag"; exit 1; }
+          test -f fastreeR.py || { echo "ERROR: missing fastreeR.py in this tag"; exit 1; }
+          echo "Layout looks good."
 
       ##################################################################
       # 3. Set up Python build environment
