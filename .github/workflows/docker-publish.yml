@@ -17,7 +17,7 @@ on:
         options:
           - "no"
           - "yes"
-        default: "no"
+        default: "yes"
 
 permissions:
   contents: write
@@ -46,21 +46,29 @@ jobs:
 
           INPUT_VERSION="${{ github.event.inputs.version || '' }}"
           INPUT_DRY="${{ github.event.inputs.dry_run || '' }}"
-          REF_TAG="${GITHUB_REF##*/}"
 
-          # 1. Candidate from event:
-          #    - release: REF_TAG will already be something like v1.4.0
-          #    - manual: REF_TAG will just be 'workflow_dispatch', ignore it
-          CANDIDATE="$REF_TAG"
+          # GITHUB_REF is:
+          #   - refs/tags/v1.9.2     when triggered by release
+          #   - refs/heads/devel     when manually dispatched from branch 'devel'
+          RAW_REF="${GITHUB_REF##*/}"
 
-          # 2. Override with manual input if provided
+          CANDIDATE=""
+
           if [ -n "$INPUT_VERSION" ]; then
+            # manual override always wins
             CANDIDATE="$INPUT_VERSION"
+            echo "User provided version: $CANDIDATE"
+          else
+            # if this is a tag ref (release event), trust it
+            if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+              CANDIDATE="$RAW_REF"
+              echo "Detected release event tag: $CANDIDATE"
+            else
+              echo "Manual run with no version provided. Will query latest release from GitHub."
+            fi
           fi
 
-          # 3. If still empty (manual run with no version), query latest release
-          if [ -z "$CANDIDATE" ] || [ "$CANDIDATE" = "workflow_dispatch" ]; then
-            echo "No explicit version provided. Fetching latest release tag from GitHub..."
+          if [ -z "$CANDIDATE" ]; then
             API_URL="https://api.github.com/repos/${{ github.repository }}/releases/latest"
             RESP=$(curl -sSL -H "Accept: application/vnd.github+json" "$API_URL")
             TAG_NAME=$(echo "$RESP" | jq -r .tag_name)
@@ -69,20 +77,21 @@ jobs:
               echo "ERROR: Could not determine version: no latest release found."
               exit 1
             fi
+
             CANDIDATE="$TAG_NAME"
+            echo "Latest release tag from GitHub: $CANDIDATE"
           fi
 
-          # Clean tag of leading v for consistency when we tag Docker images.
           CLEANED="${CANDIDATE#v}"
 
-          echo "Resolved build tag:       $CANDIDATE"
-          echo "Normalized version tag:   $CLEANED"
-          echo "Dry run:                  ${INPUT_DRY:-no}"
+          echo "FINAL git_tag:      $CANDIDATE"
+          echo "FINAL version_clean $CLEANED"
+          echo "Dry run:            ${INPUT_DRY:-yes}"
 
           {
             echo "git_tag=$CANDIDATE"
             echo "version_clean=$CLEANED"
-            echo "dry_run=${INPUT_DRY:-no}"
+            echo "dry_run=${INPUT_DRY:-yes}"
           } >> "$GITHUB_OUTPUT"
 
       ##################################################################
