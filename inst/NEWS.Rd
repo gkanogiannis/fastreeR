@@ -3,6 +3,13 @@
 \encoding{UTF-8}
 
 
+\section{Version 2.0.0 (2025-10-29)}{\itemize{
+\item Implements streaming bootstrap; from VCF to newick with support values.
+\item Streaming ultra-fast VCF processing; almost zero RAM needed.
+\item Update backend (2.2.0) and CLI. Preparing for major version upgrade.
+}}
+
+
 \section{Version 1.99.0 (2025-05-29)}{\itemize{
 \item Update backend and CLI. Preparing for major version upgrade
 }}
