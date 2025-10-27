@@ -137,6 +137,7 @@ jobs:
             echo "path=deploy/fastreer-docker/Dockerfile" >> "$GITHUB_OUTPUT"
           elif [ -f "Dockerfile" ]; then
             echo "Using legacy top-level Dockerfile"
+            sed -i -E 's/openjdk-17-jre-headless/openjdk-21-jre/' Dockerfile
             echo "path=Dockerfile" >> "$GITHUB_OUTPUT"
           else
             echo "ERROR: No Dockerfile found."
