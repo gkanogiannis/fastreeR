@@ -22,7 +22,7 @@ on:
         options:
           - "no"
           - "yes"
-        default: "no"
+        default: "yes"
 
 jobs:
   release-and-update-backend:
