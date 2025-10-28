@@ -5,6 +5,10 @@
   * Major update: enhanced streaming, faster bootstrapping, and backend v2.2.0 integration.
 }
 
+\section{fastreeR 2.1.0 with java backend 2.2.0}{
+  * Major update: enhanced streaming, faster bootstrapping, and backend v2.2.0 integration.
+}
+
 
 
 \section{Version 2.0.0 (2025-10-29)}{\itemize{
