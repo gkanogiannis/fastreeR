@@ -17,13 +17,13 @@ It enables fast computation of distance matrices and phylogenetic trees from gen
 
 * 🆕 **Java Backend (v2.2.0) !!** implements streaming bootstrap; from VCF file get a newick tree with encoded bootstrap support values
 * Java Backend (v2.0.0) 100x times **FAST**re**ER** and only a couple hundred MB RAM needed. Java 11+ suggested.
-* ✅ **Bioconda**: install with `conda install -c bioconda fastreer`
-* ✅ **Docker**: available on [DockerHub](https://hub.docker.com/r/gkanogiannis/fastreer) and [GHCR](https://ghcr.io/gkanogiannis/fastreer) for containerized execution
-* ✅ **PyPI**: install with `pip install fastreer`
-* ✅ **Python CLI**: through a lightweight [Python wrapper](https://github.com/gkanogiannis/fastreeR/blob/devel/fastreeR.py) that calls the Java backend
-* ✅ **R / Bioconductor**: via `rJava`
-* ✅ **Galaxy**: Also available on Galaxy Toolshed.
-* ✅ **Pure Java API**: developers can integrate this library directly in Java-based pipelines or software.
+* **Bioconda**: install with `conda install -c bioconda fastreer`
+* **Docker**: available on [DockerHub](https://hub.docker.com/r/gkanogiannis/fastreer) and [GHCR](https://ghcr.io/gkanogiannis/fastreer) for containerized execution
+* **PyPI**: install with `pip install fastreer`
+* **Python CLI**: through a lightweight [Python wrapper](https://github.com/gkanogiannis/fastreeR/blob/devel/fastreeR.py) that calls the Java backend
+* **R / Bioconductor**: via `rJava`
+* **Galaxy**: Also available on Galaxy Toolshed.
+* **Pure Java API**: developers can integrate this library directly in Java-based pipelines or software.
 
 ------------------------------------------------------------------------
 
@@ -59,13 +59,13 @@ It enables fast computation of distance matrices and phylogenetic trees from gen
 * 🥾 Streaming bootstrap support from VCF to NEWICK.
 * 🚀 With a superior multithreaded concurrency model and minimal RAM usage, from GBs down to just MBs!
 * ⚡ Ultra-fast computation of sample-wise cosine distances from large VCF and D2S k-mer based distances from FASTA files.
-* 🌳 Generate agglomerative neighbor-joining phylogenetic trees directly from VCF or distance matrices.
-* 🧵 Multithreaded execution for speed and scalability.
+* Generate agglomerative neighbor-joining phylogenetic trees directly from VCF or distance matrices.
+* Multithreaded execution for speed and scalability.
 * Cluster distance matrices hierarchically with dynamic tree pruning.
-* 🧰 Clean Python CLI for scripting and pipeline integration
+* Clean Python CLI for scripting and pipeline integration
 * Streamlined integration with R via `rJava`
 * Available on Galaxy Toolshed
-* 🧬 Compatible with standard bioinformatics formats (PHYLIP, Newick)
+* Compatible with standard bioinformatics formats (PHYLIP, Newick)
 
 ------------------------------------------------------------------------
 
