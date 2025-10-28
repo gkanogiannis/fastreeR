@@ -192,74 +192,63 @@ jobs:
           
           FINAL_BACK_VER=${{ steps.meta.outputs.final_backend_version }}
           REPO_BACKEND="gkanogiannis/BioInfoJava-Utils"
-          ASSET_NAME="BioInfoJavaUtils-${FINAL_BACK_VER}.jar"
 
           mkdir -p inst/java
 
           if [ -z "$FINAL_BACK_VER" ]; then
             echo "No backend version known. Leaving inst/java untouched."
-            # collect whatever is already there (first jar) just so artifacts isn't empty later
-            CURRENT_JARS=$(ls inst/java/*.jar 2>/dev/null | head -n1 || true)
-          else
-            echo "Fetching backend $FINAL_BACK_VER from $REPO_BACKEND"
-
-            API_URL_1="https://api.github.com/repos/${REPO_BACKEND}/releases/tags/v${FINAL_BACK_VER}"
-            API_URL_2="https://api.github.com/repos/${REPO_BACKEND}/releases/tags/${FINAL_BACK_VER}"
-
-            RESP=$(curl -sSL -H "Accept: application/vnd.github+json" "$API_URL_1")
-            if [ "$(echo "$RESP" | jq -r .message)" = "Not Found" ]; then
-              RESP=$(curl -sSL -H "Accept: application/vnd.github+json" "$API_URL_2")
-            fi
-
-            # Extract all asset download URLs for .jar files,
-            # EXCLUDING anything with 'jri', 'jfreechart' or 'dependencies' in the filename
-            echo "$RESP" | jq -r '.assets[].name' > /tmp/all_assets.txt
-
-            NEW_JARS=()
-            while read -r NAME; do
-              case "$NAME" in
-                *.jar)
-            # EXCLUDING anything with 'jri', 'jfreechart' or 'dependencies' in the filename
-                  if echo "$NAME" | grep -qiE 'jri|jfreechart|dependencies'; then
-                    echo "Skipping $NAME (filtered)"
-                    continue
-                  fi
-                  DL_URL=$(echo "$RESP" | jq -r --arg NAME "$NAME" '.assets[] | select(.name==$NAME) | .browser_download_url')
-                  if [ -n "$DL_URL" ] && [ "$DL_URL" != "null" ]; then
-                    echo "Downloading $NAME"
-                    curl -sSL "$DL_URL" -o "inst/java/$NAME"
-                    NEW_JARS+=("inst/java/$NAME")
-                  fi
-                  ;;
-                *)
-                  # not a jar, ignore
-                  ;;
-              esac
-            done < /tmp/all_assets.txt
-
-            # Clean up any old jars in inst/java that are not in NEW_JARS
-            for OLD in inst/java/*.jar; do
-              [ -e "$OLD" ] || continue
-              KEEP="no"
-              for NJ in "${NEW_JARS[@]}"; do
-                if [ "$OLD" = "$NJ" ]; then
-                  KEEP="yes"
-                  break
-                fi
-              done
-              if [ "$KEEP" = "no" ]; then
-                echo "Removing old jar $OLD"
-                rm -f "$OLD"
-              fi
-            done
-  
-            CURRENT_JAR="inst/java/${ASSET_NAME}"
-            echo "backend_jar_path=$CURRENT_JAR"
+            exit 0
           fi
 
-          {
-            echo "backend_jar_path=$CURRENT_JAR"
-          } >> "$GITHUB_OUTPUT"
+          echo "Fetching backend $FINAL_BACK_VER from $REPO_BACKEND"
+
+          API_URL_1="https://api.github.com/repos/${REPO_BACKEND}/releases/tags/v${FINAL_BACK_VER}"
+          API_URL_2="https://api.github.com/repos/${REPO_BACKEND}/releases/tags/${FINAL_BACK_VER}"
+
+          RESP=$(curl -sSL -H "Accept: application/vnd.github+json" "$API_URL_1")
+          if [ "$(echo "$RESP" | jq -r .message)" = "Not Found" ]; then
+            RESP=$(curl -sSL -H "Accept: application/vnd.github+json" "$API_URL_2")
+          fi
+
+          # Safety: make sure we actually got assets back
+          ASSET_NAMES=$(echo "$RESP" | jq -r '.assets[].name')
+          if [ -z "$ASSET_NAMES" ] || [ "$ASSET_NAMES" = "null" ]; then
+            echo "ERROR: No assets found for backend version $FINAL_BACK_VER"
+            echo "$RESP" | jq .
+            exit 1
+          fi
+
+          echo "Cleaning existing jars from inst/java"
+          rm -f inst/java/*.jar || true
+
+          echo "$ASSET_NAMES" > /tmp/all_assets.txt
+
+          while read -r NAME; do
+            case "$NAME" in
+              *.jar)
+                # Exclude jars we don't want packaged
+                if echo "$NAME" | grep -qiE 'jri|jfreechart|dependencies'; then
+                  echo "Skipping $NAME (filtered)"
+                  continue
+                fi
+
+                DL_URL=$(echo "$RESP" | jq -r --arg NAME "$NAME" '.assets[] | select(.name==$NAME) | .browser_download_url')
+                if [ -z "$DL_URL" ] || [ "$DL_URL" = "null" ]; then
+                  echo "WARNING: Could not find download URL for $NAME, skipping"
+                  continue
+                fi
+
+                echo "Downloading $NAME"
+                curl -sSL "$DL_URL" -o "inst/java/$NAME"
+                ;;
+              *)
+                # not a jar, ignore
+                ;;
+            esac
+          done < /tmp/all_assets.txt
+
+          echo "Final inst/java contents:"
+          ls -l inst/java || true
 
       ####################################################################
       # 4. Update NEWS.Rd and DESCRIPTION with final versions and notes

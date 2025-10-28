@@ -77,12 +77,12 @@ jobs:
 
           echo "FINAL git_tag:        $CANDIDATE"
           echo "FINAL version_clean:  $CLEANED"
-          echo "Dry run:              ${INPUT_DRY:-yes}"
+          echo "Dry run:              ${INPUT_DRY:-no}"
 
           {
             echo "git_tag=$CANDIDATE"
             echo "version_clean=$CLEANED"
-            echo "dry_run=${INPUT_DRY:-yes}"
+            echo "dry_run=${INPUT_DRY:-no}"
           } >> "$GITHUB_OUTPUT"
 
       ##################################################################
@@ -99,6 +99,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: devel
+          token: ${{ secrets.FASTREER_PAT }}
 
       ##################################################################
       # 3. Download source tarball for that version and compute sha256
