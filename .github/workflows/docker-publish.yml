@@ -182,6 +182,18 @@ jobs:
             ${{ env.IMAGE_NAME }}:${{ steps.resolve.outputs.version_clean }}
             ghcr.io/${{ env.IMAGE_NAME }}:latest
             ghcr.io/${{ env.IMAGE_NAME }}:${{ steps.resolve.outputs.version_clean }}
+      
+      - name: Build test image (local amd64 only)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ${{ steps.dockerfile.outputs.path }}
+          pull: true
+          platforms: linux/amd64
+          push: false
+          load: true
+          tags: |
+            test-fastreer:${{ steps.resolve.outputs.version_clean }}
 
       ##################################################################
       # 7. Test image locally (works even in dry-run because image is locally built)
@@ -189,7 +201,7 @@ jobs:
       - name: Test Docker image with --version
         run: |
           set -euo pipefail
-          docker run --rm ${{ env.IMAGE_NAME }}:${{ steps.resolve.outputs.version_clean }} --version
+          docker run --rm test-fastreer:${{ steps.resolve.outputs.version_clean }} --version
 
       ##################################################################
       # 8. Update DockerHub README (only if not dry-run)
