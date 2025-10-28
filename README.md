@@ -15,14 +15,14 @@ It enables fast computation of distance matrices and phylogenetic trees from gen
 
 `fastreeR` offers interface, which is accessible in the following ways:
 
-* 🆕 **Java Backend (v2.2.0) !!** implements streaming bootstrap; from VCF file get a newick tree with encoded bootstrap support values
-* Java Backend (v2.0.0) 100x times **FAST**re**ER** and only a couple hundred MB RAM needed. Java 11+ suggested.
-* **Bioconda**: install with `conda install -c bioconda fastreer`
+* 🆕 **Java Backend ([v2.2.0](https://github.com/gkanogiannis/BioInfoJava-Utils/releases/tag/v2.2.0)) !!** implements streaming bootstrap; from VCF file get a newick tree with encoded bootstrap support values
+* Java Backend ([v2.0.0](https://github.com/gkanogiannis/BioInfoJava-Utils/releases/tag/2.0.0)) 100x times **FAST**re**ER** and only a couple hundred MB RAM needed. Java 11+ suggested.
+* **Bioconda**: install with `conda install -c bioconda fastreer` ([recipe](https://bioconda.github.io/recipes/fastreer/README.html))
 * **Docker**: available on [DockerHub](https://hub.docker.com/r/gkanogiannis/fastreer) and [GHCR](https://ghcr.io/gkanogiannis/fastreer) for containerized execution
-* **PyPI**: install with `pip install fastreer`
+* **PyPI**: install with `pip install fastreer` ([repository](https://pypi.org/project/fastreer/))
 * **Python CLI**: through a lightweight [Python wrapper](https://github.com/gkanogiannis/fastreeR/blob/devel/fastreeR.py) that calls the Java backend
-* **R / Bioconductor**: via `rJava`
-* **Galaxy**: Also available on Galaxy Toolshed.
+* **R / Bioconductor**: via `rJava` ([package](https://bioconductor.org/packages/fastreeR/))
+* **Galaxy**: available on Galaxy [Toolshed](https://toolshed.g2.bx.psu.edu/view/gkanogiannis/fastreer/26013530719e).
 * **Pure Java API**: developers can integrate this library directly in Java-based pipelines or software.
 
 ------------------------------------------------------------------------
@@ -460,6 +460,6 @@ ORCID: [0000-0002-6441-0688](https://orcid.org/0000-0002-6441-0688)
 ## License
 
 `fastreeR` is licensed under the GNU General Public License v3.0.  
-See the [LICENSE](LICENSE) file for details.
+See the [LICENSE](LICENSE.md) file for details.
 
 ------------------------------------------------------------------------
