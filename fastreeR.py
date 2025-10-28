@@ -27,7 +27,7 @@ import zipfile
 import sys
 import os
 
-FASTREER_VERSION = "2.2.0"
+FASTREER_VERSION = "2.1.0"
 
 # Determine JAR directory
 JAR_DIR = os.environ.get("FASTREER_JAR_DIR") or os.path.join(os.path.dirname(__file__), "inst/java")
@@ -165,8 +165,6 @@ def main():
         # p.add_argument("--onlyHets", action="store_true", help="Use only heterozygous loci (default: false)")
         # p.add_argument("--ignoreMissing", action="store_true", help="Ignore missing loci (default: false)")
         p.add_argument("-v", "--verbose", action="store_true", help="Print progress messages on stderr (default: false)")
-        p.add_argument("-b", "--bootstrap", type=int, default=0,
-                       help="Number of bootstrap replicates to perform (default: 0, no bootstrapping)")
 
     # Subcommand for VCF-based distance matrix
     parser_vcf2dist = subparsers.add_parser("VCF2DIST", help="Compute distance matrix from VCF(s)")
@@ -177,6 +175,8 @@ def main():
     parser_vcf2tree = subparsers.add_parser("VCF2TREE", help="Compute tree from VCF(s)")
     add_common_input_output(parser_vcf2tree)
     add_common_vcf_args(parser_vcf2tree)
+    parser_vcf2tree.add_argument("-b", "--bootstrap", type=int, default=0,
+                                 help="Number of bootstrap replicates to perform (default: 0, no bootstrapping)")
 
     # Subcommand for distance matrix to newick tree
     parser_dist2tree = subparsers.add_parser("DIST2TREE", help="Compute tree from distance matrix")
@@ -250,7 +250,7 @@ def main():
         # if args.ignoreHets: params.append("--ignoreHets")
         # if args.onlyHets: params.append("--onlyHets")
         # if args.ignoreMissing: params.append("--ignoreMissing")
-        params.extend(["-t", str(args.threads)])
+        params.extend(["-t", str(int(args.threads))])
         # forward bootstrap only when requesting tree generation
         if args.command == "VCF2TREE" and getattr(args, 'bootstrap', 0) and int(args.bootstrap) > 0:
             params.extend(["--bootstrap", str(int(args.bootstrap))])
@@ -276,7 +276,7 @@ def main():
             params.append("--verbose")
         if args.normalize:
             params.append("--normalize")
-        params.extend(["-k", str(args.kmerSize), "-t", str(args.threads)])
+        params.extend(["-k", str(args.kmerSize), "-t", str(int(args.threads))])
         for f in input_files:
             params.extend(["-i", f])
         run_java_tool("FASTA2DIST", params, args.lib, args.mem, args.output, args.verbose, args.extraVerbose, args.pipe_stderr)

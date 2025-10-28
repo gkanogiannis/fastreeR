@@ -77,12 +77,12 @@ jobs:
 
           echo "FINAL git_tag:        $CANDIDATE"
           echo "FINAL version_clean:  $CLEANED"
-          echo "Dry run:              ${INPUT_DRY:-yes}"
+          echo "Dry run:              ${INPUT_DRY:-no}"
 
           {
             echo "git_tag=$CANDIDATE"
             echo "version_clean=$CLEANED"
-            echo "dry_run=${INPUT_DRY:-yes}"
+            echo "dry_run=${INPUT_DRY:-no}"
           } >> "$GITHUB_OUTPUT"
 
       ##################################################################
