@@ -27,6 +27,8 @@ import zipfile
 import sys
 import os
 
+FASTREER_VERSION = "2.2.0"
+
 # Determine JAR directory
 JAR_DIR = os.environ.get("FASTREER_JAR_DIR") or os.path.join(os.path.dirname(__file__), "inst/java")
 MEM_MB = "256"
@@ -40,7 +42,7 @@ def check_java_version(min_major=11):
         # Example: 'java version "11.0.20"' or 'openjdk version "17.0.9"'
         if '"' in version_output:
             version_str = version_output.split('"')[1]
-            major_version = int(version_str.split('.')[0]) if version_str.startswith("1.") is False else int(version_str.split('.')[1])
+            major_version = int(version_str.split('.')[0]) if not version_str.startswith("1.") else int(version_str.split('.')[1])
             if major_version < min_major:
                 print(f"[fastreeR] x Java version {version_str} is too old (need >= {min_major})", file=sys.stderr)
                 sys.exit(1)
@@ -86,7 +88,7 @@ def run_java_tool(tool_name, params, jar_dir, mem_MB=MEM_MB, output_path=None, v
             text=True,
             bufsize=1
         )
-        
+
         # Thread to print stderr live (Java progress)
         stderr_thread = None
 
@@ -94,7 +96,7 @@ def run_java_tool(tool_name, params, jar_dir, mem_MB=MEM_MB, output_path=None, v
             def stream_stderr(stderr_pipe):
                 for line in stderr_pipe:
                     sys.stderr.write(line)
-             # Start stderr thread
+            # Start stderr thread
             if verbose:
                 stderr_thread = threading.Thread(target=stream_stderr, args=(process.stderr,))
             else:
@@ -115,20 +117,20 @@ def run_java_tool(tool_name, params, jar_dir, mem_MB=MEM_MB, output_path=None, v
         finally:
             if output_path:
                 out_stream.close()
-            
+
         process.wait()
         if stderr_thread:
             stderr_thread.join()
-            
+
         if process.returncode != 0:
             print(f"Java process exited with error code {process.returncode}", file=sys.stderr)
             sys.exit(process.returncode)
-        
+
         if output_path:
             print(f"Wrote {line_count} lines to {output_path}", file=sys.stderr)
         else:
             print(f"Wrote {line_count} lines to stdout", file=sys.stderr)
-        
+
     except subprocess.CalledProcessError as e:
         print(f"Java error: {e}", file=sys.stderr)
         sys.exit(e.returncode)
@@ -159,9 +161,9 @@ def main():
 
     def add_common_vcf_args(p):
         p.add_argument("-t", "--threads", type=int, default=1, help="Number of threads (default: 1)")
-        #p.add_argument("--ignoreHets", action="store_true", help="Ignore heterozygous loci (default: false)")
-        #p.add_argument("--onlyHets", action="store_true", help="Use only heterozygous loci (default: false)")
-        #p.add_argument("--ignoreMissing", action="store_true", help="Ignore missing loci (default: false)")
+        # p.add_argument("--ignoreHets", action="store_true", help="Ignore heterozygous loci (default: false)")
+        # p.add_argument("--onlyHets", action="store_true", help="Use only heterozygous loci (default: false)")
+        # p.add_argument("--ignoreMissing", action="store_true", help="Ignore missing loci (default: false)")
         p.add_argument("-v", "--verbose", action="store_true", help="Print progress messages on stderr (default: false)")
         p.add_argument("-b", "--bootstrap", type=int, default=0,
                        help="Number of bootstrap replicates to perform (default: 0, no bootstrapping)")
@@ -175,22 +177,22 @@ def main():
     parser_vcf2tree = subparsers.add_parser("VCF2TREE", help="Compute tree from VCF(s)")
     add_common_input_output(parser_vcf2tree)
     add_common_vcf_args(parser_vcf2tree)
-    
+
     # Subcommand for distance matrix to newick tree
     parser_dist2tree = subparsers.add_parser("DIST2TREE", help="Compute tree from distance matrix")
     parser_dist2tree.add_argument("input_file", nargs="?", help="Input dist file")
     parser_dist2tree.add_argument("-i", "--input", dest="named_input", help="Optional input dist file (overrides positional)")
     parser_dist2tree.add_argument("-o", "--output", help="Output file path (default: stdout)")
     parser_dist2tree.add_argument("-v", "--verbose", action="store_true", help="Print progress messages on stderr (default: false)")
-   
-   # Subcommand for FASTA-based distance matrix
+
+    # Subcommand for FASTA-based distance matrix
     parser_fasta2dist = subparsers.add_parser("FASTA2DIST", help="Compute distance matrix from FASTA(s)")
     add_common_input_output(parser_fasta2dist)
     parser_fasta2dist.add_argument("-k", "--kmerSize", type=int, default=4, help="Kmer size for D2S calculation (default: 4)")
     parser_fasta2dist.add_argument("-t", "--threads", type=int, default=1, help="Number of threads (default: 1)")
     parser_fasta2dist.add_argument("-n", "--normalize", action="store_true", help="Use normalization (default: false)")
     parser_fasta2dist.add_argument("-v", "--verbose", action="store_true", help="Print progress messages on stderr (default: false)")
-   
+
     args = parser.parse_args()
 
     if args.check:
@@ -207,11 +209,13 @@ def main():
             result = subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             print(result.stdout.strip())
             print(result.stderr.strip(), file=sys.stderr)
+
             cmd = ["java"] + JAVA_PARAMS + ["-cp", classpath, MAIN_CLASS]
             print(f"[fastreeR] Running Java check: {' '.join(cmd)}", file=sys.stderr)
             result = subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
             print(result.stdout.strip())
             print(result.stderr.strip(), file=sys.stderr)
+
             print("[fastreeR] v Java check succeeded", file=sys.stderr)
         except subprocess.CalledProcessError as e:
             print(f"[fastreeR] x Java check failed (exit code {e.returncode})", file=sys.stderr)
@@ -220,8 +224,9 @@ def main():
         sys.exit(0)
 
     if args.version:
-        print_version_from_jar(args.lib)
-        return
+        # print version info for wrapper + backend and exit
+        print_version(args.lib)
+        sys.exit(0)
 
     def resolve_inputs(args, allow_multiple=True):
         combined = []
@@ -240,10 +245,11 @@ def main():
     if args.command in ("VCF2DIST", "VCF2TREE"):
         input_files = resolve_inputs(args)
         params = []
-        if args.verbose or args.extraVerbose: params.append("--verbose")
-        #if args.ignoreHets: params.append("--ignoreHets")
-        #if args.onlyHets: params.append("--onlyHets")
-        #if args.ignoreMissing: params.append("--ignoreMissing")
+        if args.verbose or args.extraVerbose:
+            params.append("--verbose")
+        # if args.ignoreHets: params.append("--ignoreHets")
+        # if args.onlyHets: params.append("--onlyHets")
+        # if args.ignoreMissing: params.append("--ignoreMissing")
         params.extend(["-t", str(args.threads)])
         # forward bootstrap only when requesting tree generation
         if args.command == "VCF2TREE" and getattr(args, 'bootstrap', 0) and int(args.bootstrap) > 0:
@@ -258,40 +264,54 @@ def main():
             print("Error: No input distance matrix provided.", file=sys.stderr)
             sys.exit(1)
         params = []
-        if args.verbose or args.extraVerbose: params.append("--verbose")
+        if args.verbose or args.extraVerbose:
+            params.append("--verbose")
         params.append(input_file)
         run_java_tool("DIST2TREE", params, args.lib, args.mem, args.output, args.verbose, args.extraVerbose, args.pipe_stderr)
-    
+
     elif args.command == "FASTA2DIST":
         input_files = resolve_inputs(args)
         params = []
-        if args.verbose or args.extraVerbose: params.append("--verbose")
-        if args.normalize: params.append("--normalize")
+        if args.verbose or args.extraVerbose:
+            params.append("--verbose")
+        if args.normalize:
+            params.append("--normalize")
         params.extend(["-k", str(args.kmerSize), "-t", str(args.threads)])
         for f in input_files:
             params.extend(["-i", f])
         run_java_tool("FASTA2DIST", params, args.lib, args.mem, args.output, args.verbose, args.extraVerbose, args.pipe_stderr)
-            
+
     else:
         print("Unknown command", file=sys.stderr)
         parser.print_help()
         sys.exit(1)
 
-def print_version_from_jar(jar_dir):
-    jars = [os.path.join(jar_dir, f) for f in os.listdir(jar_dir) if f.endswith(".jar")]
+def get_backend_version_from_jar(jar_dir):
+    try:
+        jars = [os.path.join(jar_dir, f) for f in os.listdir(jar_dir) if f.endswith(".jar")]
+    except FileNotFoundError:
+        return None
+
     for jar in jars:
-        with zipfile.ZipFile(jar, 'r') as zipf:
-            for name in zipf.namelist():
-                if "pom.properties" in name:
-                    with zipf.open(name) as props:
-                        for line in props:
-                            decoded = line.decode().strip()
-                            if decoded.startswith("version="):
-                                version = decoded.split("=")[1]
-                                print(f"fastreeR version: {version}")
-                                print_citation()
-                                return
-    print("Version info not found in any jar.", file=sys.stderr)
+        try:
+            with zipfile.ZipFile(jar, 'r') as zipf:
+                for name in zipf.namelist():
+                    if "pom.properties" in name:
+                        with zipf.open(name) as props:
+                            for line in props:
+                                decoded = line.decode().strip()
+                                if decoded.startswith("version="):
+                                    return decoded.split("=", 1)[1]
+        except Exception:
+            pass
+    return None
+
+def print_version(jar_dir):
+    backend_version = get_backend_version_from_jar(jar_dir)
+    if backend_version:
+        print(f"fastreeR version: {FASTREER_VERSION} (backend: {backend_version})")
+    else:
+        print(f"fastreeR version: {FASTREER_VERSION} (backend: unknown)")
     print_citation()
 
 def print_citation():
