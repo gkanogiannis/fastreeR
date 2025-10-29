@@ -440,7 +440,7 @@ jobs:
 
       ####################################################################
       # 10. Create GitHub Release
-      #    Tag: v<FINAL_FAST_VER>
+      #    Tag: <FINAL_FAST_VER>
       #    Body: release_notes (manual or last commit msg)
       #    Attach the backend jar we're shipping.
       ####################################################################
@@ -449,7 +449,7 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           token: ${{ secrets.FASTREER_PAT }}
-          tag: v${{ steps.meta.outputs.final_fastreer_version }}
+          tag: ${{ steps.meta.outputs.final_fastreer_version }}
           name: fastreeR ${{ steps.meta.outputs.final_fastreer_version }} (backend ${{ steps.meta.outputs.final_backend_version }})
           body: ${{ steps.meta.outputs.release_notes }}
           draft: false
