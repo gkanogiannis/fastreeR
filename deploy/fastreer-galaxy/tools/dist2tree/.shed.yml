@@ -1,3 +1,5 @@
+categories:
+- Phylogenetics
 name: fastreer_dist2tree
 owner: gkanogiannis
 description: Build neighbor joining phylogenetic tree from distance matrix using fastreeR

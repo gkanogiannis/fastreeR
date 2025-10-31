@@ -1,3 +1,5 @@
+categories:
+- Phylogenetics
 name: fastreer
 owner: gkanogiannis
 description: Toolkit for phylogenetic trees and distance matrices from VCF and FASTA

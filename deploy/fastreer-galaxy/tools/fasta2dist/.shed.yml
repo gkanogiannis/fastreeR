@@ -1,3 +1,5 @@
+categories:
+- Phylogenetics
 name: fastreer_fasta2dist
 owner: gkanogiannis
 description: Build D2S distance matrix from FASTA(s) using fastreeR
