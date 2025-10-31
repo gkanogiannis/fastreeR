@@ -9,6 +9,7 @@
         -i '$f'
     #end for
     -o '$output'
+    -b $bootstraps
     --threads \${GALAXY_SLOTS:-1}
     #if $verbose:
         --verbose
@@ -16,6 +17,7 @@
     ]]></command>
     <inputs>
         <param name="input_vcfs" type="data" format="vcf" multiple="true" label="VCF input files"/>
+        <param name="bootstraps" type="integer" value="0" label="Number of bootstrap replicates"/>
         <param name="verbose" type="boolean" checked="true" label="Verbose logging"/>
     </inputs>
     <outputs>
@@ -30,9 +32,19 @@
     </tests>
     <help><![CDATA[
         Computes a phylogenetic tree from one or more VCF files using neighbor-joining.
-        Optional flags control handling of heterozygous and missing loci.
+        Optional parameter for bootsrapping support calculation.
     ]]></help>
     <citations>
         <citation type="doi">10.1186/s12859-016-1186-3</citation>
+        <citation type="bibtex">@ARTICLE{gkanogiannis2016,
+            title    = "A scalable assembly-free variable selection algorithm for biomarker discovery from metagenomes",
+            author   = "Anestis Gkanogiannis and Thomas Bruls",
+            journal  = "BMC Bioinformatics",
+            year     = "2016",
+            volume   = "Aug 19;17(1):311",
+            doi = "10.1186/s12859-016-1186-3",
+            url = "https://dx.doi.org/10.1186/s12859-016-1186-3"
+            }
+        </citation>
     </citations>
 </tool>

@@ -1,3 +1,5 @@
+categories:
+- Phylogenetics
 name: fastreer_vcf2dist
 owner: gkanogiannis
 description: Build cosine distance matrix from VCF(s) using fastreeR

@@ -1,6 +1,8 @@
+categories:
+- Phylogenetics
 name: fastreer_vcf2tree
 owner: gkanogiannis
-description: Build neighbor joining phylogenetic tree from VCF(s) using fastreeR
+description: Build neighbor joining phylogenetic tree (dendrogram) from VCF(s) using fastreeR
 homepage_url: https://github.com/gkanogiannis/fastreeR
 remote_repository_url: https://github.com/gkanogiannis/fastreeR
 long_description: >
