@@ -398,19 +398,31 @@ jobs:
 
       ####################################################################
       # 8. Decide if we *should* create a new GitHub Release.
-      #    We compare latest published release vs FINAL_FAST_VER.
-      #    Only if major/minor changed we proceed.
+      #    We compare previous_version vs final_fastreer_version.
+      #    Create a release if they differ.
       ####################################################################
       - name: Decide release eligibility
         id: gate
         run: |
           FIN_MAJ=${{ steps.meta.outputs.final_fast_major }}
           FIN_MIN=${{ steps.meta.outputs.final_fast_minor }}
+          FIN_PATCH=${{ steps.meta.outputs.final_fast_patch }}
           PREV_MAJ=${{ steps.prev.outputs.prev_major }}
           PREV_MIN=${{ steps.prev.outputs.prev_minor }}
+          PREV_PATCH=${{ steps.prev.outputs.prev_patch }}
+
+          NEW="${{ steps.meta.outputs.final_fastreer_version }}"
+          OLD="${{ steps.prev.outputs.previous_version }}"
+
+          # strip optional leading 'v' (e.g., v2.3.4 -> 2.3.4)
+          NEW="${NEW#v}"
+          OLD="${OLD#v}"
 
           SHOULD_RELEASE="no"
-          if [ "$FIN_MAJ" != "$PREV_MAJ" ] || [ "$FIN_MIN" != "$PREV_MIN" ]; then
+          if [ -z "$OLD" ]; then
+            # no previous release found -> release
+            SHOULD_RELEASE="yes"
+          elif [ "$NEW" != "$OLD" ]; then
             SHOULD_RELEASE="yes"
           fi
 
@@ -418,17 +430,17 @@ jobs:
             echo "should_release=$SHOULD_RELEASE"
           } >> "$GITHUB_OUTPUT"
 
-          echo "Previous release:  ${{ steps.prev.outputs.previous_version }}"
-          echo "Target fastreeR:   ${{ steps.meta.outputs.final_fastreer_version }}"
+          echo "Previous release:  $OLD"
+          echo "Target fastreeR:   $NEW"
           echo "Should release?:   $SHOULD_RELEASE"
 
       ####################################################################
-      # 9. Stop early if patch-only or if dry-run
+      # 9. Stop early if dry-run
       ####################################################################
-      - name: Stop if patch-only bump
+      - name: Stop if no release needed
         if: steps.gate.outputs.should_release == 'no'
         run: |
-          echo "Patch-only or no major/minor change. No GitHub Release will be created."
+          echo "No version change. No GitHub Release will be created."
           exit 0
       - name: Stop if dry run
         if: steps.gate.outputs.should_release == 'yes' && steps.meta.outputs.dry_run == 'yes'

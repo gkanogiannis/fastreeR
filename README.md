@@ -15,7 +15,8 @@ It enables fast computation of distance matrices and phylogenetic trees from gen
 
 `fastreeR` offers interface, which is accessible in the following ways:
 
-* 🆕 **Java Backend ([v2.2.0](https://github.com/gkanogiannis/BioInfoJava-Utils/releases/tag/v2.2.0)) !!** implements streaming bootstrap; from VCF file get a newick tree with encoded bootstrap support values
+* 🆕 **Java Backend ([v2.3.0](https://github.com/gkanogiannis/BioInfoJava-Utils/releases/tag/v2.3.0)) !!** now supports reading from gzip (for example .gz), bzip2 (for example .bz2) and xz compressed VCF files.
+* Java Backend ([v2.2.0](https://github.com/gkanogiannis/BioInfoJava-Utils/releases/tag/v2.2.0)) implements streaming bootstrap; from VCF file get a newick tree with encoded bootstrap support values.
 * Java Backend ([v2.0.0](https://github.com/gkanogiannis/BioInfoJava-Utils/releases/tag/2.0.0)) 100x times **FAST**re**ER** and only a couple hundred MB RAM needed. Java 11+ suggested.
 * **Bioconda**: install with `conda install -c bioconda fastreer` ([recipe](https://bioconda.github.io/recipes/fastreer/README.html))
 * **Docker**: available on [DockerHub](https://hub.docker.com/r/gkanogiannis/fastreer) and [GHCR](https://ghcr.io/gkanogiannis/fastreer) for containerized execution
@@ -51,11 +52,12 @@ It enables fast computation of distance matrices and phylogenetic trees from gen
   * [Citation](#citation)
   * [Author](#author)
   * [License](#license)
-
+  
 ------------------------------------------------------------------------
 
 ## Key Features
 
+* 📁 Input from standard VCF (gz, bzip2, xz compressed or uncompressed) and FASTA files.
 * 🥾 Streaming bootstrap support from VCF to NEWICK.
 * 🚀 With a superior multithreaded concurrency model and minimal RAM usage, from GBs down to just MBs!
 * ⚡ Ultra-fast computation of sample-wise cosine distances from large VCF and D2S k-mer based distances from FASTA files.
