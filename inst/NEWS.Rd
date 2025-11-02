@@ -1,6 +1,10 @@
 \name{NEWS}
 \title{fastreeR NEWS}
 
+\section{fastreeR 2.1.2 with java backend 2.3.0}{
+  * Implement reading compressed VCF input (gz, bzip2, xz)
+}
+
 \section{fastreeR 2.1.1 with java backend 2.3.0}{
   * Implement reading compressed VCF input (gz, bzip2, xz).
 }
