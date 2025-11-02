@@ -146,8 +146,8 @@ jobs:
           PLANEMO_TOOLSHED_API_KEY: ${{ secrets.GALAXY_TOOLSHED_API_KEY }}
         run: |
           set -euo pipefail
-          make galaxy-update-testshed TOOLSHED_KEY=${PLANEMO_TESTSHED_API_KEY}
-          make galaxy-update-toolshed TOOLSHED_KEY=${PLANEMO_TOOLSHED_API_KEY}
+          #make galaxy-update-testshed TOOLSHED_KEY=${PLANEMO_TESTSHED_API_KEY}
+          #make galaxy-update-toolshed TOOLSHED_KEY=${PLANEMO_TOOLSHED_API_KEY}
 
       ##################################################################
       # 7. Dry-run summary if we skipped upload
