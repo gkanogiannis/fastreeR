@@ -360,7 +360,9 @@ jobs:
           git config user.name "Anestis Gkanogiannis"
           git config user.email "ganoyan@gmail.com"
 
-          git add DESCRIPTION inst/NEWS.Rd inst/java/*.jar deploy/fastreer-pypi/setup.cfg || true
+          git rm -r --cached inst/java || true
+          git add inst/java
+          git add DESCRIPTION inst/NEWS.Rd deploy/fastreer-pypi/setup.cfg || true
           find deploy/fastreer-galaxy/tools -name '*.xml' -print0 | xargs -0 git add || true
 
           if git diff --cached --quiet; then
