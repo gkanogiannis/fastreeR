@@ -1,0 +1,41 @@
+# Optional dependencies for VCF2EMB command
+# Generate variant embeddings using BioFM genomic language model
+#
+# IMPORTANT: biofm-eval is NOT available on PyPI and must be installed from source.
+#
+# Prerequisites:
+#   - Python 3.11 (required by biofm-eval)
+#   - conda or venv environment recommended
+#
+# Installation steps:
+#
+#   1. Create and activate a Python 3.11 environment:
+#      conda create -n fastreer-env python=3.11
+#      conda activate fastreer-env
+#
+#   2. Install PyTorch (choose one based on your system):
+#      # CPU only:
+#      pip install torch
+#      # CUDA 11.8:
+#      pip install torch --index-url https://download.pytorch.org/whl/cu118
+#      # CUDA 12.1:
+#      pip install torch --index-url https://download.pytorch.org/whl/cu121
+#
+#   3. Clone and install biofm-eval:
+#      git clone https://github.com/m42-health/biofm-eval.git
+#      cd biofm-eval
+#      pip install -e .
+#
+#   4. Install remaining dependencies:
+#      pip install -r requirements-vcf2emb.txt
+#
+# For more details, see: https://github.com/m42-health/biofm-eval#installation
+
+# PyTorch - deep learning framework (install separately with appropriate CUDA version)
+torch>=2.0.0
+
+# Transformers for HuggingFace model loading
+transformers>=4.30.0
+
+# NumPy for array operations
+numpy>=1.24.0

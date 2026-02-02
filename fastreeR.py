@@ -26,8 +26,19 @@ import subprocess
 import zipfile
 import sys
 import os
+import re
+import json
+import gzip
+import shutil
+import tempfile
+from contextlib import contextmanager
 
-FASTREER_VERSION = "2.1.0"
+FASTREER_VERSION = "2.1.3"
+
+# Default paths for BioFM resources (can be overridden via environment variables or CLI args)
+DEFAULT_BIOFM_MODEL = os.environ.get("BIOFM_MODEL", "m42-health/BioFM-265M")
+DEFAULT_REFERENCE_GENOME = os.environ.get("BIOFM_REFERENCE_GENOME", None)
+DEFAULT_GENE_ANNOTATION = os.environ.get("BIOFM_GENE_ANNOTATION", None)
 
 # Determine JAR directory
 JAR_DIR = os.environ.get("FASTREER_JAR_DIR") or os.path.join(os.path.dirname(__file__), "inst/java")
@@ -39,9 +50,10 @@ def check_java_version(min_major=11):
     try:
         result = subprocess.run(["java", "-version"], stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
         version_output = result.stderr.splitlines()[0] if result.stderr else result.stdout.splitlines()[0]
-        # Example: 'java version "11.0.20"' or 'openjdk version "17.0.9"'
-        if '"' in version_output:
-            version_str = version_output.split('"')[1]
+        # Match version patterns like "11.0.2", "1.8.0", or "17"
+        match = re.search(r'version\s+"?(\d+(?:\.\d+)*)"?', version_output)
+        if match:
+            version_str = match.group(1)
             major_version = int(version_str.split('.')[0]) if not version_str.startswith("1.") else int(version_str.split('.')[1])
             if major_version < min_major:
                 print(f"[fastreeR] x Java version {version_str} is too old (need >= {min_major})", file=sys.stderr)
@@ -54,6 +66,235 @@ def check_java_version(min_major=11):
     except Exception as e:
         print(f"[fastreeR] x Failed to check Java version: {e}", file=sys.stderr)
         sys.exit(1)
+
+def is_gzipped(filepath):
+    """Check if a file is gzip compressed based on magic bytes."""
+    try:
+        with open(filepath, 'rb') as f:
+            return f.read(2) == b'\x1f\x8b'
+    except (IOError, OSError):
+        return False
+
+
+def get_decompressed_suffix(filepath):
+    """Get the appropriate suffix for a decompressed file."""
+    base = os.path.basename(filepath)
+    # Remove .gz extension if present
+    if base.endswith('.gz'):
+        base = base[:-3]
+    # Determine suffix based on remaining extension
+    if base.endswith('.vcf'):
+        return '.vcf'
+    elif base.endswith('.gff') or base.endswith('.gff3'):
+        return '.gff3'
+    elif base.endswith('.fa') or base.endswith('.fasta') or base.endswith('.fna'):
+        return '.fasta'
+    else:
+        # Default: use whatever extension remains
+        _, ext = os.path.splitext(base)
+        return ext if ext else '.txt'
+
+
+@contextmanager
+def decompress_if_gzipped(filepath, verbose=False):
+    """
+    Context manager that decompresses a gzipped file to a temporary file if needed.
+    Yields the path to use (original or temporary decompressed file).
+    Cleans up temporary file on exit.
+    """
+    if not is_gzipped(filepath):
+        yield filepath
+        return
+
+    suffix = get_decompressed_suffix(filepath)
+    temp_fd, temp_path = tempfile.mkstemp(suffix=suffix)
+
+    try:
+        if verbose:
+            print(f"[VCF2EMB] Decompressing {filepath} to temporary file...", file=sys.stderr)
+
+        with gzip.open(filepath, 'rb') as f_in:
+            with os.fdopen(temp_fd, 'wb') as f_out:
+                shutil.copyfileobj(f_in, f_out)
+
+        if verbose:
+            print(f"[VCF2EMB] Decompressed to: {temp_path}", file=sys.stderr)
+
+        yield temp_path
+    finally:
+        # Clean up temporary file
+        if os.path.exists(temp_path):
+            os.unlink(temp_path)
+            if verbose:
+                print(f"[VCF2EMB] Cleaned up temporary file: {temp_path}", file=sys.stderr)
+
+
+@contextmanager
+def prepare_input_files(vcf_path, reference_genome, gene_annotation, verbose=False):
+    """
+    Context manager that prepares all input files, decompressing gzipped files as needed.
+    Yields a tuple of (vcf_path, reference_genome_path, gene_annotation_path).
+    """
+    with decompress_if_gzipped(vcf_path, verbose) as vcf_ready:
+        with decompress_if_gzipped(reference_genome, verbose) as ref_ready:
+            with decompress_if_gzipped(gene_annotation, verbose) as ann_ready:
+                yield vcf_ready, ref_ready, ann_ready
+
+
+def generate_embeddings_biofm(vcf_path, output_path, reference_genome, gene_annotation,
+                               model_name=DEFAULT_BIOFM_MODEL, output_format="TSV",
+                               variant_key_format="CHROM_POS_REF_ALT", max_variants=100,
+                               device=None, verbose=False):
+    """
+    Generate variant embeddings from a VCF file using BioFM-265M model.
+
+    Supports gzipped input files (.vcf.gz, .fa.gz, .fasta.gz, .gff.gz, .gff3.gz).
+    Gzipped files are automatically decompressed to temporary files during processing.
+
+    Args:
+        vcf_path: Path to input VCF file (can be gzipped)
+        output_path: Path to output embeddings file (or None for stdout)
+        reference_genome: Path to reference genome FASTA file (can be gzipped)
+        gene_annotation: Path to gene annotation GFF3 file (can be gzipped)
+        model_name: HuggingFace model name or local path
+        output_format: Output format - "TSV" or "HUGGINGFACE"
+        variant_key_format: How to format variant keys - "CHROM_POS", "CHROM_POS_REF_ALT", or "VCF_ID"
+        max_variants: Maximum number of variants to process (None for all)
+        device: Device to use ("cuda", "cpu", or None for auto)
+        verbose: Print progress messages
+    """
+    try:
+        import torch
+        from biofm_eval import AnnotatedModel, AnnotationTokenizer, Embedder, VCFConverter
+    except ImportError as e:
+        print(f"Error: Required packages not installed. Please install with:", file=sys.stderr)
+        print(f"  pip install biofm-eval torch", file=sys.stderr)
+        print(f"Import error: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    if not reference_genome or not os.path.exists(reference_genome):
+        print(f"Error: Reference genome file required. Provide via --reference or BIOFM_REFERENCE_GENOME env var.", file=sys.stderr)
+        sys.exit(1)
+
+    if not gene_annotation or not os.path.exists(gene_annotation):
+        print(f"Error: Gene annotation file required. Provide via --annotation or BIOFM_GENE_ANNOTATION env var.", file=sys.stderr)
+        sys.exit(1)
+
+    if verbose:
+        print(f"[VCF2EMB] Loading BioFM model: {model_name}", file=sys.stderr)
+
+    # Determine device
+    if device is None:
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+
+    if verbose:
+        print(f"[VCF2EMB] Using device: {device}", file=sys.stderr)
+
+    # Load model and tokenizer
+    model = AnnotatedModel.from_pretrained(
+        model_name,
+        torch_dtype=torch.bfloat16 if device == "cuda" else torch.float32,
+    )
+    model = model.to(device)
+    tokenizer = AnnotationTokenizer.from_pretrained(model_name)
+
+    # Initialize embedder
+    embedder = Embedder(model, tokenizer)
+
+    # Prepare input files (decompress gzipped files if needed)
+    with prepare_input_files(vcf_path, reference_genome, gene_annotation, verbose) as (vcf_ready, ref_ready, ann_ready):
+        if verbose:
+            print(f"[VCF2EMB] Setting up VCF converter with:", file=sys.stderr)
+            print(f"  Reference genome: {ref_ready}", file=sys.stderr)
+            print(f"  Gene annotation: {ann_ready}", file=sys.stderr)
+
+        # Set up VCF converter
+        vcf_converter = VCFConverter(
+            gene_annotation_path=ann_ready,
+            reference_genome_path=ref_ready
+        )
+
+        if verbose:
+            print(f"[VCF2EMB] Processing VCF file: {vcf_ready}", file=sys.stderr)
+
+        # Convert VCF to annotated dataset
+        convert_kwargs = {"vcf_path": vcf_ready}
+        if max_variants is not None:
+            convert_kwargs["max_variants"] = max_variants
+
+        annotated_dataset = vcf_converter.vcf_to_annotated_dataset(**convert_kwargs)
+
+    if verbose:
+        print(f"[VCF2EMB] Extracting embeddings for {len(annotated_dataset)} variants...", file=sys.stderr)
+
+    # Extract embeddings
+    result = embedder.get_dataset_embeddings(annotated_dataset)
+    embeddings = result["embeddings"]
+
+    if verbose:
+        print(f"[VCF2EMB] Generated embeddings with shape: {embeddings.shape}", file=sys.stderr)
+
+    # Get variant IDs from the dataset
+    variant_ids = []
+    for item in annotated_dataset:
+        # Extract variant info - format depends on VCFConverter output
+        if hasattr(item, 'variant_id'):
+            vid = item.variant_id
+        elif isinstance(item, dict) and 'variant_id' in item:
+            vid = item['variant_id']
+        else:
+            # Fallback: try to construct from available fields
+            chrom = getattr(item, 'chrom', None) or item.get('chrom', 'unknown')
+            pos = getattr(item, 'pos', None) or item.get('pos', 0)
+            ref = getattr(item, 'ref', None) or item.get('ref', 'N')
+            alt = getattr(item, 'alt', None) or item.get('alt', 'N')
+
+            if variant_key_format == "CHROM_POS":
+                vid = f"{chrom}:{pos}"
+            elif variant_key_format == "VCF_ID":
+                vid = getattr(item, 'id', None) or item.get('id', f"{chrom}:{pos}:{ref}:{alt}")
+            else:  # CHROM_POS_REF_ALT
+                vid = f"{chrom}:{pos}:{ref}:{alt}"
+
+        variant_ids.append(vid)
+
+    # Write output
+    out_stream = open(output_path, "w") if output_path else sys.stdout
+    try:
+        if output_format.upper() == "HUGGINGFACE":
+            # HuggingFace JSON format
+            output_data = {
+                "model_name": model_name,
+                "embedding_dim": embeddings.shape[1],
+                "variant_key_format": variant_key_format,
+                "num_variants": len(variant_ids),
+                "variants": [
+                    {"id": vid, "embedding": emb.tolist()}
+                    for vid, emb in zip(variant_ids, embeddings)
+                ]
+            }
+            json.dump(output_data, out_stream, indent=2)
+            out_stream.write("\n")
+        else:
+            # TSV format
+            embedding_dim = embeddings.shape[1]
+            header = "#VARIANT_ID\t" + "\t".join([f"DIM_{i}" for i in range(embedding_dim)])
+            out_stream.write(header + "\n")
+
+            for vid, emb in zip(variant_ids, embeddings):
+                line = vid + "\t" + "\t".join([f"{v:.6f}" for v in emb])
+                out_stream.write(line + "\n")
+
+        if verbose:
+            if output_path:
+                print(f"[VCF2EMB] Wrote {len(variant_ids)} variant embeddings to {output_path}", file=sys.stderr)
+            else:
+                print(f"[VCF2EMB] Wrote {len(variant_ids)} variant embeddings to stdout", file=sys.stderr)
+
+    finally:
+        if output_path:
+            out_stream.close()
+
 
 def build_classpath(jar_dir):
     if not os.path.isdir(jar_dir):
@@ -166,15 +407,26 @@ def main():
         # p.add_argument("--ignoreMissing", action="store_true", help="Ignore missing loci (default: false)")
         p.add_argument("-v", "--verbose", action="store_true", help="Print progress messages on stderr (default: false)")
 
+    def add_embedding_args(p):
+        p.add_argument("-e", "--embeddings", type=str, default=None,
+                       help="Path to variant embeddings file for embedding-based distance calculation")
+        p.add_argument("--embeddings-format", type=str, default=None, choices=["TSV", "HUGGINGFACE"],
+                       help="Embeddings file format: TSV or HUGGINGFACE (auto-detected if not specified)")
+        p.add_argument("--variant-key", type=str, default="CHROM_POS_REF_ALT",
+                       choices=["CHROM_POS", "CHROM_POS_REF_ALT", "VCF_ID"],
+                       help="Variant key format for embedding lookup (default: CHROM_POS_REF_ALT)")
+
     # Subcommand for VCF-based distance matrix
     parser_vcf2dist = subparsers.add_parser("VCF2DIST", help="Compute distance matrix from VCF(s)")
     add_common_input_output(parser_vcf2dist)
     add_common_vcf_args(parser_vcf2dist)
+    add_embedding_args(parser_vcf2dist)
 
     # Subcommand for VCF-based tree
     parser_vcf2tree = subparsers.add_parser("VCF2TREE", help="Compute tree from VCF(s)")
     add_common_input_output(parser_vcf2tree)
     add_common_vcf_args(parser_vcf2tree)
+    add_embedding_args(parser_vcf2tree)
     parser_vcf2tree.add_argument("-b", "--bootstrap", type=int, default=0,
                                  help="Number of bootstrap replicates to perform (default: 0, no bootstrapping)")
 
@@ -192,6 +444,33 @@ def main():
     parser_fasta2dist.add_argument("-t", "--threads", type=int, default=1, help="Number of threads (default: 1)")
     parser_fasta2dist.add_argument("-n", "--normalize", action="store_true", help="Use normalization (default: false)")
     parser_fasta2dist.add_argument("-v", "--verbose", action="store_true", help="Print progress messages on stderr (default: false)")
+
+    # Subcommand for generating variant embeddings from VCF using BioFM
+    parser_vcf2emb = subparsers.add_parser("VCF2EMB",
+        help="Generate variant embeddings from VCF using BioFM genomic language model",
+        description="Generate variant embeddings from a VCF file using the BioFM-265M genomic "
+                    "language model. Requires biofm-eval package (pip install biofm-eval) and "
+                    "reference genome/annotation files.")
+    parser_vcf2emb.add_argument("input_file", nargs="?", help="Input VCF file")
+    parser_vcf2emb.add_argument("-i", "--input", dest="named_input", help="Input VCF file (overrides positional)")
+    parser_vcf2emb.add_argument("-o", "--output", help="Output embeddings file (default: stdout)")
+    parser_vcf2emb.add_argument("-r", "--reference", type=str, default=DEFAULT_REFERENCE_GENOME,
+                                help="Path to reference genome FASTA file (or set BIOFM_REFERENCE_GENOME env var)")
+    parser_vcf2emb.add_argument("-a", "--annotation", type=str, default=DEFAULT_GENE_ANNOTATION,
+                                help="Path to gene annotation GFF3 file (or set BIOFM_GENE_ANNOTATION env var)")
+    parser_vcf2emb.add_argument("-m", "--model", type=str, default=DEFAULT_BIOFM_MODEL,
+                                help=f"HuggingFace model name or local path (default: {DEFAULT_BIOFM_MODEL})")
+    parser_vcf2emb.add_argument("-f", "--format", type=str, default="TSV", choices=["TSV", "HUGGINGFACE"],
+                                help="Output format: TSV or HUGGINGFACE JSON (default: TSV)")
+    parser_vcf2emb.add_argument("--variant-key", type=str, default="CHROM_POS_REF_ALT",
+                                choices=["CHROM_POS", "CHROM_POS_REF_ALT", "VCF_ID"],
+                                help="Variant key format in output (default: CHROM_POS_REF_ALT)")
+    parser_vcf2emb.add_argument("--max-variants", type=int, default=None,
+                                help="Maximum number of variants to process (default: all)")
+    parser_vcf2emb.add_argument("--device", type=str, default=None, choices=["cuda", "cpu"],
+                                help="Device for model inference (default: auto-detect)")
+    parser_vcf2emb.add_argument("-v", "--verbose", action="store_true",
+                                help="Print progress messages on stderr (default: false)")
 
     args = parser.parse_args()
 
@@ -254,6 +533,13 @@ def main():
         # forward bootstrap only when requesting tree generation
         if args.command == "VCF2TREE" and getattr(args, 'bootstrap', 0) and int(args.bootstrap) > 0:
             params.extend(["--bootstrap", str(int(args.bootstrap))])
+        # forward embedding options if provided
+        if getattr(args, 'embeddings', None):
+            params.extend(["-e", args.embeddings])
+        if getattr(args, 'embeddings_format', None):
+            params.extend(["--embeddings-format", args.embeddings_format])
+        if getattr(args, 'variant_key', None) and args.variant_key != "CHROM_POS_REF_ALT":
+            params.extend(["--variant-key", args.variant_key])
         for f in input_files:
             params.extend(["-i", f])
         run_java_tool(args.command, params, args.lib, args.mem, args.output, args.verbose, args.extraVerbose, args.pipe_stderr)
@@ -280,6 +566,24 @@ def main():
         for f in input_files:
             params.extend(["-i", f])
         run_java_tool("FASTA2DIST", params, args.lib, args.mem, args.output, args.verbose, args.extraVerbose, args.pipe_stderr)
+
+    elif args.command == "VCF2EMB":
+        input_file = args.named_input or args.input_file
+        if not input_file:
+            print("Error: No input VCF file provided.", file=sys.stderr)
+            sys.exit(1)
+        generate_embeddings_biofm(
+            vcf_path=input_file,
+            output_path=args.output,
+            reference_genome=args.reference,
+            gene_annotation=args.annotation,
+            model_name=args.model,
+            output_format=args.format,
+            variant_key_format=args.variant_key,
+            max_variants=args.max_variants,
+            device=args.device,
+            verbose=args.verbose or args.extraVerbose
+        )
 
     else:
         print("Unknown command", file=sys.stderr)

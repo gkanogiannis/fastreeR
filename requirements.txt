@@ -1,0 +1,31 @@
+# fastreeR Python CLI dependencies
+#
+# Core CLI functionality (VCF2DIST, VCF2TREE, DIST2TREE, FASTA2DIST)
+# requires only Python standard library - no pip dependencies needed.
+# These commands use the Java backend via subprocess.
+#
+# ============================================================================
+# Optional: VCF2EMB command (embedding generation with BioFM)
+# ============================================================================
+#
+# The VCF2EMB command requires biofm-eval which is NOT available on PyPI.
+# You must install it from source following these steps:
+#
+# 1. Create a Python 3.11 environment (required by biofm-eval):
+#    conda create -n fastreer-env python=3.11
+#    conda activate fastreer-env
+#
+# 2. Install PyTorch (choose based on your system):
+#    pip install torch                                              # CPU only
+#    pip install torch --index-url https://download.pytorch.org/whl/cu121  # CUDA 12.1
+#
+# 3. Clone and install biofm-eval from source:
+#    git clone https://github.com/m42-health/biofm-eval.git
+#    cd biofm-eval
+#    pip install -e .
+#
+# 4. (Optional) Install remaining dependencies:
+#    pip install -r requirements-vcf2emb.txt
+#
+# For details: https://github.com/m42-health/biofm-eval#installation
+# ============================================================================

@@ -1,16 +1,16 @@
 \name{NEWS}
 \title{fastreeR NEWS}
 
-\section{fastreeR 2.1.2 with java backend 2.3.0}{
-  * Implement reading compressed VCF input (gz, bzip2, xz)
+\section{fastreeR 2.1.3 with java backend 2.5.0 (2026-02-02)}{
+  \item Added embedding-based distance calculation for VCF files (backend 2.5.0).
 }
 
-\section{fastreeR 2.1.1 with java backend 2.3.0}{
-  * Implement reading compressed VCF input (gz, bzip2, xz).
+\section{fastreeR 2.1.2 with java backend 2.3.0 (2025-12-01)}{
+  \item  Implement reading compressed VCF input (gz, bzip2, xz)
 }
 
-\section{fastreeR 2.1.0 with java backend 2.2.0}{
-  * Major update: enhanced streaming, faster bootstrapping, and backend v2.2.0 integration.
+\section{fastreeR 2.1.0 with java backend 2.2.0 (2025-11-01)}{
+  \item  Major update: enhanced streaming, faster bootstrapping, and backend v2.2.0 integration.
 }
 
 
