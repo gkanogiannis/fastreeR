@@ -1,6 +1,10 @@
 \name{NEWS}
 \title{fastreeR NEWS}
 
+\section{fastreeR 2.1.3 with java backend 2.5.0}{
+  * Add VCF2EMB command and embedding-based distance support.
+}
+
 \section{fastreeR 2.1.3 with java backend 2.5.0 (2026-02-02)}{
   \item Added embedding-based distance calculation for VCF files (backend 2.5.0).
 }
