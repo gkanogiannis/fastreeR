@@ -24,3 +24,5 @@
 ^setup\.py$
 ^tmp$
 ^benchmark$
+^requirements\.txt$
+^requirements-vcf2emb\.txt$

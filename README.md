@@ -15,7 +15,8 @@ It enables fast computation of distance matrices and phylogenetic trees from gen
 
 `fastreeR` offers interface, which is accessible in the following ways:
 
-* 🆕 **Java Backend ([v2.3.0](https://github.com/gkanogiannis/BioInfoJava-Utils/releases/tag/v2.3.0)) !!** now supports reading from gzip (for example .gz), bzip2 (for example .bz2) and xz compressed VCF files.
+* 🆕 **Java Backend ([v2.5.0](https://github.com/gkanogiannis/BioInfoJava-Utils/releases/tag/v2.5.0)) !!** introduces **embedding-based distance calculation** for VCF files. Provide pre-computed variant embeddings (from genomic language models like [BioFM](https://huggingface.co/m42-health/BioFM-265M), DNA-BERT, Nucleotide Transformer, etc.) to weight variant contributions during distance computation.
+* Java Backend ([v2.3.0](https://github.com/gkanogiannis/BioInfoJava-Utils/releases/tag/v2.3.0)) supports reading from gzip (for example .gz), bzip2 (for example .bz2) and xz compressed VCF files.
 * Java Backend ([v2.2.0](https://github.com/gkanogiannis/BioInfoJava-Utils/releases/tag/v2.2.0)) implements streaming bootstrap; from VCF file get a newick tree with encoded bootstrap support values.
 * Java Backend ([v2.0.0](https://github.com/gkanogiannis/BioInfoJava-Utils/releases/tag/2.0.0)) 100x times **FAST**re**ER** and only a couple hundred MB RAM needed. Java 11+ suggested.
 * **Bioconda**: install with `conda install -c bioconda fastreer` ([recipe](https://bioconda.github.io/recipes/fastreer/README.html))
@@ -28,36 +29,52 @@ It enables fast computation of distance matrices and phylogenetic trees from gen
 
 ------------------------------------------------------------------------
 
-* [fastreeR: Fast Tree Reconstruction Tools for Genomics](#fastreer-fast-tree-reconstruction-tools-for-genomics)
-  * [Integration and Accessibility](#integration-and-accessibility)
-  * [Key Features](#key-features)
-  * [Requirements](#requirements)
-    * [RAM Requirements](#memory-requirements-for-vcf-input)
-  * [Installation and Usage](#installation-and-usage)
-    * [Conda](#via-conda)
-    * [Docker](#via-docker)
-    * [PyPI](#as-a-pypi-module)
-    * [Python CLI](#via-a-python-cli-wrapper)
-    * [R package](#as-an-r-package)
-    * [Galaxy](#with-galaxy)
-    * [From Java backend source](#from-java-backend-source)
-  * [Distances from VCF](#distances-from-vcf)
-  * [CLI Interface](#cli-interface)
-    * [Commands](#commands)
-    * [Examples](#examples)
-    * [Options](#options-common-to-all-commands)
-  * [Integration with Java Backend](#integration-with-java-backend)
-  * [Integration with R](#integration-with-r)
-  * [Sample data](#sample-data)
-  * [Citation](#citation)
-  * [Author](#author)
-  * [License](#license)
+- [fastreeR: Fast Tree Reconstruction Tools for Genomics (VCF/FASTA to Distance/Tree)](#fastreer-fast-tree-reconstruction-tools-for-genomics-vcffasta-to-distancetree)
+  - [Integration and Accessibility](#integration-and-accessibility)
+  - [Key Features](#key-features)
+  - [Requirements](#requirements)
+    - [Memory requirements for VCF input](#memory-requirements-for-vcf-input)
+  - [Installation and Usage](#installation-and-usage)
+    - [Via Conda](#via-conda)
+    - [Via Docker](#via-docker)
+    - [As a PyPI Module](#as-a-pypi-module)
+    - [Via a Python CLI wrapper](#via-a-python-cli-wrapper)
+    - [As an R package](#as-an-r-package)
+    - [With Galaxy](#with-galaxy)
+    - [From java backend source](#from-java-backend-source)
+  - [Distances from VCF](#distances-from-vcf)
+  - [Embedding-Based Distance Calculation](#embedding-based-distance-calculation)
+    - [How It Works](#how-it-works)
+    - [Embedding File Formats](#embedding-file-formats)
+    - [Embedding Command Line Options](#embedding-command-line-options)
+    - [Embedding Examples](#embedding-examples)
+  - [CLI Interface](#cli-interface)
+    - [Commands](#commands)
+      - [General Syntax](#general-syntax)
+    - [Examples](#examples)
+      - [Compute Distance Matrix from VCF](#compute-distance-matrix-from-vcf)
+      - [Compute Newick NJ tree directly from a VCF file.](#compute-newick-nj-tree-directly-from-a-vcf-file)
+      - [Compute Tree from Distance Matrix](#compute-tree-from-distance-matrix)
+      - [Compute D2S k-mer distance matrix from a FASTA file.](#compute-d2s-k-mer-distance-matrix-from-a-fasta-file)
+      - [Generate Variant Embeddings from VCF using BioFM](#generate-variant-embeddings-from-vcf-using-biofm)
+      - [Pipe input from gzip-compressed file](#pipe-input-from-gzip-compressed-file)
+    - [Output Examples](#output-examples)
+    - [Options (common to all commands)](#options-common-to-all-commands)
+    - [Embedding options (VCF2DIST and VCF2TREE only)](#embedding-options-vcf2dist-and-vcf2tree-only)
+    - [VCF2EMB options (embedding generation)](#vcf2emb-options-embedding-generation)
+  - [Integration with Java Backend](#integration-with-java-backend)
+  - [Integration with R](#integration-with-r)
+  - [Sample data](#sample-data)
+  - [Citation](#citation)
+  - [Author](#author)
+  - [License](#license)
   
 ------------------------------------------------------------------------
 
 ## Key Features
 
 * 📁 Input from standard VCF (gz, bzip2, xz compressed or uncompressed) and FASTA files.
+* 🧠 **Embedding-based distance calculation** using pre-computed variant embeddings from genomic language models.
 * 🥾 Streaming bootstrap support from VCF to NEWICK.
 * 🚀 With a superior multithreaded concurrency model and minimal RAM usage, from GBs down to just MBs!
 * ⚡ Ultra-fast computation of sample-wise cosine distances from large VCF and D2S k-mer based distances from FASTA files.
@@ -73,7 +90,7 @@ It enables fast computation of distance matrices and phylogenetic trees from gen
 
 ## Requirements
 
-* Java 11+ (LTS version with improved concurrency)
+* Java 17+ (LTS version with improved concurrency)
 * Python 3.7+
 * Maven (if you want to build from the source)
 * GNU/Linux, Windows or macOS
@@ -282,6 +299,67 @@ Example output file of the distances of 3 samples calculated from 1000 variants:
 
 ------------------------------------------------------------------------
 
+## Embedding-Based Distance Calculation
+
+Version 2.5.0 of the Java backend introduces support for **embedding-based distance calculation** in `VCF2DIST` and `VCF2TREE`. This feature allows you to incorporate pre-computed variant embeddings (e.g., from genomic language models like [BioFM](https://huggingface.co/m42-health/BioFM-265M), DNA-BERT, Nucleotide Transformer, or custom embeddings) to compute distances in embedding space rather than genotype space.
+
+### How It Works
+
+Instead of computing cosine similarity directly from genotype vectors, the embedding mode:
+
+1. Projects each sample into embedding space: `H_i = Σ_v dosage_i^v × e_v`
+2. Computes cosine distance between sample embeddings
+
+This captures functional relationships between variants - samples with alleles at functionally similar positions become more similar in embedding space.
+
+### Embedding File Formats
+
+**TSV Format:**
+
+```tsv
+#VARIANT_ID  DIM_0   DIM_1   DIM_2   ...
+chr1:12345:A:G  0.123   -0.456  0.789   ...
+chr1:67890:C:T  0.567   0.123   -0.890  ...
+```
+
+**HuggingFace JSON Format:**
+
+```json
+{
+  "model_name": "genomic-model-name",
+  "embedding_dim": 768,
+  "variants": [
+    {"id": "chr1:12345:A:G", "embedding": [0.123, -0.456, ...]},
+    {"id": "chr1:67890:C:T", "embedding": [0.567, 0.123, ...]}
+  ]
+}
+```
+
+### Embedding Command Line Options
+
+| Option                 | Description                                                                     |
+|------------------------|---------------------------------------------------------------------------------|
+| `-e, --embeddings`     | Path to variant embeddings file                                                 |
+| `--embeddings-format`  | Format: `TSV` or `HUGGINGFACE` (auto-detected if not specified)                 |
+| `--variant-key`        | Variant key format: `CHROM_POS`, `CHROM_POS_REF_ALT` (default), or `VCF_ID`     |
+
+### Embedding Examples
+
+``` bash
+# Distance matrix with embeddings (TSV format, auto-detected)
+python fastreeR.py VCF2DIST -i samples.vcf.gz -o distances.tsv -e variant_embeddings.tsv -t 4
+
+# Tree with embeddings and bootstrap (HuggingFace format)
+python fastreeR.py VCF2TREE -i samples.vcf.gz -o tree.nwk -e embeddings.json --embeddings-format HUGGINGFACE -b 100
+
+# Standard mode (no embeddings) - existing behavior
+python fastreeR.py VCF2DIST -i samples.vcf.gz -o distances.tsv
+```
+
+Variants without matching embeddings are automatically skipped, and the tool reports how many variants were used vs. skipped.
+
+------------------------------------------------------------------------
+
 ## CLI Interface
 
 The Python CLI (`fastreeR.py`) interfaces with the Java backend via `subprocess`, providing a unified command-line interface for all supported tools.
@@ -294,12 +372,13 @@ The Python CLI (`fastreeR.py`) interfaces with the Java backend via `subprocess`
 python3 fastreeR.py <COMMAND> [OPTIONS]
 ```
 
-| COMMAND      | Description                                      |
-|--------------|--------------------------------------------------|
-| `VCF2DIST`   | Compute a cosine distance matrix from a VCF file |
-| `VCF2TREE`   | Compute a Newick NJ tree directly from a VCF     |
-| `DIST2TREE`  | Compute a Newick NJ tree from a distance matrix  |
-| `FASTA2DIST` | Compute a D2S distance matrix from a FASTA file  |
+| COMMAND      | Description                                                      |
+|--------------|------------------------------------------------------------------|
+| `VCF2DIST`   | Compute a cosine distance matrix from a VCF file                 |
+| `VCF2TREE`   | Compute a Newick NJ tree directly from a VCF                     |
+| `DIST2TREE`  | Compute a Newick NJ tree from a distance matrix                  |
+| `FASTA2DIST` | Compute a D2S distance matrix from a FASTA file                  |
+| `VCF2EMB`    | Generate variant embeddings from VCF using BioFM language model  |
 
 ------------------------------------------------------------------------
 
@@ -334,22 +413,72 @@ python fastreeR.py DIST2TREE -i output.dist -o output.nwk
 
 **Input format:** tab-separated PHYLIP-compatible matrix.
 
-### Compute D2S k-mer distance matrix from a FASTA file.
+#### Compute D2S k-mer distance matrix from a FASTA file.
 
 ``` bash
 python3 fastreeR.py FASTA2DIST -i seqs.fasta -o output.dist -k 4 -t 2 --normalize
+```
+
+#### Generate Variant Embeddings from VCF using BioFM
+
+The `VCF2EMB` command uses the [BioFM-265M](https://huggingface.co/m42-health/BioFM-265M) genomic language model to generate embeddings for each variant in a VCF file. These embeddings can then be used with `VCF2DIST` or `VCF2TREE` for embedding-based distance calculation.
+
+**Supports gzipped input files:** VCF (`.vcf.gz`), reference genome (`.fa.gz`, `.fasta.gz`, `.fna.gz`), and annotation (`.gff.gz`, `.gff3.gz`) files are automatically decompressed during processing.
+
+**Prerequisites:**
+
+1. Python 3.11 environment (required by biofm-eval):
+   ```bash
+   conda create -n fastreer-env python=3.11
+   conda activate fastreer-env
+   ```
+
+2. Install PyTorch:
+   ```bash
+   pip install torch  # CPU only
+   # Or with CUDA: pip install torch --index-url https://download.pytorch.org/whl/cu121
+   ```
+
+3. Install biofm-eval from source (not available on PyPI):
+   ```bash
+   git clone https://github.com/m42-health/biofm-eval.git
+   cd biofm-eval
+   pip install -e .
+   ```
+
+4. Download reference genome (GRCh38): [NCBI](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.26/)
+
+5. Download gene annotations (GENCODE v38): [GENCODE](https://www.gencodegenes.org/human/release_38.html)
+
+``` bash
+# Generate embeddings in TSV format (supports gzipped inputs)
+python fastreeR.py VCF2EMB -i input.vcf.gz -o embeddings.tsv \
+    -r GRCh38.fna.gz -a gencode.v38.annotation.gff3.gz --verbose
+
+# Generate embeddings in HuggingFace JSON format
+python fastreeR.py VCF2EMB -i input.vcf.gz -o embeddings.json \
+    -r GRCh38.fna -a gencode.v38.annotation.gff3 -f HUGGINGFACE
+
+# Use GPU for faster processing
+python fastreeR.py VCF2EMB -i input.vcf.gz -o embeddings.tsv \
+    -r GRCh38.fna -a gencode.v38.annotation.gff3 --device cuda
+
+# Process only first 1000 variants
+python fastreeR.py VCF2EMB -i input.vcf.gz -o embeddings.tsv \
+    -r GRCh38.fna -a gencode.v38.annotation.gff3 --max-variants 1000
+```
+
+You can set default paths via environment variables:
+``` bash
+export BIOFM_REFERENCE_GENOME=/path/to/GRCh38.fna.gz
+export BIOFM_GENE_ANNOTATION=/path/to/gencode.v38.annotation.gff3.gz
+python fastreeR.py VCF2EMB -i input.vcf.gz -o embeddings.tsv
 ```
 
 #### Pipe input from gzip-compressed file
 
 ``` bash
 zcat input.vcf.gz | python fastreeR.py VCF2TREE -i - -o output.nwk
-```
-
-#### Print version and citation
-
-``` bash
-python fastreeR.py --version
 ```
 
 ### Output Examples
@@ -371,6 +500,25 @@ python fastreeR.py --version
 * `--pipe-stderr` : Pipe stderr and forward from Python (default: direct passthrough to terminal).
 * `--version` : Print version and citation information.
 
+### Embedding options (VCF2DIST and VCF2TREE only)
+
+* `-e, --embeddings` : Path to variant embeddings file for embedding-based distance calculation.
+* `--embeddings-format` : Embeddings file format: `TSV` or `HUGGINGFACE` (auto-detected if not specified).
+* `--variant-key` : Variant key format for embedding lookup: `CHROM_POS`, `CHROM_POS_REF_ALT` (default), or `VCF_ID`.
+
+### VCF2EMB options (embedding generation)
+
+* `-i, --input` : Input VCF file.
+* `-o, --output` : Output embeddings file (default: stdout).
+* `-r, --reference` : Path to reference genome FASTA file (or set `BIOFM_REFERENCE_GENOME` env var).
+* `-a, --annotation` : Path to gene annotation GFF3 file (or set `BIOFM_GENE_ANNOTATION` env var).
+* `-m, --model` : HuggingFace model name or local path (default: `m42-health/BioFM-265M`).
+* `-f, --format` : Output format: `TSV` or `HUGGINGFACE` (default: `TSV`).
+* `--variant-key` : Variant key format in output: `CHROM_POS`, `CHROM_POS_REF_ALT` (default), or `VCF_ID`.
+* `--max-variants` : Maximum number of variants to process (default: all).
+* `--batch-size` : Batch size for embedding extraction (default: 32).
+* `--device` : Device for model inference: `cuda` or `cpu` (default: auto-detect).
+ 
 ------------------------------------------------------------------------
 
 ## Integration with Java Backend
@@ -453,8 +601,10 @@ If you use `fastreeR` in your research, please cite:
 
 ## Author
 
-Anestis Gkanogiannis
-Website: <https://www.gkanogiannis.com>  
+Anestis Gkanogiannis  
+Bioinformatics/ML Scientist  
+Linkedin: [https://www.linkedin.com/in/anestis-gkanogiannis/](https://www.linkedin.com/in/anestis-gkanogiannis/)  
+Website: [https://github.com/gkanogiannis](https://github.com/gkanogiannis)  
 ORCID: [0000-0002-6441-0688](https://orcid.org/0000-0002-6441-0688)
 
 ------------------------------------------------------------------------
