@@ -4,7 +4,16 @@
 \alias{vcf2tree}
 \title{Generate phylogenetic tree from samples of a VCF file}
 \usage{
-vcf2tree(inputFile, threads = 1, verbose = FALSE, bootstrap = 0)
+vcf2tree(
+  inputFile,
+  threads = 1,
+  verbose = FALSE,
+  bootstrap = 0,
+  windowBp = NULL,
+  windowVariants = NULL,
+  windowStep = NULL,
+  windowMinVariants = 1L
+)
 }
 \arguments{
 \item{inputFile}{Input vcf file location (uncompressed or gzip compressed).}
@@ -14,18 +23,34 @@ vcf2tree(inputFile, threads = 1, verbose = FALSE, bootstrap = 0)
 \item{verbose}{Logical. If TRUE, enables verbose output from the Java backend.}
 
 \item{bootstrap}{Number of bootstrap replicates to perform (default 0, no bootstrapping).}
+
+\item{windowBp}{Optional positive integer. Emit one tree per window of N
+base pairs. Mutually exclusive with \code{windowVariants}.}
+
+\item{windowVariants}{Optional positive integer. Emit one tree per N
+consecutive variants. Mutually exclusive with \code{windowBp}.}
+
+\item{windowStep}{Optional positive integer. Window step (defaults to
+window size, i.e. tiled). Sliding windows are not yet implemented and
+will be rejected by the Java backend.}
+
+\item{windowMinVariants}{Minimum number of variants required to emit a
+window (default 1; smaller windows are skipped silently).}
 }
 \value{
-A \code{\link[base]{character}} vector of the generated
-phylogenetic tree in Newick format.
+In non-windowed mode, a \code{\link[base]{character}} vector of the
+  generated phylogenetic tree in Newick format. In windowed mode, a
+  \code{data.frame} with columns \code{chrom, start, end, nvariants, newick}
+  (one row per window).
 }
 \description{
 This function calculates a distance matrix between the samples of a VCF file
 as in \code{\link[fastreeR]{vcf2dist}}
 and performs Hierarchical Clustering on this distance matrix
 as in \code{\link[fastreeR]{dist2tree}}.
-A phylogenetic tree is calculated with
-agglomerative Neighbor Joining method (complete linkage).
+A phylogenetic tree is calculated by hierarchical clustering of the
+distance matrix (complete linkage by default; single, complete, and
+average linkage are supported by the Java backend).
 }
 \details{
 If the \code{bootstrap} parameter is set to a positive integer, the
@@ -65,6 +90,13 @@ by updating the value of the \code{java.parameters} option.
 For example in order to allocate 4GB of RAM,
 the user needs to issue \code{options(java.parameters="-Xmx4g")}
 before \code{library(fastreeR)}.
+
+\strong{Windowed mode.} Setting \code{windowBp} or \code{windowVariants}
+(mutually exclusive) instructs the Java backend to emit one Newick tree per
+genomic window. Windows never straddle chromosomes. Bootstrap is not
+supported in windowed mode and will raise an error. The return value
+becomes a \code{data.frame} with one row per window and columns
+\code{chrom, start, end, nvariants, newick}.
 }
 \examples{
 my.tree <- vcf2tree(

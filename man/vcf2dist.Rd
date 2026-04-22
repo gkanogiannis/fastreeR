@@ -9,7 +9,12 @@ vcf2dist(
   outputFile = NULL,
   threads = 2,
   compress = FALSE,
-  verbose = FALSE
+  verbose = FALSE,
+  windowBp = NULL,
+  windowVariants = NULL,
+  windowStep = NULL,
+  windowMinVariants = 1L,
+  longFormat = FALSE
 )
 }
 \arguments{
@@ -22,9 +27,27 @@ vcf2dist(
 \item{compress}{Compress output (adds .gz extension).}
 
 \item{verbose}{Logical. If TRUE, enables verbose output from the Java backend.}
+
+\item{windowBp}{Optional positive integer. Emit one matrix per window of
+N base pairs. Mutually exclusive with \code{windowVariants}.}
+
+\item{windowVariants}{Optional positive integer. Emit one matrix per N
+consecutive variants. Mutually exclusive with \code{windowBp}.}
+
+\item{windowStep}{Optional positive integer. Window step (defaults to
+window size, i.e. tiled). Sliding windows are not yet implemented and
+will be rejected by the Java backend.}
+
+\item{windowMinVariants}{Minimum number of variants required to emit a
+window (default 1; smaller windows are skipped silently).}
+
+\item{longFormat}{Logical. In windowed mode, return a long-form
+\code{data.frame} instead of a list of \code{dist} objects.}
 }
 \value{
-A \code{\link[stats]{dist}} distances object of the calculation.
+In non-windowed mode, a \code{\link[stats]{dist}} distances object.
+  In windowed mode, either a named \code{list} of \code{dist} objects
+  (default) or a long-form \code{data.frame} (when \code{longFormat = TRUE}).
 }
 \description{
 This function calculates a cosine type dissimilarity measurement between the
@@ -77,6 +100,18 @@ calculated from 1000 variants:
     Sample1 \tab 0.0 \tab 0.5 \tab 0.2\cr
     Sample2 \tab 0.5 \tab 0.0 \tab 0.9\cr
     Sample3 \tab 0.2 \tab 0.9 \tab 0.0\cr
+}
+
+\strong{Windowed mode.} Setting \code{windowBp} or \code{windowVariants}
+(mutually exclusive) instructs the Java backend to emit one distance matrix
+per genomic window. Windows never straddle chromosomes. The return value
+changes accordingly:
+\itemize{
+  \item \code{longFormat = FALSE} (default): a named \code{list} of
+    \code{\link[stats]{dist}} objects, one per window. List names follow
+    the format \code{"chrom:start-end"}.
+  \item \code{longFormat = TRUE}: a single \code{data.frame} with columns
+    \code{chrom, start, end, sample_i, sample_j, dist}.
 }
 }
 \examples{
