@@ -15,7 +15,8 @@ It enables fast computation of distance matrices and phylogenetic trees from gen
 
 `fastreeR` offers interface, which is accessible in the following ways:
 
-* 🆕 **Java Backend ([v2.5.0](https://github.com/gkanogiannis/BioInfoJava-Utils/releases/tag/v2.5.0)) !!** introduces **embedding-based distance calculation** for VCF files. Provide pre-computed variant embeddings (from genomic language models like [BioFM](https://huggingface.co/m42-health/BioFM-265M), DNA-BERT, Nucleotide Transformer, etc.) to weight variant contributions during distance computation.
+* 🆕 **Java Backend ([v2.7.0](https://github.com/gkanogiannis/BioInfoJava-Utils/releases/tag/v2.7.0)) !!** introduces **windowed / streaming VCF distance & tree output**. Emit one distance matrix (or Newick tree) per genomic window of N base pairs (`--window-bp`) or per N consecutive variants (`--window-variants`) for `VCF2DIST` and `VCF2TREE`, with optional long-form TSV output (`--long`). Windows never straddle chromosomes.
+* Java Backend ([v2.5.0](https://github.com/gkanogiannis/BioInfoJava-Utils/releases/tag/v2.5.0)) introduces **embedding-based distance calculation** for VCF files. Provide pre-computed variant embeddings (from genomic language models like [BioFM](https://huggingface.co/m42-health/BioFM-265M), DNA-BERT, Nucleotide Transformer, etc.) to weight variant contributions during distance computation.
 * Java Backend ([v2.3.0](https://github.com/gkanogiannis/BioInfoJava-Utils/releases/tag/v2.3.0)) supports reading from gzip (for example .gz), bzip2 (for example .bz2) and xz compressed VCF files.
 * Java Backend ([v2.2.0](https://github.com/gkanogiannis/BioInfoJava-Utils/releases/tag/v2.2.0)) implements streaming bootstrap; from VCF file get a newick tree with encoded bootstrap support values.
 * Java Backend ([v2.0.0](https://github.com/gkanogiannis/BioInfoJava-Utils/releases/tag/2.0.0)) 100x times **FAST**re**ER** and only a couple hundred MB RAM needed. Java 11+ suggested.
@@ -48,12 +49,19 @@ It enables fast computation of distance matrices and phylogenetic trees from gen
     - [Embedding File Formats](#embedding-file-formats)
     - [Embedding Command Line Options](#embedding-command-line-options)
     - [Embedding Examples](#embedding-examples)
+  - [Windowed / Streaming Output](#windowed--streaming-output)
+    - [How Windowing Works](#how-windowing-works)
+    - [Windowing Command Line Options](#windowing-command-line-options)
+    - [Output Formats](#output-formats)
+    - [Windowing Examples](#windowing-examples)
+    - [Windowing Limitations](#windowing-limitations)
+    - [Windowed output from R](#windowed-output-from-r)
   - [CLI Interface](#cli-interface)
     - [Commands](#commands)
       - [General Syntax](#general-syntax)
     - [Examples](#examples)
       - [Compute Distance Matrix from VCF](#compute-distance-matrix-from-vcf)
-      - [Compute Newick NJ tree directly from a VCF file.](#compute-newick-nj-tree-directly-from-a-vcf-file)
+      - [Compute Newick tree directly from a VCF file.](#compute-newick-tree-directly-from-a-vcf-file)
       - [Compute Tree from Distance Matrix](#compute-tree-from-distance-matrix)
       - [Compute D2S k-mer distance matrix from a FASTA file.](#compute-d2s-k-mer-distance-matrix-from-a-fasta-file)
       - [Generate Variant Embeddings from VCF using BioFM](#generate-variant-embeddings-from-vcf-using-biofm)
@@ -61,10 +69,16 @@ It enables fast computation of distance matrices and phylogenetic trees from gen
     - [Output Examples](#output-examples)
     - [Options (common to all commands)](#options-common-to-all-commands)
     - [Embedding options (VCF2DIST and VCF2TREE only)](#embedding-options-vcf2dist-and-vcf2tree-only)
+    - [Windowing options (VCF2DIST and VCF2TREE only)](#windowing-options-vcf2dist-and-vcf2tree-only)
     - [VCF2EMB options (embedding generation)](#vcf2emb-options-embedding-generation)
   - [Integration with Java Backend](#integration-with-java-backend)
   - [Integration with R](#integration-with-r)
   - [Sample data](#sample-data)
+    - [samples.vcf.gz](#samplesvcfgz)
+    - [samples.vcf.dist.gz](#samplesvcfdistgz)
+    - [samples.vcf.istats](#samplesvcfistats)
+    - [samples.fasta.gz](#samplesfastagz)
+    - [samples.fasta.dist.gz](#samplesfastadistgz)
   - [Citation](#citation)
   - [Author](#author)
   - [License](#license)
@@ -74,11 +88,12 @@ It enables fast computation of distance matrices and phylogenetic trees from gen
 ## Key Features
 
 * 📁 Input from standard VCF (gz, bzip2, xz compressed or uncompressed) and FASTA files.
+* 🪟 **Windowed / streaming output** emits one distance matrix or Newick tree per genomic window (by base pairs or variant count) for `VCF2DIST` and `VCF2TREE`.
 * 🧠 **Embedding-based distance calculation** using pre-computed variant embeddings from genomic language models.
 * 🥾 Streaming bootstrap support from VCF to NEWICK.
 * 🚀 With a superior multithreaded concurrency model and minimal RAM usage, from GBs down to just MBs!
 * ⚡ Ultra-fast computation of sample-wise cosine distances from large VCF and D2S k-mer based distances from FASTA files.
-* Generate agglomerative neighbor-joining phylogenetic trees directly from VCF or distance matrices.
+* Generate phylogenetic trees directly from VCF or distance matrices using **hierarchical clustering** (single, complete, or average linkage; complete by default).
 * Multithreaded execution for speed and scalability.
 * Cluster distance matrices hierarchically with dynamic tree pruning.
 * Clean Python CLI for scripting and pipeline integration
@@ -90,7 +105,7 @@ It enables fast computation of distance matrices and phylogenetic trees from gen
 
 ## Requirements
 
-* Java 17+ (LTS version with improved concurrency)
+* Java 11+
 * Python 3.7+
 * Maven (if you want to build from the source)
 * GNU/Linux, Windows or macOS
@@ -360,6 +375,108 @@ Variants without matching embeddings are automatically skipped, and the tool rep
 
 ------------------------------------------------------------------------
 
+## Windowed / Streaming Output
+
+Version 2.7.0 of the Java backend introduces **windowed output** for `VCF2DIST` and `VCF2TREE`. Instead of producing a single genome-wide distance matrix or tree, the tools can stream one matrix (or Newick tree) per genomic window. This enables local-ancestry analyses, introgression scans, recombination-rate studies, and any workflow that needs sample relationships measured along the genome.
+
+### How Windowing Works
+
+Variants are streamed in input order and grouped into windows defined either by base-pair span (`--window-bp`) or by consecutive variant count (`--window-variants`). When a window closes, all worker threads synchronize on a barrier, the per-window distance matrix is reduced from shared accumulators, the writer emits the window, and the accumulators are zeroed before the next window opens. **Windows never straddle chromosomes**; a contig change always closes the current window.
+
+The non-windowed code path is unchanged and remains byte-identical to previous releases.
+
+### Windowing Command Line Options
+
+| Option              | Description                                                                                                |
+|---------------------|------------------------------------------------------------------------------------------------------------|
+| `--window-bp`       | Emit one matrix/tree per window of N base pairs (mutually exclusive with `--window-variants`)              |
+| `--window-variants` | Emit one matrix/tree per N consecutive variants (mutually exclusive with `--window-bp`)                    |
+| `--step`            | Window step. Defaults to window size (tiled). Sliding windows (`step != size`) are not yet implemented.    |
+| `--min-variants`    | Minimum number of variants required to emit a window (default 1; smaller windows are skipped silently)     |
+| `--long`            | (`VCF2DIST` only) Emit long-form TSV `chrom, start, end, sample_i, sample_j, dist` instead of matrices     |
+
+### Output Formats
+
+`VCF2DIST` default (concatenated matrices), one block per window:
+
+```text
+# window chrom=chr1 start=0 end=100000 nvariants=842 nsamples=3
+3	842
+s1	0	0.4231	0.5102
+s2	0.4231	0	0.3987
+s3	0.5102	0.3987	0
+# window chrom=chr1 start=100000 end=200000 nvariants=917 nsamples=3
+...
+```
+
+`VCF2DIST --long`, single TSV with one row per sample pair per window:
+
+```text
+chrom	start	end	sample_i	sample_j	dist
+chr1	0	100000	s1	s2	0.4231
+chr1	0	100000	s1	s3	0.5102
+chr1	0	100000	s2	s3	0.3987
+...
+```
+
+`VCF2TREE`, one Newick tree per window, prefixed by a header comment:
+
+```text
+# window chrom=chr1 start=0 end=100000 nvariants=842 nsamples=3
+(s1:0.21,(s2:0.19,s3:0.18):0.05);
+# window chrom=chr1 start=100000 end=200000 nvariants=917 nsamples=3
+(s2:0.20,(s1:0.22,s3:0.17):0.04);
+...
+```
+
+### Windowing Examples
+
+``` bash
+# Distance matrices in 100kb tiled windows
+python fastreeR.py VCF2DIST -i samples.vcf.gz -o per_window.dist --window-bp 100000 -t 4
+
+# Long-form TSV, one matrix per 500 consecutive variants
+python fastreeR.py VCF2DIST -i samples.vcf.gz -o per_window.tsv --window-variants 500 --long -t 4
+
+# Per-window phylogenetic trees (Newick)
+python fastreeR.py VCF2TREE -i samples.vcf.gz -o per_window.nwk --window-bp 250000 -t 4
+
+# Skip windows with fewer than 50 variants
+python fastreeR.py VCF2DIST -i samples.vcf.gz -o per_window.dist --window-bp 100000 --min-variants 50
+```
+
+### Windowing Limitations
+
+- **Sliding windows** (`--step` different from window size) are reserved for a future release; passing them throws an error.
+- **Bootstrap** (`-b` / `--bootstrap`) is rejected when combined with windowing.
+- **Embeddings** (`-e` / `--embeddings`) are rejected when combined with windowing.
+
+### Windowed output from R
+
+`vcf2dist()` and `vcf2tree()` accept the same windowing parameters
+(`windowBp`, `windowVariants`, `windowStep`, `windowMinVariants`, plus
+`longFormat` for `vcf2dist`). When any window parameter is set the return
+value changes to one of:
+
+* `vcf2dist(..., windowBp = 100000)` — named `list` of `dist` objects, one per window (names are `"chrom:start-end"`).
+* `vcf2dist(..., windowVariants = 500, longFormat = TRUE)` — single long-form `data.frame` with columns `chrom, start, end, sample_i, sample_j, dist`.
+* `vcf2tree(..., windowBp = 250000)` — `data.frame` with columns `chrom, start, end, nvariants, newick`.
+
+``` r
+library(fastreeR)
+vcf <- system.file("extdata", "samples.vcf.gz", package = "fastreeR")
+
+# Per-window distance matrices (list of dist)
+windows <- vcf2dist(vcf, windowBp = 100000)
+length(windows); head(names(windows))
+
+# Per-window trees as a data.frame
+trees <- vcf2tree(vcf, windowVariants = 500)
+trees[1, ]
+```
+
+------------------------------------------------------------------------
+
 ## CLI Interface
 
 The Python CLI (`fastreeR.py`) interfaces with the Java backend via `subprocess`, providing a unified command-line interface for all supported tools.
@@ -374,9 +491,9 @@ python3 fastreeR.py <COMMAND> [OPTIONS]
 
 | COMMAND      | Description                                                      |
 |--------------|------------------------------------------------------------------|
-| `VCF2DIST`   | Compute a cosine distance matrix from a VCF file                 |
-| `VCF2TREE`   | Compute a Newick NJ tree directly from a VCF                     |
-| `DIST2TREE`  | Compute a Newick NJ tree from a distance matrix                  |
+| `VCF2DIST`   | Compute a cosine distance matrix from a VCF file (genome-wide or per window) |
+| `VCF2TREE`   | Compute a Newick hierarchical-clustering tree from a VCF (genome-wide or per window) |
+| `DIST2TREE`  | Compute a Newick hierarchical-clustering tree from a distance matrix |
 | `FASTA2DIST` | Compute a D2S distance matrix from a FASTA file                  |
 | `VCF2EMB`    | Generate variant embeddings from VCF using BioFM language model  |
 
@@ -390,7 +507,7 @@ python3 fastreeR.py <COMMAND> [OPTIONS]
 python fastreeR.py VCF2DIST -i input.vcf -o output.dist --threads 16 --verbose
 ```
 
-#### Compute Newick NJ tree directly from a VCF file.
+#### Compute Newick tree directly from a VCF file.
 
 ``` bash
 python fastreeR.py VCF2TREE -i input.vcf -o output.nwk --threads 16 --verbose
@@ -505,6 +622,14 @@ zcat input.vcf.gz | python fastreeR.py VCF2TREE -i - -o output.nwk
 * `-e, --embeddings` : Path to variant embeddings file for embedding-based distance calculation.
 * `--embeddings-format` : Embeddings file format: `TSV` or `HUGGINGFACE` (auto-detected if not specified).
 * `--variant-key` : Variant key format for embedding lookup: `CHROM_POS`, `CHROM_POS_REF_ALT` (default), or `VCF_ID`.
+
+### Windowing options (VCF2DIST and VCF2TREE only)
+
+* `--window-bp N` : Emit one matrix/tree per window of `N` base pairs (mutually exclusive with `--window-variants`).
+* `--window-variants N` : Emit one matrix/tree per `N` consecutive variants (mutually exclusive with `--window-bp`).
+* `--step N` : Window step (defaults to window size, i.e. tiled). Sliding windows are not yet implemented.
+* `--min-variants N` : Minimum number of variants required to emit a window (default 1).
+* `--long` : (`VCF2DIST` only) Emit long-form TSV `chrom, start, end, sample_i, sample_j, dist` instead of concatenated matrices.
 
 ### VCF2EMB options (embedding generation)
 

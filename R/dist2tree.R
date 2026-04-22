@@ -3,8 +3,8 @@
 #' Performs Hierarchical Clustering on a distance matrix
 #' (i.e. calculated with \code{\link[fastreeR]{vcf2dist}}
 #' or \code{\link[fastreeR]{fasta2dist}})
-#' and generates a phylogenetic tree with
-#' agglomerative Neighbor Joining method (complete linkage).
+#' and generates a phylogenetic tree (complete linkage by default;
+#' single, complete, and average linkage are supported by the Java backend).
 #'
 #' @param inputDist Input distances file location
 #' (generated with \code{\link[fastreeR]{vcf2dist}}

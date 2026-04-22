@@ -3,9 +3,9 @@
 #' Performs Hierarchical Clustering on a distance matrix
 #' (i.e. calculated with \code{\link[fastreeR]{vcf2dist}}
 #' or \code{\link[fastreeR]{fasta2dist}})
-#' and generates a phylogenetic tree with
-#' agglomerative Neighbor Joining method (complete linkage)
-#' (as in \code{\link[fastreeR]{dist2tree}}).
+#' and generates a phylogenetic tree (complete linkage by default;
+#' single, complete, and average linkage are supported by the Java backend),
+#' as in \code{\link[fastreeR]{dist2tree}}.
 #' The phylogenetic tree is then pruned with
 #' \code{\link[dynamicTreeCut]{cutreeDynamic}} to get clusters
 #' (as in \code{\link[fastreeR]{tree2clusters}}).
