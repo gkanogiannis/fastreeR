@@ -204,14 +204,10 @@ jobs:
 
           API_URL_1="https://api.github.com/repos/${REPO_BACKEND}/releases/tags/v${FINAL_BACK_VER}"
           API_URL_2="https://api.github.com/repos/${REPO_BACKEND}/releases/tags/${FINAL_BACK_VER}"
-          API_URL_3="https://api.github.com/repos/${REPO_BACKEND}/blob/main/bin/BioInfoJavaUtils-${FINAL_BACK_VER}.jar"
 
           RESP=$(curl -sSL -H "Accept: application/vnd.github+json" "$API_URL_1")
           if [ "$(echo "$RESP" | jq -r .message)" = "Not Found" ]; then
             RESP=$(curl -sSL -H "Accept: application/vnd.github+json" "$API_URL_2")
-            if [ "$(echo "$RESP" | jq -r .message)" = "Not Found" ]; then
-              RESP=$(curl -sSL -H "Accept: application/vnd.github+json" "$API_URL_3")
-            fi
           fi
 
           # Safety: make sure we actually got assets back
