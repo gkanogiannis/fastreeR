@@ -1,12 +1,14 @@
 ---
 title: "fastreeR Vignette"
-author: 
+author:
 -   name: "Anestis Gkanogiannis"
     email: anestis@gkanogiannis.com
 package: fastreeR
-output: 
+output:
     BiocStyle::html_document:
-    toc: true
+        toc: true
+        toc_depth: 2
+        number_sections: true
 vignette: >
     %\VignetteIndexEntry{fastreeR}
     %\VignetteEngine{knitr::rmarkdown}
@@ -16,6 +18,7 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
     warning = FALSE,
+    message = FALSE,
     collapse = TRUE,
     comment = "#>"
 )
@@ -23,9 +26,38 @@ knitr::opts_chunk$set(
 
 # About fastreeR
 
-The goal of fastreeR is to provide functions for calculating distance matrix,
-building phylogenetic tree or performing hierarchical clustering 
-between samples, directly from a VCF or FASTA file.
+`fastreeR` provides fast, low-memory routines for sample-level population
+genetics on whole VCF or FASTA files: pairwise distances, phylogenetic trees,
+and hierarchical clustering, without loading the data into R. All heavy
+lifting is performed by a multi-threaded Java backend; the R package is a thin
+wrapper that streams results back.
+
+Typical use cases:
+
+- Exploratory clustering of samples from a large multi-sample VCF.
+- Scanning a VCF in windows to spot regions where the sample topology differs
+  (introgression, selection, structural variation).
+- k-mer based distances and phylogenies from many FASTA sequences.
+
+## Function overview
+
+| Function         | Input                | Output                                       | Notes |
+|------------------|----------------------|----------------------------------------------|-------|
+| `vcf2istats`     | VCF file             | `data.frame` of per-sample stats             | het / hom / missing counts and percentages |
+| `vcf2dist`       | VCF file             | `dist` object (or list / `data.frame` in windowed mode) | cosine-type distance; supports windowed output |
+| `vcf2tree`       | VCF file             | Newick string (or `data.frame` in windowed mode) | supports streaming bootstrap replicates |
+| `vcf2clusters`   | VCF file             | `list(tree, clusters)`                       | `vcf2dist` + `dist2clusters` in one call |
+| `fasta2dist`     | one or more FASTA    | `dist` object                                | d2_S k-mer dissimilarity |
+| `dist2tree`      | `dist` object / file | Newick string                                | hierarchical clustering wrapper |
+| `dist2clusters`  | `dist` object / file | `list(tree, clusters)`                       | dynamic tree cutting |
+| `tree2clusters`  | Newick string / file | cluster assignment                           | dynamic tree cutting from a tree |
+
+## Compressed VCF input
+
+`vcf2dist`, `vcf2tree` and related functions accept either a plain `.vcf`
+file or a gzip-compressed `.vcf.gz` file transparently — gzip inputs are
+decompressed to a temporary file before being handed to the Java backend, as
+illustrated by the bundled `samples.vcf.gz` used throughout this vignette.
 
 # Installation
 
@@ -68,16 +100,16 @@ use. The letter in the parameter (uppercase or lowercase), indicates RAM units.
 For example, parameters `-Xmx1024m` or `-Xmx1024M` or `-Xmx1g` or `-Xmx1G`, all
 allocate 1 Gigabyte or 1024 Megabytes of maximum RAM for JVM.
 
-```{r, eval=TRUE, message=FALSE}
-options(java.parameters="-Xmx1G")
-unloadNamespace("fastreeR")
+```{r, eval=TRUE}
+options(java.parameters = "-Xmx1G")
 library(fastreeR)
 library(utils)
 library(ape)
 library(stats)
 library(grid)
 library(BiocFileCache)
-library(ggtree)
+has_ggtree <- requireNamespace("ggtree", quietly = TRUE)
+if (has_ggtree) suppressPackageStartupMessages(library(ggtree))
 ```
 
 ## Download sample vcf file
@@ -145,37 +177,30 @@ tempFastasUrls <- c(
         "GCF_000013425.1_ASM1342v1/GCF_000013425.1_ASM1342v1_genomic.fna.gz")
 )
 tempFastas <- list()
-for (i in seq(1,5)) {
-    tempFastas[[i]] <- BiocFileCache::bfcquery(bfc,field = "rname", 
-                                                paste0("temp_fasta",i))$rpath[1]
-    if(is.na(tempFastas[[i]])) {
-        tryCatch(
-        { tempFastas[[i]] <- 
-            BiocFileCache::bfcadd(bfc, paste0("temp_fasta",i), 
-                                                fpath=tempFastasUrls[i])[[1]]
-        },
-        error=function(cond) {
-            tempFastas <- system.file("extdata", "samples.fasta.gz", 
-                                                        package="fastreeR")
-            break
-        },
-        warning=function(cond) {
-            tempFastas <- system.file("extdata", "samples.fasta.gz", 
-                                                        package="fastreeR")
-            break
-        }
+fallback_fasta <- system.file("extdata", "samples.fasta.gz",
+                              package = "fastreeR")
+use_fallback <- FALSE
+for (i in seq_len(5)) {
+    tempFastas[[i]] <- BiocFileCache::bfcquery(bfc, field = "rname",
+                                                paste0("temp_fasta", i))$rpath[1]
+    if (is.na(tempFastas[[i]])) {
+        path_i <- tryCatch(
+            BiocFileCache::bfcadd(bfc, paste0("temp_fasta", i),
+                                  fpath = tempFastasUrls[i])[[1]],
+            error   = function(cond) NA_character_,
+            warning = function(cond) NA_character_
         )
+        tempFastas[[i]] <- path_i
     }
-    if(!file.exists(tempFastas[[i]])) {
-        tempFastas <- system.file("extdata", "samples.fasta.gz", 
-                                                        package="fastreeR")
+    if (is.na(tempFastas[[i]]) ||
+        !file.exists(tempFastas[[i]]) ||
+        file.size(tempFastas[[i]]) == 0L) {
+        use_fallback <- TRUE
         break
     }
-    if(file.size(tempFastas[[i]]) == 0L) {
-        tempFastas <- system.file("extdata", "samples.fasta.gz", 
-                                                        package="fastreeR")
-        break
-    }
+}
+if (use_fallback) {
+    tempFastas <- fallback_fasta
 }
 ```
 
@@ -255,13 +280,22 @@ As a rule of thumb, interpret bootstrap values roughly as:
 
 These are heuristic guidelines and should be used with caution.
 
+### Reproducibility note
+
+Bootstrap resampling is stochastic and runs inside the Java backend, so
+support values will vary slightly between runs. For deterministic downstream
+analyses, save the produced Newick string to disk and re-use it rather than
+re-running the replicates.
+
 ### Bootstrap example (small, runnable)
 
-The chunk below runs a modest number of replicates so it is safe for local
-testing. For production use, increase `bt_reps` to 100-1000 as appropriate.
+The chunk below runs a modest number of replicates so it is safe for the
+vignette build. For production use, set `bt_reps` to 100-1000; runtime grows
+roughly linearly with the number of replicates.
 
 ```{r eval=TRUE, fig.cap="Tree from vcf with fastreeR and bootstrap support (ape)", fig.wide=TRUE}
-# Calculate a tree with a small number of bootstrap replicates (adjust as needed)
+# Small number of replicates for vignette build speed.
+# For production: bt_reps <- 200   # or 500-1000
 bt_reps <- 10
 myBootTree <- fastreeR::vcf2tree(inputFile = tempVcf, threads = 1, bootstrap = bt_reps)
 
@@ -303,7 +337,7 @@ if (length(node_support) > 0) {
 If you have `ggtree` installed, you can produce a more polished plot and
 annotate node supports.
 
-```{r eval=TRUE, fig.cap="Tree from vcf with fastreeR and bootstrap support (ggtree)", fig.wide=TRUE}
+```{r eval=has_ggtree, fig.cap="Tree from vcf with fastreeR and bootstrap support (ggtree)", fig.wide=TRUE}
   # internal node numbers are Ntip+1 : Ntip+Nnode
   ntips <- ape::Ntip(tr)
   nints <- ape::Nnode(tr)
@@ -332,8 +366,7 @@ annotate node supports.
   print(p)
 ```
 
-Command-line examples
----------------------
+### Command-line examples
 
 Run from the Python CLI (local JVM memory allocation via `--mem`):
 
@@ -351,8 +384,7 @@ docker run --rm -v $(pwd):/data gkanogiannis/fastreer:latest \
 These commands produce a Newick tree file with bootstrap support values encoded
 at internal nodes; parse it in R with `ape::read.tree()` to inspect `node.label`.
 
-JVM / rJava troubleshooting tips
---------------------------------
+### JVM / rJava troubleshooting tips
 
 If you encounter `rJava` initialization errors or out-of-memory issues when
 calling `vcf2tree()` from R, set the JVM heap before loading the package, for
@@ -367,12 +399,75 @@ library(fastreeR)
 Also ensure Java 11+ is installed and on your PATH. On Windows, point R to
 the correct Java installation (matching 64/32-bit R) if needed.
 
-Reproducibility note
---------------------
+## Windowed VCF analysis
 
-Bootstrapping is stochastic. Results may vary
-across runs and environments. You can also save and share the generated
-Newick output for deterministic downstream analyses.
+`vcf2dist` and `vcf2tree` can emit one distance matrix (or Newick tree) per
+genomic window. This is useful for scanning a VCF for regions whose sample
+topology differs from the genome-wide signal — e.g. candidate introgression
+blocks, selective sweeps, or structural variants. Windows are tiled (the step
+defaults to the window size) and never straddle chromosome boundaries.
+
+Two window definitions are supported, mutually exclusive:
+
+- `windowBp` — windows of N base pairs.
+- `windowVariants` — windows of N consecutive variants.
+
+Bootstrap replicates are not available in windowed mode.
+
+### Windowed distance matrices
+
+With the default `longFormat = FALSE`, `vcf2dist` returns a named list of
+`dist` objects, one per window, keyed `"chrom:start-end"`.
+
+```{r eval=TRUE}
+win_dists <- fastreeR::vcf2dist(
+    inputFile = tempVcf,
+    threads = 1,
+    windowVariants = 500
+)
+length(win_dists)
+head(names(win_dists), 3)
+```
+
+Passing `longFormat = TRUE` returns a long-form `data.frame` of all pairwise
+distances across all windows, which is convenient for `data.table` /
+`ggplot2` downstream work:
+
+```{r eval=TRUE}
+win_long <- fastreeR::vcf2dist(
+    inputFile = tempVcf,
+    threads = 1,
+    windowVariants = 500,
+    longFormat = TRUE
+)
+head(win_long)
+```
+
+### Windowed trees
+
+`vcf2tree` in windowed mode returns a `data.frame` with one row per window
+and columns `chrom, start, end, nvariants, newick`.
+
+```{r eval=TRUE, fig.cap="Per-window trees from vcf", fig.wide=TRUE}
+win_trees <- fastreeR::vcf2tree(
+    inputFile = tempVcf,
+    threads = 1,
+    windowVariants = 500
+)
+head(win_trees[, c("chrom", "start", "end", "nvariants")])
+
+n_show <- min(3, nrow(win_trees))
+if (n_show > 0) {
+    op <- graphics::par(mfrow = c(1, n_show), mar = c(2, 1, 2, 1))
+    for (k in seq_len(n_show)) {
+        tr_k <- ape::read.tree(text = win_trees$newick[k])
+        plot(tr_k, direction = "down", cex = 0.3,
+             main = paste0(win_trees$chrom[k], ":",
+                           win_trees$start[k], "-", win_trees$end[k]))
+    }
+    graphics::par(op)
+}
+```
 
 ## Plot tree from `stats::hclust`
 
@@ -449,6 +544,6 @@ plot(myFastaTreeStats, ann = FALSE, cex = 0.3)
 
 # Session Info
 
-```{r setup}
+```{r sessionInfo}
 utils::sessionInfo()
 ```

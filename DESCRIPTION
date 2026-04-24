@@ -1,8 +1,8 @@
 Package: fastreeR
 Type: Package
 Title: Phylogenetic, Distance and Other Calculations on VCF and Fasta Files
-Version: 2.1.4
-Backend: 2.7.0
+Version: 2.1.5
+Backend: 2.7.1
 biocViews: Phylogenetics, Metagenomics, Clustering
 Authors@R:
     c(person(given = "Anestis",
@@ -33,7 +33,7 @@ Imports:
     stringr,
     utils
 SystemRequirements: Java (>= 11)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 URL: https://github.com/gkanogiannis/fastreeR, 
      https://github.com/gkanogiannis/BioInfoJava-Utils
 BugReports: https://github.com/gkanogiannis/fastreeR/issues
