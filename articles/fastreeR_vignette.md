@@ -321,7 +321,7 @@ node_support <- if (!is.null(raw_lbls)) {
   numeric(0)
 }
 print(head(tr$node.label))
-#> [1] ""    ""    ""    "100" ""    ""
+#> [1] ""    ""    ""    "100" "10"  ""
 plot(tr, direction = "down", cex = 0.3)
 if (length(node_support) > 0) {
   # round and show as integers, place without frames
@@ -616,7 +616,7 @@ Tree from fasta with stats::hclust
 
 ``` r
 utils::sessionInfo()
-#> R version 4.5.3 (2026-03-11)
+#> R version 4.6.0 (2026-04-24)
 #> Platform: x86_64-pc-linux-gnu
 #> Running under: Ubuntu 24.04.4 LTS
 #> 
@@ -640,25 +640,25 @@ utils::sessionInfo()
 #> [8] base     
 #> 
 #> other attached packages:
-#> [1] ggtree_4.0.5        BiocFileCache_3.0.0 dbplyr_2.5.2       
-#> [4] ape_5.8-1           fastreeR_2.1.6      BiocStyle_2.38.0   
+#> [1] ggtree_4.1.2        BiocFileCache_3.1.0 dbplyr_2.5.2       
+#> [4] ape_5.8-1           fastreeR_2.1.6      BiocStyle_2.39.0   
 #> 
 #> loaded via a namespace (and not attached):
 #>  [1] gtable_0.3.6            xfun_0.57               bslib_0.10.0           
 #>  [4] ggplot2_4.0.3           httr2_1.2.2             htmlwidgets_1.6.4      
 #>  [7] rJava_1.0-18            lattice_0.22-9          vctrs_0.7.3            
-#> [10] tools_4.5.3             generics_0.1.4          yulab.utils_0.2.4      
-#> [13] curl_7.1.0              parallel_4.5.3          tibble_3.3.1           
+#> [10] tools_4.6.0             generics_0.1.4          yulab.utils_0.2.4      
+#> [13] curl_7.1.0              parallel_4.6.0          tibble_3.3.1           
 #> [16] RSQLite_2.4.6           blob_1.3.0              R.oo_1.27.1            
 #> [19] pkgconfig_2.0.3         ggplotify_0.1.3         RColorBrewer_1.1-3     
 #> [22] S7_0.2.2                desc_1.4.3              lifecycle_1.0.5        
-#> [25] stringr_1.6.0           compiler_4.5.3          farver_2.1.2           
-#> [28] treeio_1.34.0           textshaping_1.0.5       fontLiberation_0.1.0   
+#> [25] stringr_1.6.0           compiler_4.6.0          farver_2.1.2           
+#> [28] treeio_1.35.0           textshaping_1.0.5       fontLiberation_0.1.0   
 #> [31] fontquiver_0.2.1        ggfun_0.2.0             htmltools_0.5.9        
 #> [34] sass_0.4.10             yaml_2.3.12             lazyeval_0.2.3         
 #> [37] pillar_1.11.1           pkgdown_2.2.0           jquerylib_0.1.4        
 #> [40] tidyr_1.3.2             R.utils_2.13.0          MASS_7.3-65            
-#> [43] cachem_1.1.0            fontBitstreamVera_0.1.1 nlme_3.1-168           
+#> [43] cachem_1.1.0            fontBitstreamVera_0.1.1 nlme_3.1-169           
 #> [46] tidyselect_1.2.1        aplot_0.2.9             digest_0.6.39          
 #> [49] stringi_1.8.7           dplyr_1.2.1             purrr_1.2.2            
 #> [52] bookdown_0.46           labeling_0.4.3          fastmap_1.2.0          

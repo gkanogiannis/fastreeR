@@ -13,7 +13,7 @@ Source:
 Gkanogiannis A, Bruls T (2016). “A scalable assembly-free variable
 selection algorithm for biomarker discovery from metagenomes.” *BMC
 Bioinformatics*, **Aug 19;17(1):311**.
-[doi:10.1186/s12859-016-1186-3](https://doi.org/10.1186/s12859-016-1186-3),
+[doi:10.1186/s12859-016-1186-3](https://doi.org/10.1186/s12859-016-1186-3).
 <https://dx.doi.org/10.1186/s12859-016-1186-3>.
 
     @Article{,
