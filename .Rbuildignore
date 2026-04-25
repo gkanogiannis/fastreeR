@@ -1,5 +1,8 @@
 ^\.git$
 ^\.github$
+^_pkgdown\.yml$
+^docs$
+^pkgdown$
 ^\.gitattributes$
 ^\.gitignore$
 ^.*\.Rproj$
