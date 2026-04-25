@@ -1,0 +1,9 @@
+pandoc: 3.1.11
+pkgdown: 2.2.0
+pkgdown_sha: ~
+articles:
+  fastreeR_vignette: fastreeR_vignette.html
+last_built: 2026-04-25T00:35Z
+urls:
+  reference: https://gkanogiannis.github.io/fastreeR/reference
+  article: https://gkanogiannis.github.io/fastreeR/articles
