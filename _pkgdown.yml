@@ -1,0 +1,48 @@
+url: https://gkanogiannis.github.io/fastreeR/
+
+template:
+  bootstrap: 5
+  bootswatch: flatly
+
+home:
+  title: fastreeR — Fast Tree Reconstruction Tools for Genomics
+  description: >
+    Calculate distances, build phylogenetic trees, or perform hierarchical
+    clustering between samples of VCF or FASTA files, powered by a
+    high-performance Java backend.
+
+navbar:
+  structure:
+    left:  [intro, reference, articles, news]
+    right: [search, github]
+
+reference:
+  - title: VCF
+    desc: Functions operating on VCF files
+    contents:
+      - vcf2dist
+      - vcf2tree
+      - vcf2istats
+      - vcf2clusters
+  - title: FASTA
+    desc: Functions operating on FASTA sequences
+    contents:
+      - fasta2dist
+  - title: Distance and tree utilities
+    contents:
+      - dist2tree
+      - dist2clusters
+      - tree2clusters
+  - title: Package
+    contents:
+      - fastreeR-package
+
+articles:
+  - title: Get started
+    navbar: ~
+    contents:
+      - fastreeR_vignette
+
+authors:
+  Anestis Gkanogiannis:
+    href: https://github.com/gkanogiannis
