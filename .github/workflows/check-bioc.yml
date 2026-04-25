@@ -1,0 +1,149 @@
+## Read more about GitHub Actions for Bioconductor packages at
+## https://lcolladotor.github.io/biocthis/articles/biocthis.html
+##
+## Workflow runs R CMD check, BiocCheck, and (optionally) the test coverage
+## report on Linux / macOS / Windows against the Bioconductor release and
+## devel branches matching the R version map at
+## https://bioconductor.org/checkResults/
+
+name: R-CMD-check-bioc
+
+on:
+  push:
+    branches: [main, master, devel, RELEASE_*]
+  pull_request:
+    branches: [main, master, devel, RELEASE_*]
+  workflow_dispatch:
+
+env:
+  cache-version: 'cache-v1'
+
+permissions: read-all
+
+jobs:
+  build-check:
+    runs-on: ${{ matrix.config.os }}
+    name: ${{ matrix.config.os }} (${{ matrix.config.r }} / Bioc ${{ matrix.config.bioc }})
+    container: ${{ matrix.config.cont }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { os: ubuntu-latest, r: '4.5', bioc: '3.21', cont: 'bioconductor/bioconductor_docker:RELEASE_3_21', rspm: 'https://packagemanager.posit.co/cran/__linux__/noble/latest' }
+          - { os: macOS-latest,  r: '4.5', bioc: '3.21' }
+          - { os: windows-latest, r: '4.5', bioc: '3.21' }
+
+    env:
+      R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
+      RSPM: ${{ matrix.config.rspm }}
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      NOT_CRAN: true
+      TZ: UTC
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java 11
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '11'
+
+      - name: Set up R
+        if: matrix.config.os != 'ubuntu-latest'
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: ${{ matrix.config.r }}
+          http-user-agent: ${{ matrix.config.http-user-agent }}
+          use-public-rspm: true
+
+      - name: Set up pandoc
+        if: matrix.config.os != 'ubuntu-latest'
+        uses: r-lib/actions/setup-pandoc@v2
+
+      - name: Configure Java for R (non-Linux)
+        if: matrix.config.os != 'ubuntu-latest'
+        run: R CMD javareconf
+        shell: bash
+
+      - name: Query dependencies
+        run: |
+          install.packages('remotes')
+          saveRDS(remotes::dev_package_deps(dependencies = TRUE, repos = c(BiocManager::repositories(), CRAN = "https://cloud.r-project.org")), ".github/depends.Rds", version = 2)
+        shell: Rscript {0}
+
+      - name: Cache R packages
+        if: matrix.config.os != 'ubuntu-latest'
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.R_LIBS_USER }}
+          key: ${{ env.cache-version }}-${{ runner.os }}-biocrelease-${{ matrix.config.bioc }}-r-${{ matrix.config.r }}-${{ hashFiles('.github/depends.Rds') }}
+          restore-keys: ${{ env.cache-version }}-${{ runner.os }}-biocrelease-${{ matrix.config.bioc }}-r-${{ matrix.config.r }}-
+
+      - name: Install Linux system deps
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y libcurl4-openssl-dev libxml2-dev libssl-dev pandoc qpdf
+        shell: bash
+
+      - name: Install macOS system deps
+        if: runner.os == 'macOS'
+        run: |
+          brew install --cask basictex || true
+          brew install qpdf || true
+        shell: bash
+
+      - name: Install BiocManager
+        run: |
+          install.packages('BiocManager')
+          BiocManager::install(version = "${{ matrix.config.bioc }}", ask = FALSE, update = FALSE)
+        shell: Rscript {0}
+
+      - name: Install package dependencies
+        run: |
+          options(repos = c(BiocManager::repositories(), CRAN = "https://cloud.r-project.org"))
+          remotes::install_deps(dependencies = TRUE, upgrade = FALSE)
+          remotes::install_cran(c("rcmdcheck", "BiocCheck"))
+        shell: Rscript {0}
+
+      - name: Session info
+        run: |
+          options(width = 100)
+          pkgs <- installed.packages()[, "Package"]
+          sessioninfo::session_info(pkgs, include_base = TRUE)
+        shell: Rscript {0}
+
+      - name: R CMD check
+        env:
+          _R_CHECK_CRAN_INCOMING_REMOTE_: false
+          _R_CHECK_FORCE_SUGGESTS_: false
+          DISPLAY: 99.0
+        run: |
+          options(crayon.enabled = TRUE)
+          rcmdcheck::rcmdcheck(
+            args = c("--no-manual", "--no-vignettes", "--timings"),
+            build_args = c("--no-manual", "--no-build-vignettes", "--keep-empty-dirs"),
+            error_on = "warning",
+            check_dir = "check"
+          )
+        shell: Rscript {0}
+
+      - name: BiocCheck
+        run: |
+          BiocCheck::BiocCheck(
+            dir('check', 'tar.gz$', full.names = TRUE),
+            `quit-with-status` = TRUE,
+            `no-check-R-ver` = TRUE,
+            `no-check-bioc-help` = TRUE
+          )
+        shell: Rscript {0}
+
+      - name: Upload check artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ runner.os }}-biocrelease-${{ matrix.config.bioc }}-r-${{ matrix.config.r }}-results
+          path: check
