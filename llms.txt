@@ -119,11 +119,6 @@ format.
   - [Integration with Java Backend](#integration-with-java-backend)
   - [Integration with R](#integration-with-r)
   - [Sample data](#sample-data)
-    - [samples.vcf.gz](#samplesvcfgz)
-    - [samples.vcf.dist.gz](#samplesvcfdistgz)
-    - [samples.vcf.istats](#samplesvcfistats)
-    - [samples.fasta.gz](#samplesfastagz)
-    - [samples.fasta.dist.gz](#samplesfastadistgz)
   - [Citation](#citation)
   - [Author](#author)
   - [License](#license)
@@ -731,6 +726,12 @@ python fastreeR.py VCF2EMB -i input.vcf.gz -o embeddings.tsv
 
 ``` bash
 zcat input.vcf.gz | python fastreeR.py VCF2TREE -i - -o output.nwk
+```
+
+#### Print version and citation
+
+``` bash
+python fastreeR.py --version
 ```
 
 ### Output Examples

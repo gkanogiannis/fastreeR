@@ -161,16 +161,7 @@
 </li>
 <li><a href="#integration-with-java-backend">Integration with Java Backend</a></li>
 <li><a href="#integration-with-r">Integration with R</a></li>
-<li>
-<a href="#sample-data">Sample data</a>
-<ul>
-<li><a href="#samplesvcfgz">samples.vcf.gz</a></li>
-<li><a href="#samplesvcfdistgz">samples.vcf.dist.gz</a></li>
-<li><a href="#samplesvcfistats">samples.vcf.istats</a></li>
-<li><a href="#samplesfastagz">samples.fasta.gz</a></li>
-<li><a href="#samplesfastadistgz">samples.fasta.dist.gz</a></li>
-</ul>
-</li>
+<li><a href="#sample-data">Sample data</a></li>
 <li><a href="#citation">Citation</a></li>
 <li><a href="#author">Author</a></li>
 <li><a href="#license">License</a></li>
@@ -411,7 +402,7 @@ chr1:67890:C:T  0.567   0.123   -0.890  ...</code></pre>
 </h3>
 <table class="table">
 <colgroup>
-<col width="22%">
+<col width="23%">
 <col width="77%">
 </colgroup>
 <thead><tr class="header">
@@ -586,8 +577,8 @@ chr1    0   100000  s2  s3  0.3987
 <div class="sourceCode" id="cb24"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a><span class="ex">python3</span> fastreeR.py <span class="op">&lt;</span>COMMAND<span class="op">&gt;</span> <span class="pp">[</span><span class="ss">OPTIONS</span><span class="pp">]</span></span></code></pre></div>
 <table class="table">
 <colgroup>
-<col width="17%">
-<col width="82%">
+<col width="14%">
+<col width="86%">
 </colgroup>
 <thead><tr class="header">
 <th>COMMAND</th>
@@ -697,6 +688,11 @@ chr1    0   100000  s2  s3  0.3987
 </h4>
 <div class="sourceCode" id="cb35"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" tabindex="-1"></a><span class="fu">zcat</span> input.vcf.gz <span class="kw">|</span> <span class="ex">python</span> fastreeR.py VCF2TREE <span class="at">-i</span> <span class="at">-</span> <span class="at">-o</span> output.nwk</span></code></pre></div>
 </div>
+<div class="section level4">
+<h4 id="print-version-and-citation">Print version and citation<a class="anchor" aria-label="anchor" href="#print-version-and-citation"></a>
+</h4>
+<div class="sourceCode" id="cb36"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb36-1"><a href="#cb36-1" tabindex="-1"></a><span class="ex">python</span> fastreeR.py <span class="at">--version</span></span></code></pre></div>
+</div>
 </div>
 <div class="section level3">
 <h3 id="output-examples">Output Examples<a class="anchor" aria-label="anchor" href="#output-examples"></a>
@@ -796,7 +792,7 @@ chr1    0   100000  s2  s3  0.3987
 <h2 id="integration-with-r">Integration with R<a class="anchor" aria-label="anchor" href="#integration-with-r"></a>
 </h2>
 <p>All core functionality is available via the <code>fastreeR</code> R package (Bioconductor/devel):</p>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/gkanogiannis/fastreeR" class="external-link">fastreeR</a></span><span class="op">)</span></span>
 <span><span class="va">tree</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/vcf2tree.html">vcf2tree</a></span><span class="op">(</span><span class="st">"input.vcf"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">tree</span><span class="op">)</span></span></code></pre></div>
@@ -810,36 +806,36 @@ chr1    0   100000  s2  s3  0.3987
 <div class="section level3">
 <h3 id="samplesvcfgz">samples.vcf.gz<a class="anchor" aria-label="anchor" href="#samplesvcfgz"></a>
 </h3>
-<p>Sample VCF file of 100 individuals and 1000 variants, in Chromosome22, from the 1K Genomes project. Original file available at <a href="http://hgdownload.cse.ucsc.edu/gbdb/hg19/1000Genomes/phase3/" class="external-link">http://hgdownload.cse.ucsc.edu/gbdb/hg19/1000Genomes/phase3/</a></p>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<p>Sample VCF file of 100 individuals and 1000 variants, in Chromosome22, from the 1K Genomes project. Original file available at <a href="http://hgdownload.cse.ucsc.edu/gbdb/hg19/1000Genomes/phase3/" class="external-link uri">http://hgdownload.cse.ucsc.edu/gbdb/hg19/1000Genomes/phase3/</a></p>
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vcfFile</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"samples.vcf.gz"</span>, package <span class="op">=</span> <span class="st">"fastreeR"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="samplesvcfdistgz">samples.vcf.dist.gz<a class="anchor" aria-label="anchor" href="#samplesvcfdistgz"></a>
 </h3>
 <p>Distances from the previous sample VCF</p>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vcfDist</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"samples.vcf.dist.gz"</span>, package <span class="op">=</span> <span class="st">"fastreeR"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="samplesvcfistats">samples.vcf.istats<a class="anchor" aria-label="anchor" href="#samplesvcfistats"></a>
 </h3>
 <p>Individual statistics from the previous sample VCF</p>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vcfIstats</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"samples.vcf.istats"</span>, package <span class="op">=</span> <span class="st">"fastreeR"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="samplesfastagz">samples.fasta.gz<a class="anchor" aria-label="anchor" href="#samplesfastagz"></a>
 </h3>
-<p>Sample FASTA file of 48 random bacteria RefSeq from <a href="ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/">ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/</a>.</p>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<p>Sample FASTA file of 48 random bacteria RefSeq from <a href="ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/" class="uri">ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/</a>.</p>
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fastaFile</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"samples.fasta.gz"</span>, package <span class="op">=</span> <span class="st">"fastreeR"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="samplesfastadistgz">samples.fasta.dist.gz<a class="anchor" aria-label="anchor" href="#samplesfastadistgz"></a>
 </h3>
 <p>Distances from the previous sample FASTA</p>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fastaDist</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"samples.fasta.dist.gz"</span>, package <span class="op">=</span> <span class="st">"fastreeR"</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
@@ -858,8 +854,8 @@ chr1    0   100000  s2  s3  0.3987
 </h2>
 <p>Anestis Gkanogiannis<br>
 Bioinformatics/ML Scientist<br>
-Linkedin: <a href="https://www.linkedin.com/in/anestis-gkanogiannis/" class="external-link">https://www.linkedin.com/in/anestis-gkanogiannis/</a><br>
-Website: <a href="https://github.com/gkanogiannis" class="external-link">https://github.com/gkanogiannis</a><br>
+Linkedin: <a href="https://www.linkedin.com/in/anestis-gkanogiannis/" class="external-link uri">https://www.linkedin.com/in/anestis-gkanogiannis/</a><br>
+Website: <a href="https://github.com/gkanogiannis" class="external-link uri">https://github.com/gkanogiannis</a><br>
 ORCID: <a href="https://orcid.org/0000-0002-6441-0688" class="external-link">0000-0002-6441-0688</a></p>
 <hr>
 </div>
