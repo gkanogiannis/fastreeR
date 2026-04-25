@@ -76,9 +76,14 @@ jobs:
           Rscript -e "install.packages('rJava'); library(rJava); .jinit(); print(.jcall('java/lang/System','S','getProperty','java.version'))"
         shell: pwsh
 
+      - name: Install BiocManager
+        run: |
+          install.packages(c('BiocManager', 'remotes'))
+          BiocManager::install(version = "${{ matrix.config.bioc }}", ask = FALSE, update = FALSE)
+        shell: Rscript {0}
+
       - name: Query dependencies
         run: |
-          install.packages('remotes')
           saveRDS(remotes::dev_package_deps(dependencies = TRUE, repos = c(BiocManager::repositories(), CRAN = "https://cloud.r-project.org")), ".github/depends.Rds", version = 2)
         shell: Rscript {0}
 
@@ -104,12 +109,6 @@ jobs:
           brew install qpdf || true
         shell: bash
 
-      - name: Install BiocManager
-        run: |
-          install.packages('BiocManager')
-          BiocManager::install(version = "${{ matrix.config.bioc }}", ask = FALSE, update = FALSE)
-        shell: Rscript {0}
-
       - name: Install package dependencies
         run: |
           options(repos = c(BiocManager::repositories(), CRAN = "https://cloud.r-project.org"))
@@ -132,8 +131,8 @@ jobs:
         run: |
           options(crayon.enabled = TRUE)
           rcmdcheck::rcmdcheck(
-            args = c("--no-manual", "--no-vignettes", "--timings"),
-            build_args = c("--no-manual", "--no-build-vignettes", "--keep-empty-dirs"),
+            args = c("--no-manual", "--timings"),
+            build_args = c("--no-manual", "--keep-empty-dirs"),
             error_on = "warning",
             check_dir = "check"
           )
