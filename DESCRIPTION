@@ -1,7 +1,7 @@
 Package: fastreeR
 Type: Package
 Title: Phylogenetic, Distance and Other Calculations on VCF and Fasta Files
-Version: 2.1.6
+Version: 2.2.0
 Backend: 2.7.1
 biocViews: Phylogenetics, Metagenomics, Clustering
 Authors@R:
