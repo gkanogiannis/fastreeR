@@ -24,7 +24,7 @@
 
     <a class="navbar-brand me-2" href="index.html">fastreeR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.1.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.3.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -336,26 +336,26 @@
 <p>The calculation is performed by a Java back-end implementation, that supports multi-core CPU utilization and can be demanding in terms of memory resources.</p>
 <p>Output distances is a PHYLIP compatible file will contain <code>n+1</code> lines. The first line contains the number <code>n</code> of samples and number <code>m</code> of variants, separated by space. Each of the subsequent <code>n</code> lines contains <code>n+1</code> values, separated by space. The first value of each line is a sample name and the rest <code>n</code> values are the calculated distances of this sample to all the samples. Example output file of the distances of 3 samples calculated from 1000 variants:</p>
 <table class="table">
-<thead><tr class="header">
+<thead><tr>
 <th>3 1000</th>
 <th></th>
 <th></th>
 <th></th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td>Sample1</td>
 <td>0.0</td>
 <td>0.5</td>
 <td>0.2</td>
 </tr>
-<tr class="even">
+<tr>
 <td>Sample2</td>
 <td>0.5</td>
 <td>0.0</td>
 <td>0.9</td>
 </tr>
-<tr class="odd">
+<tr>
 <td>Sample3</td>
 <td>0.2</td>
 <td>0.9</td>
@@ -392,8 +392,8 @@ chr1:67890:C:T  0.567   0.123   -0.890  ...</code></pre>
 <span id="cb17-2"><a href="#cb17-2" tabindex="-1"></a>  <span class="dt">"model_name"</span><span class="fu">:</span> <span class="st">"genomic-model-name"</span><span class="fu">,</span></span>
 <span id="cb17-3"><a href="#cb17-3" tabindex="-1"></a>  <span class="dt">"embedding_dim"</span><span class="fu">:</span> <span class="dv">768</span><span class="fu">,</span></span>
 <span id="cb17-4"><a href="#cb17-4" tabindex="-1"></a>  <span class="dt">"variants"</span><span class="fu">:</span> <span class="ot">[</span></span>
-<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a>    <span class="fu">{</span><span class="dt">"id"</span><span class="fu">:</span> <span class="st">"chr1:12345:A:G"</span><span class="fu">,</span> <span class="dt">"embedding"</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">0</span><span class="er">.</span><span class="dv">123</span><span class="ot">,</span> <span class="dv">-0</span><span class="er">.</span><span class="dv">456</span><span class="ot">,</span> <span class="er">...</span><span class="ot">]</span><span class="fu">}</span><span class="ot">,</span></span>
-<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a>    <span class="fu">{</span><span class="dt">"id"</span><span class="fu">:</span> <span class="st">"chr1:67890:C:T"</span><span class="fu">,</span> <span class="dt">"embedding"</span><span class="fu">:</span> <span class="ot">[</span><span class="dv">0</span><span class="er">.</span><span class="dv">567</span><span class="ot">,</span> <span class="dv">0</span><span class="er">.</span><span class="dv">123</span><span class="ot">,</span> <span class="er">...</span><span class="ot">]</span><span class="fu">}</span></span>
+<span id="cb17-5"><a href="#cb17-5" tabindex="-1"></a>    <span class="fu">{</span><span class="dt">"id"</span><span class="fu">:</span> <span class="st">"chr1:12345:A:G"</span><span class="fu">,</span> <span class="dt">"embedding"</span><span class="fu">:</span> <span class="ot">[</span><span class="fl">0.123</span><span class="ot">,</span> <span class="fl">-0.456</span><span class="ot">,</span> <span class="er">...</span><span class="ot">]</span><span class="fu">}</span><span class="ot">,</span></span>
+<span id="cb17-6"><a href="#cb17-6" tabindex="-1"></a>    <span class="fu">{</span><span class="dt">"id"</span><span class="fu">:</span> <span class="st">"chr1:67890:C:T"</span><span class="fu">,</span> <span class="dt">"embedding"</span><span class="fu">:</span> <span class="ot">[</span><span class="fl">0.567</span><span class="ot">,</span> <span class="fl">0.123</span><span class="ot">,</span> <span class="er">...</span><span class="ot">]</span><span class="fu">}</span></span>
 <span id="cb17-7"><a href="#cb17-7" tabindex="-1"></a>  <span class="ot">]</span></span>
 <span id="cb17-8"><a href="#cb17-8" tabindex="-1"></a><span class="fu">}</span></span></code></pre></div>
 </div>
@@ -405,20 +405,20 @@ chr1:67890:C:T  0.567   0.123   -0.890  ...</code></pre>
 <col width="23%">
 <col width="77%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th>Option</th>
 <th>Description</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td><code>-e, --embeddings</code></td>
 <td>Path to variant embeddings file</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>--embeddings-format</code></td>
 <td>Format: <code>TSV</code> or <code>HUGGINGFACE</code> (auto-detected if not specified)</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>--variant-key</code></td>
 <td>Variant key format: <code>CHROM_POS</code>, <code>CHROM_POS_REF_ALT</code> (default), or <code>VCF_ID</code>
 </td>
@@ -459,28 +459,28 @@ chr1:67890:C:T  0.567   0.123   -0.890  ...</code></pre>
 <col width="16%">
 <col width="83%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th>Option</th>
 <th>Description</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td><code>--window-bp</code></td>
 <td>Emit one matrix/tree per window of N base pairs (mutually exclusive with <code>--window-variants</code>)</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>--window-variants</code></td>
 <td>Emit one matrix/tree per N consecutive variants (mutually exclusive with <code>--window-bp</code>)</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>--step</code></td>
 <td>Window step. Defaults to window size (tiled). Sliding windows (<code>step != size</code>) are not yet implemented.</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>--min-variants</code></td>
 <td>Minimum number of variants required to emit a window (default 1; smaller windows are skipped silently)</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>--long</code></td>
 <td>(<code>VCF2DIST</code> only) Emit long-form TSV <code>chrom, start, end, sample_i, sample_j, dist</code> instead of matrices</td>
 </tr>
@@ -580,28 +580,28 @@ chr1    0   100000  s2  s3  0.3987
 <col width="14%">
 <col width="86%">
 </colgroup>
-<thead><tr class="header">
+<thead><tr>
 <th>COMMAND</th>
 <th>Description</th>
 </tr></thead>
 <tbody>
-<tr class="odd">
+<tr>
 <td><code>VCF2DIST</code></td>
 <td>Compute a cosine distance matrix from a VCF file (genome-wide or per window)</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>VCF2TREE</code></td>
 <td>Compute a Newick hierarchical-clustering tree from a VCF (genome-wide or per window)</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>DIST2TREE</code></td>
 <td>Compute a Newick hierarchical-clustering tree from a distance matrix</td>
 </tr>
-<tr class="even">
+<tr>
 <td><code>FASTA2DIST</code></td>
 <td>Compute a D2S distance matrix from a FASTA file</td>
 </tr>
-<tr class="odd">
+<tr>
 <td><code>VCF2EMB</code></td>
 <td>Generate variant embeddings from VCF using BioFM language model</td>
 </tr>

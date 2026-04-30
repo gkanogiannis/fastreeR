@@ -17,16 +17,16 @@ Typical use cases:
 
 ### Function overview
 
-| Function        | Input                | Output                                                  | Notes                                          |
-|-----------------|----------------------|---------------------------------------------------------|------------------------------------------------|
-| `vcf2istats`    | VCF file             | `data.frame` of per-sample stats                        | het / hom / missing counts and percentages     |
-| `vcf2dist`      | VCF file             | `dist` object (or list / `data.frame` in windowed mode) | cosine-type distance; supports windowed output |
-| `vcf2tree`      | VCF file             | Newick string (or `data.frame` in windowed mode)        | supports streaming bootstrap replicates        |
-| `vcf2clusters`  | VCF file             | `list(tree, clusters)`                                  | `vcf2dist` + `dist2clusters` in one call       |
-| `fasta2dist`    | one or more FASTA    | `dist` object                                           | d2_S k-mer dissimilarity                       |
-| `dist2tree`     | `dist` object / file | Newick string                                           | hierarchical clustering wrapper                |
-| `dist2clusters` | `dist` object / file | `list(tree, clusters)`                                  | dynamic tree cutting                           |
-| `tree2clusters` | Newick string / file | cluster assignment                                      | dynamic tree cutting from a tree               |
+| Function | Input | Output | Notes |
+|----|----|----|----|
+| `vcf2istats` | VCF file | `data.frame` of per-sample stats | het / hom / missing counts and percentages |
+| `vcf2dist` | VCF file | `dist` object (or list / `data.frame` in windowed mode) | cosine-type distance; supports windowed output |
+| `vcf2tree` | VCF file | Newick string (or `data.frame` in windowed mode) | supports streaming bootstrap replicates |
+| `vcf2clusters` | VCF file | `list(tree, clusters)` | `vcf2dist` + `dist2clusters` in one call |
+| `fasta2dist` | one or more FASTA | `dist` object | d2_S k-mer dissimilarity |
+| `dist2tree` | `dist` object / file | Newick string | hierarchical clustering wrapper |
+| `dist2clusters` | `dist` object / file | `list(tree, clusters)` | dynamic tree cutting |
+| `tree2clusters` | Newick string / file | cluster assignment | dynamic tree cutting from a tree |
 
 ### Compressed VCF input
 
@@ -41,6 +41,7 @@ throughout this vignette.
 To install `fastreeR` package:
 
 ``` r
+
 if (!requireNamespace("BiocManager", quietly=TRUE))
     install.packages("BiocManager")
 BiocManager::install("fastreeR")
@@ -83,6 +84,7 @@ For example, parameters `-Xmx1024m` or `-Xmx1024M` or `-Xmx1g` or
 JVM.
 
 ``` r
+
 options(java.parameters = "-Xmx1G")
 library(fastreeR)
 library(utils)
@@ -103,6 +105,7 @@ needlessly. If for any reason we cannot download, we use the small
 sample vcf from `fastreeR` package.
 
 ``` r
+
 bfc <- BiocFileCache::BiocFileCache(ask = FALSE)
 tempVcfUrl <-
     paste0("https://ftp.1000genomes.ebi.ac.uk/vol1/ftp/data_collections/",
@@ -136,6 +139,7 @@ needlessly. If for any reason we cannot download, we use the small
 sample fasta from `fastreeR` package.
 
 ``` r
+
 tempFastasUrls <- c(
     #Mycobacterium liflandii
     paste0("https://ftp.ncbi.nih.gov/genomes/refseq/bacteria/",
@@ -191,6 +195,7 @@ if (use_fallback) {
 ### Sample Statistics
 
 ``` r
+
 myVcfIstats <- fastreeR::vcf2istats(inputFile = tempVcf)
 plot(myVcfIstats[,7:9])
 ```
@@ -206,12 +211,14 @@ The most time consuming process is calculating distances between
 samples. Assign more processors in order to speed up this operation.
 
 ``` r
+
 myVcfDist <- fastreeR::vcf2dist(inputFile = tempVcf, threads = 1)
 ```
 
 ### Histogram of distances
 
 ``` r
+
 graphics::hist(myVcfDist, breaks = 100, main=NULL, 
                                 xlab = "Distance", xlim = c(0,max(myVcfDist)))
 ```
@@ -229,6 +236,7 @@ We note two distinct groups of distances. One around of distance value
 Notice that the generated tree is ultrametric.
 
 ``` r
+
 myVcfTree <- fastreeR::dist2tree(inputDist = myVcfDist)
 plot(ape::read.tree(text = myVcfTree), direction = "down", cex = 0.3)
 ape::add.scale.bar()
@@ -244,6 +252,7 @@ Of course the same can be achieved directly from the vcf file, without
 calculating distances.
 
 ``` r
+
 myVcfTree <- fastreeR::vcf2tree(inputFile = tempVcf, threads = 1)
 plot(ape::read.tree(text = myVcfTree), direction = "down", cex = 0.3)
 ape::add.scale.bar()
@@ -303,6 +312,7 @@ vignette build. For production use, set `bt_reps` to 100-1000; runtime
 grows roughly linearly with the number of replicates.
 
 ``` r
+
 # Small number of replicates for vignette build speed.
 # For production: bt_reps <- 200   # or 500-1000
 bt_reps <- 10
@@ -321,7 +331,7 @@ node_support <- if (!is.null(raw_lbls)) {
   numeric(0)
 }
 print(head(tr$node.label))
-#> [1] ""   "10" ""   "90" "10" ""
+#> [1] ""   ""   ""   "90" ""   ""
 plot(tr, direction = "down", cex = 0.3)
 if (length(node_support) > 0) {
   # round and show as integers, place without frames
@@ -353,6 +363,7 @@ If you have `ggtree` installed, you can produce a more polished plot and
 annotate node supports.
 
 ``` r
+
   # internal node numbers are Ntip+1 : Ntip+Nnode
   ntips <- ape::Ntip(tr)
   nints <- ape::Nnode(tr)
@@ -414,6 +425,7 @@ when calling
 from R, set the JVM heap before loading the package, for example:
 
 ``` r
+
 # set JVM max heap to 2GB before loading fastreeR
 options(java.parameters = '-Xmx2G')
 library(fastreeR)
@@ -444,6 +456,7 @@ With the default `longFormat = FALSE`, `vcf2dist` returns a named list
 of `dist` objects, one per window, keyed `"chrom:start-end"`.
 
 ``` r
+
 win_dists <- fastreeR::vcf2dist(
     inputFile = tempVcf,
     threads = 1,
@@ -460,6 +473,7 @@ pairwise distances across all windows, which is convenient for
 `data.table` / `ggplot2` downstream work:
 
 ``` r
+
 win_long <- fastreeR::vcf2dist(
     inputFile = tempVcf,
     threads = 1,
@@ -482,6 +496,7 @@ head(win_long)
 window and columns `chrom, start, end, nvariants, newick`.
 
 ``` r
+
 win_trees <- fastreeR::vcf2tree(
     inputFile = tempVcf,
     threads = 1,
@@ -520,6 +535,7 @@ For comparison, we generate a tree by using `stats` package and
 distances calculated by `fastreeR`.
 
 ``` r
+
 myVcfTreeStats <- stats::hclust(myVcfDist)
 plot(myVcfTreeStats, ann = FALSE, cex = 0.3)
 ```
@@ -543,6 +559,7 @@ find that a value of `cutHeight=0.067` cuts the tree into two branches.
 The first group contains 106 samples and the second 44.
 
 ``` r
+
 myVcfClust <- fastreeR::dist2clusters(inputDist = myVcfDist, cutHeight = 0.067)
 #>  ..done.
 if (length(myVcfClust) > 1) {
@@ -564,12 +581,14 @@ sequences in a fasta file.
 Use of the downloaded sample fasta file :
 
 ``` r
+
 myFastaDist <- fastreeR::fasta2dist(tempFastas, kmer = 6)
 ```
 
 Or use the provided by `fastreeR` fasta file of 48 bacterial RefSeq :
 
 ``` r
+
 myFastaDist <- fastreeR::fasta2dist(
     system.file("extdata", "samples.fasta.gz", package="fastreeR"), kmer = 6)
 ```
@@ -577,6 +596,7 @@ myFastaDist <- fastreeR::fasta2dist(
 ### Histogram of distances
 
 ``` r
+
 graphics::hist(myFastaDist, breaks = 100, main=NULL, 
                                 xlab="Distance", xlim = c(0,max(myFastaDist)))
 ```
@@ -589,6 +609,7 @@ Histogram of distances from fasta file
 ### Plot tree from `fastreeR::dist2tree`
 
 ``` r
+
 myFastaTree <- fastreeR::dist2tree(inputDist = myFastaDist)
 plot(ape::read.tree(text = myFastaTree), direction = "down", cex = 0.3)
 ape::add.scale.bar()
@@ -603,6 +624,7 @@ Tree from fasta with fastreeR
 ### Plot tree from `stats::hclust`
 
 ``` r
+
 myFastaTreeStats <- stats::hclust(myFastaDist)
 plot(myFastaTreeStats, ann = FALSE, cex = 0.3)
 ```
@@ -615,6 +637,7 @@ Tree from fasta with stats::hclust
 ## Session Info
 
 ``` r
+
 utils::sessionInfo()
 #> R version 4.6.0 (2026-04-24)
 #> Platform: x86_64-pc-linux-gnu
@@ -640,8 +663,8 @@ utils::sessionInfo()
 #> [8] base     
 #> 
 #> other attached packages:
-#> [1] ggtree_4.1.2        BiocFileCache_3.1.0 dbplyr_2.5.2       
-#> [4] ape_5.8-1           fastreeR_2.1.6      BiocStyle_2.39.0   
+#> [1] ggtree_4.2.0        BiocFileCache_3.2.0 dbplyr_2.5.2       
+#> [4] ape_5.8-1           fastreeR_2.3.0      BiocStyle_2.40.0   
 #> 
 #> loaded via a namespace (and not attached):
 #>  [1] gtable_0.3.6            xfun_0.57               bslib_0.10.0           
@@ -653,7 +676,7 @@ utils::sessionInfo()
 #> [19] pkgconfig_2.0.3         ggplotify_0.1.3         RColorBrewer_1.1-3     
 #> [22] S7_0.2.2                desc_1.4.3              lifecycle_1.0.5        
 #> [25] stringr_1.6.0           compiler_4.6.0          farver_2.1.2           
-#> [28] treeio_1.35.0           textshaping_1.0.5       fontLiberation_0.1.0   
+#> [28] treeio_1.36.0           textshaping_1.0.5       fontLiberation_0.1.0   
 #> [31] fontquiver_0.2.1        ggfun_0.2.0             htmltools_0.5.9        
 #> [34] sass_0.4.10             yaml_2.3.12             lazyeval_0.2.3         
 #> [37] pillar_1.11.1           pkgdown_2.2.0           jquerylib_0.1.4        
@@ -668,7 +691,7 @@ utils::sessionInfo()
 #> [64] bit64_4.8.0             rmarkdown_2.31          bit_4.6.0              
 #> [67] R.methodsS3_1.8.2       ragg_1.5.2              memoise_2.0.1          
 #> [70] evaluate_1.0.5          knitr_1.51              gridGraphics_0.5-1     
-#> [73] rlang_1.2.0             ggiraph_0.9.6           Rcpp_1.1.1-1           
+#> [73] rlang_1.2.0             ggiraph_0.9.6           Rcpp_1.1.1-1.1         
 #> [76] glue_1.8.1              tidytree_0.4.7          DBI_1.3.0              
 #> [79] BiocManager_1.30.27     jsonlite_2.0.0          R6_2.6.1               
 #> [82] systemfonts_1.3.2       fs_2.1.0

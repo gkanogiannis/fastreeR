@@ -202,6 +202,7 @@ or 1024 Megabytes of maximum RAM for JVM.
 In order to allocate 1024MB of RAM for the JVM, through R code, use:
 
 ``` r
+
 options(java.parameters = "-Xmx1024M")
 ```
 
@@ -311,6 +312,7 @@ variable `FASTREER_JAR_DIR`.
 To install `fastreeR` as an R package:
 
 ``` r
+
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
   install.packages("BiocManager")
 }
@@ -320,6 +322,7 @@ BiocManager::install("fastreeR")
 You can install the development version of `fastreeR` R package like so:
 
 ``` r
+
 devtools::install_github("gkanogiannis/fastreeR")
 ```
 
@@ -442,11 +445,11 @@ chr1:67890:C:T  0.567   0.123   -0.890  ...
 
 ### Embedding Command Line Options
 
-| Option                | Description                                                                 |
-|-----------------------|-----------------------------------------------------------------------------|
-| `-e, --embeddings`    | Path to variant embeddings file                                             |
-| `--embeddings-format` | Format: `TSV` or `HUGGINGFACE` (auto-detected if not specified)             |
-| `--variant-key`       | Variant key format: `CHROM_POS`, `CHROM_POS_REF_ALT` (default), or `VCF_ID` |
+| Option | Description |
+|----|----|
+| `-e, --embeddings` | Path to variant embeddings file |
+| `--embeddings-format` | Format: `TSV` or `HUGGINGFACE` (auto-detected if not specified) |
+| `--variant-key` | Variant key format: `CHROM_POS`, `CHROM_POS_REF_ALT` (default), or `VCF_ID` |
 
 ### Embedding Examples
 
@@ -490,13 +493,13 @@ previous releases.
 
 ### Windowing Command Line Options
 
-| Option              | Description                                                                                             |
-|---------------------|---------------------------------------------------------------------------------------------------------|
-| `--window-bp`       | Emit one matrix/tree per window of N base pairs (mutually exclusive with `--window-variants`)           |
-| `--window-variants` | Emit one matrix/tree per N consecutive variants (mutually exclusive with `--window-bp`)                 |
-| `--step`            | Window step. Defaults to window size (tiled). Sliding windows (`step != size`) are not yet implemented. |
-| `--min-variants`    | Minimum number of variants required to emit a window (default 1; smaller windows are skipped silently)  |
-| `--long`            | (`VCF2DIST` only) Emit long-form TSV `chrom, start, end, sample_i, sample_j, dist` instead of matrices  |
+| Option | Description |
+|----|----|
+| `--window-bp` | Emit one matrix/tree per window of N base pairs (mutually exclusive with `--window-variants`) |
+| `--window-variants` | Emit one matrix/tree per N consecutive variants (mutually exclusive with `--window-bp`) |
+| `--step` | Window step. Defaults to window size (tiled). Sliding windows (`step != size`) are not yet implemented. |
+| `--min-variants` | Minimum number of variants required to emit a window (default 1; smaller windows are skipped silently) |
+| `--long` | (`VCF2DIST` only) Emit long-form TSV `chrom, start, end, sample_i, sample_j, dist` instead of matrices |
 
 ### Output Formats
 
@@ -575,6 +578,7 @@ When any window parameter is set the return value changes to one of:
   `chrom, start, end, nvariants, newick`.
 
 ``` r
+
 library(fastreeR)
 vcf <- system.file("extdata", "samples.vcf.gz", package = "fastreeR")
 
@@ -603,13 +607,13 @@ supported tools.
 python3 fastreeR.py <COMMAND> [OPTIONS]
 ```
 
-| COMMAND      | Description                                                                          |
-|--------------|--------------------------------------------------------------------------------------|
-| `VCF2DIST`   | Compute a cosine distance matrix from a VCF file (genome-wide or per window)         |
-| `VCF2TREE`   | Compute a Newick hierarchical-clustering tree from a VCF (genome-wide or per window) |
-| `DIST2TREE`  | Compute a Newick hierarchical-clustering tree from a distance matrix                 |
-| `FASTA2DIST` | Compute a D2S distance matrix from a FASTA file                                      |
-| `VCF2EMB`    | Generate variant embeddings from VCF using BioFM language model                      |
+| COMMAND | Description |
+|----|----|
+| `VCF2DIST` | Compute a cosine distance matrix from a VCF file (genome-wide or per window) |
+| `VCF2TREE` | Compute a Newick hierarchical-clustering tree from a VCF (genome-wide or per window) |
+| `DIST2TREE` | Compute a Newick hierarchical-clustering tree from a distance matrix |
+| `FASTA2DIST` | Compute a D2S distance matrix from a FASTA file |
+| `VCF2EMB` | Generate variant embeddings from VCF using BioFM language model |
 
 ------------------------------------------------------------------------
 
@@ -816,6 +820,7 @@ All core functionality is available via the `fastreeR` R package
 (Bioconductor/devel):
 
 ``` r
+
 library(fastreeR)
 tree <- vcf2tree("input.vcf")
 plot(tree)
@@ -841,6 +846,7 @@ from the 1K Genomes project. Original file available at
 <http://hgdownload.cse.ucsc.edu/gbdb/hg19/1000Genomes/phase3/>
 
 ``` r
+
 vcfFile <- system.file("extdata", "samples.vcf.gz", package = "fastreeR")
 ```
 
@@ -849,6 +855,7 @@ vcfFile <- system.file("extdata", "samples.vcf.gz", package = "fastreeR")
 Distances from the previous sample VCF
 
 ``` r
+
 vcfDist <- system.file("extdata", "samples.vcf.dist.gz", package = "fastreeR")
 ```
 
@@ -857,6 +864,7 @@ vcfDist <- system.file("extdata", "samples.vcf.dist.gz", package = "fastreeR")
 Individual statistics from the previous sample VCF
 
 ``` r
+
 vcfIstats <- system.file("extdata", "samples.vcf.istats", package = "fastreeR")
 ```
 
@@ -866,6 +874,7 @@ Sample FASTA file of 48 random bacteria RefSeq from
 <ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/>.
 
 ``` r
+
 fastaFile <- system.file("extdata", "samples.fasta.gz", package = "fastreeR")
 ```
 
@@ -874,6 +883,7 @@ fastaFile <- system.file("extdata", "samples.fasta.gz", package = "fastreeR")
 Distances from the previous sample FASTA
 
 ``` r
+
 fastaDist <- system.file("extdata", "samples.fasta.dist.gz", package = "fastreeR")
 ```
 
