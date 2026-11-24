@@ -331,7 +331,7 @@ node_support <- if (!is.null(raw_lbls)) {
   numeric(0)
 }
 print(head(tr$node.label))
-#> [1] ""    "10"  "10"  "100" "10"  ""
+#> [1] ""   ""   "10" "90" "10" ""
 plot(tr, direction = "down", cex = 0.3)
 if (length(node_support) > 0) {
   # round and show as integers, place without frames
@@ -671,7 +671,7 @@ utils::sessionInfo()
 #>  [4] ggplot2_4.0.4           httr2_1.3.0             htmlwidgets_1.6.4      
 #>  [7] rJava_1.0-18            lattice_0.23-1          vctrs_0.7.3            
 #> [10] tools_4.6.2             generics_0.1.4          yulab.utils_0.2.6      
-#> [13] curl_8.1.0              parallel_4.6.2          tibble_3.3.1           
+#> [13] curl_8.2.0              parallel_4.6.2          tibble_3.3.1           
 #> [16] RSQLite_3.53.3          blob_1.3.0              R.oo_1.27.1            
 #> [19] pkgconfig_2.0.3         ggplotify_0.1.4         RColorBrewer_1.1-3     
 #> [22] S7_1.0.0                desc_1.4.3              lifecycle_1.0.5        
