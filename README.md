@@ -20,6 +20,7 @@ downloads
 rank](https://bioconductor.org/shields/downloads/release/fastreeR.svg)](http://bioconductor.org/packages/stats/bioc/fastreeR/)
 [![pkgdown](https://github.com/gkanogiannis/fastreeR/actions/workflows/pkgdown.yml/badge.svg)](https://github.com/gkanogiannis/fastreeR/actions/workflows/pkgdown.yml)
 [![R-CMD-check-bioc](https://github.com/gkanogiannis/fastreeR/actions/workflows/check-bioc.yml/badge.svg)](https://github.com/gkanogiannis/fastreeR/actions/workflows/check-bioc.yml)
+[![ClawBio Skill](https://img.shields.io/badge/ClawBio-skill-2ea44f)](https://github.com/ClawBio/ClawBio)
 <!-- badges: end -->
 
 `fastreeR` is a hybrid toolkit combining a high-performance Java backend
@@ -78,16 +79,18 @@ format.
   [Toolshed](https://toolshed.g2.bx.psu.edu/view/gkanogiannis/fastreer/26013530719e).
 - **Pure Java API**: developers can integrate this library directly in
   Java-based pipelines or software.
+- 🤖 **[ClawBio](https://github.com/ClawBio/ClawBio)**: available as a
+  first-class ClawBio AI skill can run `VCF2TREE`, `VCF2DIST`, `DIST2TREE`,
+  and `FASTA2DIST` through a conversational bioinformatics agent with
+  reproducibility bundles and structured JSON output.
 
 ------------------------------------------------------------------------
 
-- [fastreeR: Fast Tree Reconstruction Tools for Genomics (VCF/FASTA to
-  Distance/Tree)](#fastreer-fast-tree-reconstruction-tools-for-genomics-vcffasta-to-distancetree)
+- [fastreeR: Fast Tree Reconstruction Tools for Genomics (VCF/FASTA to Distance/Tree)](#fastreer-fast-tree-reconstruction-tools-for-genomics-vcffasta-to-distancetree)
   - [Integration and Accessibility](#integration-and-accessibility)
   - [Key Features](#key-features)
   - [Requirements](#requirements)
-    - [Memory requirements for VCF
-      input](#memory-requirements-for-vcf-input)
+    - [Memory requirements for VCF input](#memory-requirements-for-vcf-input)
   - [Installation and Usage](#installation-and-usage)
     - [Via Conda](#via-conda)
     - [Via Docker](#via-docker)
@@ -97,8 +100,7 @@ format.
     - [With Galaxy](#with-galaxy)
     - [From java backend source](#from-java-backend-source)
   - [Distances from VCF](#distances-from-vcf)
-  - [Embedding-Based Distance
-    Calculation](#embedding-based-distance-calculation)
+  - [Embedding-Based Distance Calculation](#embedding-based-distance-calculation)
     - [How It Works](#how-it-works)
     - [Embedding File Formats](#embedding-file-formats)
     - [Embedding Command Line Options](#embedding-command-line-options)
@@ -114,30 +116,30 @@ format.
     - [Commands](#commands)
       - [General Syntax](#general-syntax)
     - [Examples](#examples)
-      - [Compute Distance Matrix from
-        VCF](#compute-distance-matrix-from-vcf)
-      - [Compute Newick tree directly from a VCF
-        file.](#compute-newick-tree-directly-from-a-vcf-file)
-      - [Compute Tree from Distance
-        Matrix](#compute-tree-from-distance-matrix)
-      - [Compute D2S k-mer distance matrix from a FASTA
-        file.](#compute-d2s-k-mer-distance-matrix-from-a-fasta-file)
-      - [Generate Variant Embeddings from VCF using
-        BioFM](#generate-variant-embeddings-from-vcf-using-biofm)
-      - [Pipe input from gzip-compressed
-        file](#pipe-input-from-gzip-compressed-file)
+      - [Compute Distance Matrix from VCF](#compute-distance-matrix-from-vcf)
+      - [Compute Newick tree directly from a VCF file.](#compute-newick-tree-directly-from-a-vcf-file)
+      - [Compute Tree from Distance Matrix](#compute-tree-from-distance-matrix)
+      - [Compute D2S k-mer distance matrix from a FASTA file.](#compute-d2s-k-mer-distance-matrix-from-a-fasta-file)
+      - [Generate Variant Embeddings from VCF using BioFM](#generate-variant-embeddings-from-vcf-using-biofm)
+      - [Pipe input from gzip-compressed file](#pipe-input-from-gzip-compressed-file)
+      - [Print version and citation](#print-version-and-citation)
     - [Output Examples](#output-examples)
-    - [Options (common to all
-      commands)](#options-common-to-all-commands)
-    - [Embedding options (VCF2DIST and VCF2TREE
-      only)](#embedding-options-vcf2dist-and-vcf2tree-only)
-    - [Windowing options (VCF2DIST and VCF2TREE
-      only)](#windowing-options-vcf2dist-and-vcf2tree-only)
-    - [VCF2EMB options (embedding
-      generation)](#vcf2emb-options-embedding-generation)
+    - [Options (common to all commands)](#options-common-to-all-commands)
+    - [Embedding options (VCF2DIST and VCF2TREE only)](#embedding-options-vcf2dist-and-vcf2tree-only)
+    - [Windowing options (VCF2DIST and VCF2TREE only)](#windowing-options-vcf2dist-and-vcf2tree-only)
+    - [VCF2EMB options (embedding generation)](#vcf2emb-options-embedding-generation)
   - [Integration with Java Backend](#integration-with-java-backend)
   - [Integration with R](#integration-with-r)
+  - [Integration with ClawBio](#integration-with-clawbio)
+    - [Install](#install)
+    - [Quick start](#quick-start)
+    - [Output structure](#output-structure)
   - [Sample data](#sample-data)
+    - [samples.vcf.gz](#samplesvcfgz)
+    - [samples.vcf.dist.gz](#samplesvcfdistgz)
+    - [samples.vcf.istats](#samplesvcfistats)
+    - [samples.fasta.gz](#samplesfastagz)
+    - [samples.fasta.dist.gz](#samplesfastadistgz)
   - [Citation](#citation)
   - [Author](#author)
   - [License](#license)
@@ -843,6 +845,56 @@ manual](https://www.bioconductor.org/packages/release/bioc/manuals/fastreeR/man/
 and [fastreeR R
 vignette](https://www.bioconductor.org/packages/release/bioc/vignettes/fastreeR/inst/doc/fastreeR_vignette.html)
 for usage in R.
+
+------------------------------------------------------------------------
+
+## Integration with ClawBio
+
+`fastreeR` is available as a first-class skill in
+[ClawBio](https://github.com/ClawBio/ClawBio), an open-source
+conversational bioinformatics agent. The skill wraps all four commands
+(`VCF2TREE`, `VCF2DIST`, `DIST2TREE`, `FASTA2DIST`) and adds structured
+JSON output, reproducibility bundles, and Markdown reports.
+
+### Install
+
+``` bash
+git clone https://github.com/ClawBio/ClawBio.git
+cd ClawBio
+pip install fastreer   # Java 11+ is also required
+```
+
+### Quick start
+
+``` bash
+# Run the built-in demo (no data required)
+python clawbio.py run fastreer --demo
+
+# Newick tree from a VCF with bootstrap
+python skills/fastreer/fastreer.py \
+  --command VCF2TREE --input samples.vcf.gz --bootstrap 100 --output /tmp/out
+
+# PHYLIP distance matrix from VCF
+python skills/fastreer/fastreer.py \
+  --command VCF2DIST --input samples.vcf.gz --threads 4 --output /tmp/out
+
+# D2S k-mer distance matrix from FASTA
+python skills/fastreer/fastreer.py \
+  --command FASTA2DIST --input sequences.fasta --kmer 5 --output /tmp/out
+```
+
+### Output structure
+
+``` text
+output_directory/
+├── report.md              # Summary: samples, tree/matrix preview, interpretation
+├── result.json            # Machine-readable: command, samples, paths, metadata
+├── tree.nwk               # Newick tree (VCF2TREE / DIST2TREE)
+├── distances.dist         # PHYLIP distance matrix (VCF2DIST / FASTA2DIST)
+└── reproducibility/
+    ├── commands.sh        # Exact command to reproduce
+    └── environment.txt    # Java version + pip fastreer version
+```
 
 ------------------------------------------------------------------------
 
