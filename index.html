@@ -23,7 +23,7 @@
 
     <a class="navbar-brand me-2" href="index.html">fastreeR</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.4.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">2.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -84,6 +84,7 @@
 <strong>Galaxy</strong>: available on Galaxy <a href="https://toolshed.g2.bx.psu.edu/view/gkanogiannis/fastreer/26013530719e" class="external-link">Toolshed</a>.</li>
 <li>
 <strong>Pure Java API</strong>: developers can integrate this library directly in Java-based pipelines or software.</li>
+<li>🤖 <strong><a href="https://github.com/ClawBio/ClawBio" class="external-link">ClawBio</a></strong>: available as a first-class ClawBio AI skill can run <code>VCF2TREE</code>, <code>VCF2DIST</code>, <code>DIST2TREE</code>, and <code>FASTA2DIST</code> through a conversational bioinformatics agent with reproducibility bundles and structured JSON output.</li>
 </ul>
 <hr>
 <ul>
@@ -149,6 +150,7 @@
 <li><a href="#compute-d2s-k-mer-distance-matrix-from-a-fasta-file">Compute D2S k-mer distance matrix from a FASTA file.</a></li>
 <li><a href="#generate-variant-embeddings-from-vcf-using-biofm">Generate Variant Embeddings from VCF using BioFM</a></li>
 <li><a href="#pipe-input-from-gzip-compressed-file">Pipe input from gzip-compressed file</a></li>
+<li><a href="#print-version-and-citation">Print version and citation</a></li>
 </ul>
 </li>
 <li><a href="#output-examples">Output Examples</a></li>
@@ -160,7 +162,24 @@
 </li>
 <li><a href="#integration-with-java-backend">Integration with Java Backend</a></li>
 <li><a href="#integration-with-r">Integration with R</a></li>
-<li><a href="#sample-data">Sample data</a></li>
+<li>
+<a href="#integration-with-clawbio">Integration with ClawBio</a>
+<ul>
+<li><a href="#install">Install</a></li>
+<li><a href="#quick-start">Quick start</a></li>
+<li><a href="#output-structure">Output structure</a></li>
+</ul>
+</li>
+<li>
+<a href="#sample-data">Sample data</a>
+<ul>
+<li><a href="#samplesvcfgz">samples.vcf.gz</a></li>
+<li><a href="#samplesvcfdistgz">samples.vcf.dist.gz</a></li>
+<li><a href="#samplesvcfistats">samples.vcf.istats</a></li>
+<li><a href="#samplesfastagz">samples.fasta.gz</a></li>
+<li><a href="#samplesfastadistgz">samples.fasta.dist.gz</a></li>
+</ul>
+</li>
 <li><a href="#citation">Citation</a></li>
 <li><a href="#author">Author</a></li>
 <li><a href="#license">License</a></li>
@@ -799,6 +818,49 @@ chr1    0   100000  s2  s3  0.3987
 <hr>
 </div>
 <div class="section level2">
+<h2 id="integration-with-clawbio">Integration with ClawBio<a class="anchor" aria-label="anchor" href="#integration-with-clawbio"></a>
+</h2>
+<p><code>fastreeR</code> is available as a first-class skill in <a href="https://github.com/ClawBio/ClawBio" class="external-link">ClawBio</a>, an open-source conversational bioinformatics agent. The skill wraps all four commands (<code>VCF2TREE</code>, <code>VCF2DIST</code>, <code>DIST2TREE</code>, <code>FASTA2DIST</code>) and adds structured JSON output, reproducibility bundles, and Markdown reports.</p>
+<div class="section level3">
+<h3 id="install">Install<a class="anchor" aria-label="anchor" href="#install"></a>
+</h3>
+<div class="sourceCode" id="cb38"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb38-1"><a href="#cb38-1" tabindex="-1"></a><span class="fu">git</span> clone https://github.com/ClawBio/ClawBio.git</span>
+<span id="cb38-2"><a href="#cb38-2" tabindex="-1"></a><span class="bu">cd</span> ClawBio</span>
+<span id="cb38-3"><a href="#cb38-3" tabindex="-1"></a><span class="ex">pip</span> install fastreer   <span class="co"># Java 11+ is also required</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="quick-start">Quick start<a class="anchor" aria-label="anchor" href="#quick-start"></a>
+</h3>
+<div class="sourceCode" id="cb39"><pre class="sourceCode bash"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" tabindex="-1"></a><span class="co"># Run the built-in demo (no data required)</span></span>
+<span id="cb39-2"><a href="#cb39-2" tabindex="-1"></a><span class="ex">python</span> clawbio.py run fastreer <span class="at">--demo</span></span>
+<span id="cb39-3"><a href="#cb39-3" tabindex="-1"></a></span>
+<span id="cb39-4"><a href="#cb39-4" tabindex="-1"></a><span class="co"># Newick tree from a VCF with bootstrap</span></span>
+<span id="cb39-5"><a href="#cb39-5" tabindex="-1"></a><span class="ex">python</span> skills/fastreer/fastreer.py <span class="dt">\</span></span>
+<span id="cb39-6"><a href="#cb39-6" tabindex="-1"></a>  <span class="at">--command</span> VCF2TREE <span class="at">--input</span> samples.vcf.gz <span class="at">--bootstrap</span> 100 <span class="at">--output</span> /tmp/out</span>
+<span id="cb39-7"><a href="#cb39-7" tabindex="-1"></a></span>
+<span id="cb39-8"><a href="#cb39-8" tabindex="-1"></a><span class="co"># PHYLIP distance matrix from VCF</span></span>
+<span id="cb39-9"><a href="#cb39-9" tabindex="-1"></a><span class="ex">python</span> skills/fastreer/fastreer.py <span class="dt">\</span></span>
+<span id="cb39-10"><a href="#cb39-10" tabindex="-1"></a>  <span class="at">--command</span> VCF2DIST <span class="at">--input</span> samples.vcf.gz <span class="at">--threads</span> 4 <span class="at">--output</span> /tmp/out</span>
+<span id="cb39-11"><a href="#cb39-11" tabindex="-1"></a></span>
+<span id="cb39-12"><a href="#cb39-12" tabindex="-1"></a><span class="co"># D2S k-mer distance matrix from FASTA</span></span>
+<span id="cb39-13"><a href="#cb39-13" tabindex="-1"></a><span class="ex">python</span> skills/fastreer/fastreer.py <span class="dt">\</span></span>
+<span id="cb39-14"><a href="#cb39-14" tabindex="-1"></a>  <span class="at">--command</span> FASTA2DIST <span class="at">--input</span> sequences.fasta <span class="at">--kmer</span> 5 <span class="at">--output</span> /tmp/out</span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="output-structure">Output structure<a class="anchor" aria-label="anchor" href="#output-structure"></a>
+</h3>
+<pre class="text"><code>output_directory/
+├── report.md              # Summary: samples, tree/matrix preview, interpretation
+├── result.json            # Machine-readable: command, samples, paths, metadata
+├── tree.nwk               # Newick tree (VCF2TREE / DIST2TREE)
+├── distances.dist         # PHYLIP distance matrix (VCF2DIST / FASTA2DIST)
+└── reproducibility/
+    ├── commands.sh        # Exact command to reproduce
+    └── environment.txt    # Java version + pip fastreer version</code></pre>
+<hr>
+</div>
+</div>
+<div class="section level2">
 <h2 id="sample-data">Sample data<a class="anchor" aria-label="anchor" href="#sample-data"></a>
 </h2>
 <p>Toy vcf, fasta and distance sample data files are provided in <code>inst/extdata</code>.</p>
@@ -806,35 +868,35 @@ chr1    0   100000  s2  s3  0.3987
 <h3 id="samplesvcfgz">samples.vcf.gz<a class="anchor" aria-label="anchor" href="#samplesvcfgz"></a>
 </h3>
 <p>Sample VCF file of 100 individuals and 1000 variants, in Chromosome22, from the 1K Genomes project. Original file available at <a href="http://hgdownload.cse.ucsc.edu/gbdb/hg19/1000Genomes/phase3/" class="external-link uri">http://hgdownload.cse.ucsc.edu/gbdb/hg19/1000Genomes/phase3/</a></p>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vcfFile</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"samples.vcf.gz"</span>, package <span class="op">=</span> <span class="st">"fastreeR"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="samplesvcfdistgz">samples.vcf.dist.gz<a class="anchor" aria-label="anchor" href="#samplesvcfdistgz"></a>
 </h3>
 <p>Distances from the previous sample VCF</p>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vcfDist</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"samples.vcf.dist.gz"</span>, package <span class="op">=</span> <span class="st">"fastreeR"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="samplesvcfistats">samples.vcf.istats<a class="anchor" aria-label="anchor" href="#samplesvcfistats"></a>
 </h3>
 <p>Individual statistics from the previous sample VCF</p>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">vcfIstats</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"samples.vcf.istats"</span>, package <span class="op">=</span> <span class="st">"fastreeR"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="samplesfastagz">samples.fasta.gz<a class="anchor" aria-label="anchor" href="#samplesfastagz"></a>
 </h3>
 <p>Sample FASTA file of 48 random bacteria RefSeq from <a href="ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/" class="uri">ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/bacteria/</a>.</p>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fastaFile</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"samples.fasta.gz"</span>, package <span class="op">=</span> <span class="st">"fastreeR"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="samplesfastadistgz">samples.fasta.dist.gz<a class="anchor" aria-label="anchor" href="#samplesfastadistgz"></a>
 </h3>
 <p>Distances from the previous sample FASTA</p>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fastaDist</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"samples.fasta.dist.gz"</span>, package <span class="op">=</span> <span class="st">"fastreeR"</span><span class="op">)</span></span></code></pre></div>
 <hr>
 </div>
@@ -907,6 +969,7 @@ See the <a href="LICENSE.html">LICENSE</a> file for details.</p>
 <li><a href="http://bioconductor.org/packages/stats/bioc/fastreeR/" class="external-link"><img src="https://bioconductor.org/shields/downloads/release/fastreeR.svg" alt="Bioc downloads rank"></a></li>
 <li><a href="https://github.com/gkanogiannis/fastreeR/actions/workflows/pkgdown.yml" class="external-link"><img src="https://github.com/gkanogiannis/fastreeR/actions/workflows/pkgdown.yml/badge.svg" alt="pkgdown"></a></li>
 <li><a href="https://github.com/gkanogiannis/fastreeR/actions/workflows/check-bioc.yml" class="external-link"><img src="https://github.com/gkanogiannis/fastreeR/actions/workflows/check-bioc.yml/badge.svg" alt="R-CMD-check-bioc"></a></li>
+<li><a href="https://github.com/ClawBio/ClawBio" class="external-link"><img src="https://img.shields.io/badge/ClawBio-skill-2ea44f" alt="ClawBio Skill"></a></li>
 </ul>
 </div>
 

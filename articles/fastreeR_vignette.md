@@ -331,7 +331,7 @@ node_support <- if (!is.null(raw_lbls)) {
   numeric(0)
 }
 print(head(tr$node.label))
-#> [1] ""    ""    "10"  "100" ""    ""
+#> [1] ""    "10"  "10"  "100" "10"  ""
 plot(tr, direction = "down", cex = 0.3)
 if (length(node_support) > 0) {
   # round and show as integers, place without frames
@@ -664,7 +664,7 @@ utils::sessionInfo()
 #> 
 #> other attached packages:
 #> [1] ggtree_4.2.1        BiocFileCache_3.2.0 dbplyr_2.6.0       
-#> [4] ape_5.8-1           fastreeR_2.4.0      BiocStyle_2.40.0   
+#> [4] ape_5.8-1           fastreeR_2.5.0      BiocStyle_2.40.0   
 #> 
 #> loaded via a namespace (and not attached):
 #>  [1] gtable_0.3.6            xfun_0.62               bslib_0.12.0           
