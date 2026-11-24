@@ -33,7 +33,7 @@ import shutil
 import tempfile
 from contextlib import contextmanager
 
-FASTREER_VERSION = "2.1.4"
+FASTREER_VERSION = "2.5.0"
 
 # Default paths for BioFM resources (can be overridden via environment variables or CLI args)
 DEFAULT_BIOFM_MODEL = os.environ.get("BIOFM_MODEL", "m42-health/BioFM-265M")

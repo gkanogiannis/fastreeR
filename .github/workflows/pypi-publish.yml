@@ -99,6 +99,25 @@ jobs:
           test -f fastreeR.py || { echo "ERROR: missing fastreeR.py in this tag"; exit 1; }
           echo "Layout looks good."
 
+      - name: Check tag matches DESCRIPTION version
+        run: |
+          set -euo pipefail
+          TARGET_VERSION='${{ steps.resolve.outputs.version_clean }}'
+          DESC_VERSION=$(sed -n 's/^Version:[[:space:]]*//p' DESCRIPTION)
+
+          echo "Tag version:         $TARGET_VERSION"
+          echo "DESCRIPTION version: $DESC_VERSION"
+
+          if [ -z "$DESC_VERSION" ]; then
+            echo "ERROR: could not read Version from DESCRIPTION in this tag"
+            exit 1
+          fi
+          if [ "$TARGET_VERSION" != "$DESC_VERSION" ]; then
+            echo "ERROR: tag version ($TARGET_VERSION) does not match DESCRIPTION version ($DESC_VERSION)"
+            exit 1
+          fi
+          echo "Tag and DESCRIPTION versions match."
+
       ##################################################################
       # 3. Set up Python build environment
       ##################################################################

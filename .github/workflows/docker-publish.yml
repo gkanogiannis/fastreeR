@@ -124,7 +124,36 @@ jobs:
           head -n 20 fastreeR.py || true
 
       ##################################################################
-      # 4. Set up Docker Buildx
+      # 4. Check tag, DESCRIPTION and fastreeR.py versions all match
+      #
+      # The image is built directly with build-push-action (not via
+      # `make docker-build`), so the Makefile's check-version does not run.
+      ##################################################################
+      - name: Check versions match (tag, DESCRIPTION, fastreeR.py)
+        run: |
+          set -euo pipefail
+          TARGET_VERSION='${{ steps.resolve.outputs.version_clean }}'
+          DESC_VERSION=$(sed -n 's/^Version:[[:space:]]*//p' DESCRIPTION)
+          PY_VERSION=$(sed -n 's/^FASTREER_VERSION[[:space:]]*=[[:space:]]*"\(.*\)".*/\1/p' fastreeR.py)
+
+          echo "Tag version:                     $TARGET_VERSION"
+          echo "DESCRIPTION version:             $DESC_VERSION"
+          echo "fastreeR.py FASTREER_VERSION:    $PY_VERSION"
+
+          STATUS=0
+          if [ "$TARGET_VERSION" != "$DESC_VERSION" ]; then
+            echo "ERROR: tag version ($TARGET_VERSION) does not match DESCRIPTION version ($DESC_VERSION)"
+            STATUS=1
+          fi
+          if [ "$TARGET_VERSION" != "$PY_VERSION" ]; then
+            echo "ERROR: tag version ($TARGET_VERSION) does not match fastreeR.py FASTREER_VERSION ($PY_VERSION)"
+            STATUS=1
+          fi
+          [ "$STATUS" -eq 0 ] || exit 1
+          echo "All versions match."
+
+      ##################################################################
+      # 5. Set up Docker Buildx
       ##################################################################
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -146,7 +175,36 @@ jobs:
           fi
 
       ##################################################################
-      # 5. Login to registries (but only if NOT dry-run)
+      # 6. Build a local test image (amd64 only) and test it BEFORE pushing
+      #
+      # Runs even in dry-run. If the image does not start or reports the
+      # wrong version, the job fails before anything is published.
+      ##################################################################
+      - name: Build test image (local amd64 only)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ${{ steps.dockerfile.outputs.path }}
+          pull: true
+          platforms: linux/amd64
+          push: false
+          load: true
+          tags: |
+            test-fastreer:${{ steps.resolve.outputs.version_clean }}
+
+      - name: Test Docker image with --version
+        run: |
+          set -euo pipefail
+          TARGET_VERSION='${{ steps.resolve.outputs.version_clean }}'
+          OUTPUT=$(docker run --rm "test-fastreer:${TARGET_VERSION}" --version)
+          echo "$OUTPUT"
+          if ! echo "$OUTPUT" | grep -qF "fastreeR version: ${TARGET_VERSION} "; then
+            echo "ERROR: image does not report fastreeR version ${TARGET_VERSION}"
+            exit 1
+          fi
+
+      ##################################################################
+      # 7. Login to registries (but only if NOT dry-run)
       ##################################################################
       - name: Log in to DockerHub
         if: steps.resolve.outputs.dry_run != 'yes'
@@ -164,7 +222,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       ##################################################################
-      # 6. Build (and maybe push) the image
+      # 8. Build (and maybe push) the multi-arch image
       #
       # We always build, even in dry run, to make sure it works.
       # We only push if NOT dry-run.
@@ -182,29 +240,9 @@ jobs:
             ${{ env.IMAGE_NAME }}:${{ steps.resolve.outputs.version_clean }}
             ghcr.io/${{ env.IMAGE_NAME }}:latest
             ghcr.io/${{ env.IMAGE_NAME }}:${{ steps.resolve.outputs.version_clean }}
-      
-      - name: Build test image (local amd64 only)
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: ${{ steps.dockerfile.outputs.path }}
-          pull: true
-          platforms: linux/amd64
-          push: false
-          load: true
-          tags: |
-            test-fastreer:${{ steps.resolve.outputs.version_clean }}
 
       ##################################################################
-      # 7. Test image locally (works even in dry-run because image is locally built)
-      ##################################################################
-      - name: Test Docker image with --version
-        run: |
-          set -euo pipefail
-          docker run --rm test-fastreer:${{ steps.resolve.outputs.version_clean }} --version
-
-      ##################################################################
-      # 8. Update DockerHub README (only if not dry-run)
+      # 9. Update DockerHub README (only if not dry-run)
       ##################################################################
       - name: Update DockerHub README
         if: steps.resolve.outputs.dry_run != 'yes'
