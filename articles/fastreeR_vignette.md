@@ -331,7 +331,7 @@ node_support <- if (!is.null(raw_lbls)) {
   numeric(0)
 }
 print(head(tr$node.label))
-#> [1] ""    ""    ""    "100" "10"  ""
+#> [1] ""    ""    ""    "100" ""    ""
 plot(tr, direction = "down", cex = 0.3)
 if (length(node_support) > 0) {
   # round and show as integers, place without frames
@@ -639,13 +639,13 @@ Tree from fasta with stats::hclust
 ``` r
 
 utils::sessionInfo()
-#> R version 4.6.0 (2026-04-24)
+#> R version 4.6.2 (2026-10-29)
 #> Platform: x86_64-pc-linux-gnu
-#> Running under: Ubuntu 24.04.4 LTS
+#> Running under: Ubuntu 26.04.1 LTS
 #> 
 #> Matrix products: default
 #> BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 
-#> LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.26.so;  LAPACK version 3.12.0
+#> LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.32.so;  LAPACK version 3.12.0
 #> 
 #> locale:
 #>  [1] LC_CTYPE=C.UTF-8          LC_NUMERIC=C             
@@ -663,36 +663,36 @@ utils::sessionInfo()
 #> [8] base     
 #> 
 #> other attached packages:
-#> [1] ggtree_4.2.0        BiocFileCache_3.2.0 dbplyr_2.5.2       
-#> [4] ape_5.8-1           fastreeR_2.3.0      BiocStyle_2.40.0   
+#> [1] ggtree_4.2.1        BiocFileCache_3.2.0 dbplyr_2.6.0       
+#> [4] ape_5.8-1           fastreeR_2.4.0      BiocStyle_2.40.0   
 #> 
 #> loaded via a namespace (and not attached):
-#>  [1] gtable_0.3.6            xfun_0.57               bslib_0.10.0           
-#>  [4] ggplot2_4.0.3           httr2_1.2.2             htmlwidgets_1.6.4      
-#>  [7] rJava_1.0-18            lattice_0.22-9          vctrs_0.7.3            
-#> [10] tools_4.6.0             generics_0.1.4          yulab.utils_0.2.4      
-#> [13] curl_7.1.0              parallel_4.6.0          tibble_3.3.1           
-#> [16] RSQLite_2.4.6           blob_1.3.0              R.oo_1.27.1            
-#> [19] pkgconfig_2.0.3         ggplotify_0.1.3         RColorBrewer_1.1-3     
-#> [22] S7_0.2.2                desc_1.4.3              lifecycle_1.0.5        
-#> [25] stringr_1.6.0           compiler_4.6.0          farver_2.1.2           
-#> [28] treeio_1.36.0           textshaping_1.0.5       fontLiberation_0.1.0   
-#> [31] fontquiver_0.2.1        ggfun_0.2.0             htmltools_0.5.9        
-#> [34] sass_0.4.10             yaml_2.3.12             lazyeval_0.2.3         
-#> [37] pillar_1.11.1           pkgdown_2.2.0           jquerylib_0.1.4        
-#> [40] tidyr_1.3.2             R.utils_2.13.0          MASS_7.3-65            
-#> [43] cachem_1.1.0            fontBitstreamVera_0.1.1 nlme_3.1-169           
-#> [46] tidyselect_1.2.1        aplot_0.2.9             digest_0.6.39          
-#> [49] stringi_1.8.7           dplyr_1.2.1             purrr_1.2.2            
-#> [52] bookdown_0.46           labeling_0.4.3          fastmap_1.2.0          
+#>  [1] gtable_0.3.6            xfun_0.62               bslib_0.12.0           
+#>  [4] ggplot2_4.0.4           httr2_1.3.0             htmlwidgets_1.6.4      
+#>  [7] rJava_1.0-18            lattice_0.23-1          vctrs_0.7.3            
+#> [10] tools_4.6.2             generics_0.1.4          yulab.utils_0.2.6      
+#> [13] curl_8.1.0              parallel_4.6.2          tibble_3.3.1           
+#> [16] RSQLite_3.53.3          blob_1.3.0              R.oo_1.27.1            
+#> [19] pkgconfig_2.0.3         ggplotify_0.1.4         RColorBrewer_1.1-3     
+#> [22] S7_1.0.0                desc_1.4.3              lifecycle_1.0.5        
+#> [25] stringr_1.6.0           compiler_4.6.2          farver_2.1.2           
+#> [28] treeio_1.36.1           textshaping_1.1.0       fontLiberation_0.1.0   
+#> [31] fontquiver_0.2.1        ggfun_0.2.2             htmltools_0.5.9        
+#> [34] sass_0.5.0              yaml_2.3.12             lazyeval_0.2.3         
+#> [37] pillar_1.11.1           pkgdown_2.2.1           jquerylib_0.1.4        
+#> [40] tidyr_1.3.2             R.utils_2.13.0          MASS_7.3-66            
+#> [43] cachem_1.1.0            fontBitstreamVera_0.1.1 nlme_3.1-171           
+#> [46] tidyselect_1.2.1        aplot_0.3.2             digest_0.6.39          
+#> [49] stringi_1.8.9           dplyr_1.2.1             purrr_1.2.2            
+#> [52] bookdown_0.48           labeling_0.4.3          fastmap_1.2.0          
 #> [55] cli_3.6.6               magrittr_2.0.5          patchwork_1.3.2        
-#> [58] dynamicTreeCut_1.63-1   withr_3.0.2             gdtools_0.5.0          
+#> [58] dynamicTreeCut_1.63-1   withr_3.0.3             gdtools_0.6.0          
 #> [61] filelock_1.0.3          scales_1.4.0            rappdirs_0.3.4         
-#> [64] bit64_4.8.0             rmarkdown_2.31          bit_4.6.0              
-#> [67] R.methodsS3_1.8.2       ragg_1.5.2              memoise_2.0.1          
-#> [70] evaluate_1.0.5          knitr_1.51              gridGraphics_0.5-1     
-#> [73] rlang_1.2.0             ggiraph_0.9.6           Rcpp_1.1.1-1.1         
-#> [76] glue_1.8.1              tidytree_0.4.7          DBI_1.3.0              
-#> [79] BiocManager_1.30.27     jsonlite_2.0.0          R6_2.6.1               
-#> [82] systemfonts_1.3.2       fs_2.1.0
+#> [64] bit64_4.8.6             rmarkdown_2.32          bit_4.6.0              
+#> [67] otel_0.3.0              R.methodsS3_1.8.2       ragg_1.5.2             
+#> [70] memoise_2.0.1           evaluate_1.0.5          knitr_1.52             
+#> [73] gridGraphics_0.5-1      rlang_1.3.0             ggiraph_0.9.7          
+#> [76] Rcpp_1.1.2              glue_1.8.1              tidytree_0.4.9         
+#> [79] DBI_1.3.0               BiocManager_1.30.27     jsonlite_2.0.0         
+#> [82] R6_2.6.1                systemfonts_1.3.4       fs_2.1.0
 ```
