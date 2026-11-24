@@ -1,6 +1,6 @@
 {% set name = "fastreeR" %}
-{% set version = "2.1.0" %}
-{% set sha256 = "21c5f1676f1466c4b285cee0c7a15c895f535e48b2962fb10a8460052402e505" %}
+{% set version = "2.4.0" %}
+{% set sha256 = "99a850be6abf58814d0d59d2988b18804de6135458506573212458d882a3e75c" %}
 
 package:
   name: {{ name|lower }}
@@ -12,7 +12,7 @@ source:
 
 build:
   noarch: python
-  number: 1
+  number: 0
   run_exports:
     - {{ pin_subpackage("fastreer", max_pin="x") }}
 
